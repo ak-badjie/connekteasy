@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import SearchBar from "./components/SearchBar";
 import CategoryIcon from "./components/CategoryIcon";
@@ -9,6 +11,17 @@ import { FileEdit, Handshake, Rocket, ArrowRight } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "./lib/animations";
 
 export default function Home() {
+  const router = useRouter();
+  const [searchMode, setSearchMode] = useState<"talent" | "projects">("talent");
+
+  const handleSearch = (q: string) => {
+    if (q.trim()) {
+      router.push(`/explore?mode=${searchMode}&q=${encodeURIComponent(q.trim())}`);
+    } else {
+      router.push(`/explore?mode=${searchMode}`);
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -39,9 +52,19 @@ export default function Home() {
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-4 sm:mb-5 px-2 sm:px-0"
               variants={fadeInUp}
             >
-              Find the right project
-              <br />
-              <span className="gradient-text">— or the right talent</span>
+              {searchMode === "talent" ? (
+                <>
+                  Find the perfect
+                  <br />
+                  <span className="gradient-text">virtual assistant</span>
+                </>
+              ) : (
+                <>
+                  Find your next
+                  <br />
+                  <span className="gradient-text">project or gig</span>
+                </>
+              )}
             </motion.h1>
 
             {/* Subtitle */}
@@ -49,13 +72,48 @@ export default function Home() {
               className="text-base sm:text-lg md:text-xl text-gray-500 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 sm:px-0"
               variants={fadeInUp}
             >
-              Connekt makes it simple. Business owners post projects, virtual assistants find work. No complexity, just
-              connection.
+              {searchMode === "talent"
+                ? "Browse skilled virtual assistants ready to help with your projects. Search by skills, expertise, or availability."
+                : "Discover open projects from businesses worldwide. Apply with a proposal and start earning today."}
             </motion.p>
+
+            {/* Toggle Pill */}
+            <motion.div className="flex justify-center mb-5 sm:mb-6" variants={fadeInUp}>
+              <div className="inline-flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
+                <button
+                  onClick={() => setSearchMode("talent")}
+                  className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
+                    searchMode === "talent"
+                      ? "bg-white text-teal-700 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Find Talent
+                </button>
+                <button
+                  onClick={() => setSearchMode("projects")}
+                  className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
+                    searchMode === "projects"
+                      ? "bg-white text-teal-700 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  Find Work
+                </button>
+              </div>
+            </motion.div>
 
             {/* Search Bar */}
             <motion.div className="max-w-2xl mx-auto mb-5 sm:mb-6 px-2 sm:px-0" variants={scaleIn}>
-              <SearchBar size="large" placeholder="Try &quot;social media management&quot; or &quot;data entry&quot;..." />
+              <SearchBar
+                size="large"
+                placeholder={
+                  searchMode === "talent"
+                    ? 'Try "data analyst" or "social media manager"...'
+                    : 'Try "web development" or "content writing"...'
+                }
+                onSearch={handleSearch}
+              />
             </motion.div>
 
             {/* Popular searches */}
@@ -64,14 +122,17 @@ export default function Home() {
               variants={fadeInUp}
             >
               <span className="text-gray-400">Popular:</span>
-              {["Admin Support", "Social Media", "Data Entry", "Bookkeeping", "Content Writing"].map((term) => (
-                <Link
+              {(searchMode === "talent"
+                ? ["Admin Support", "Social Media", "Data Entry", "Bookkeeping", "Content Writing"]
+                : ["Web Development", "Logo Design", "SEO", "Virtual Assistance", "Copywriting"]
+              ).map((term) => (
+                <button
                   key={term}
-                  href="/explore"
-                  className="px-2.5 sm:px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-600 hover:border-teal-300 hover:text-teal-600 transition-colors"
+                  onClick={() => handleSearch(term)}
+                  className="px-2.5 sm:px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-600 hover:border-teal-300 hover:text-teal-600 transition-colors cursor-pointer"
                 >
                   {term}
-                </Link>
+                </button>
               ))}
             </motion.div>
           </motion.div>
