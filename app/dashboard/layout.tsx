@@ -109,7 +109,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="bg-gray-50 flex-1 flex flex-col min-h-0 overflow-hidden relative">
+    <div className="bg-gray-50 flex-1 flex flex-col min-h-0 overflow-hidden relative h-[calc(100vh-theme(spacing.14))] sm:h-[calc(100vh-theme(spacing.16))]">
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 flex gap-4 sm:gap-6 h-full overflow-hidden">
         {/* Sidebar */}
         <aside className="hidden lg:block w-56 shrink-0 h-full">
@@ -150,7 +150,7 @@ export default function DashboardLayout({
         {/* Main Content */}
         <main className="flex-1 min-w-0 h-full flex flex-col overflow-hidden pb-16 lg:pb-0">
           <motion.div
-            className="h-full flex flex-col"
+            className="flex-1 flex flex-col min-h-0"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}

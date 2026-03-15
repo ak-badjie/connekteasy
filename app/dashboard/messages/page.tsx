@@ -91,36 +91,71 @@ export default function MessagesPage() {
     return otherId ? convo.participantNames[otherId] || "User" : "User";
   };
 
+  const getDisplayName = (convo: Conversation) => {
+    const name = getOtherName(convo);
+    if (typeof name === "string" && (name.startsWith("http") || name.includes("googleusercontent.com") || name.length > 60)) {
+      return "User";
+    }
+    return name || "User";
+  };
+
   const getOtherAvatar = (convo: Conversation) => {
     if (!user) return "";
     const otherId = convo.participants.find((p) => p !== user.uid);
-    return otherId ? convo.participantAvatars?.[otherId] || getOtherName(convo)[0] : "U";
+    return otherId ? convo.participantAvatars?.[otherId] : undefined;
+  };
+
+  const renderAvatar = (convo: Conversation, className: string = "w-9 h-9") => {
+    const avatar = getOtherAvatar(convo);
+    const displayName = getDisplayName(convo);
+    
+    const isUrl = (str: any) => typeof str === "string" && (str.startsWith("http://") || str.startsWith("https://"));
+    
+    const avatarUrl = isUrl(avatar) ? (avatar as string) : null;
+    const fallbackChar = displayName.charAt(0).toUpperCase() || "U";
+
+    return (
+      <div className={`${className} relative rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden border border-gray-100`}>
+        {avatarUrl && (
+          <img
+            src={avatarUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover z-10"
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        )}
+        <span className="relative z-0">{fallbackChar}</span>
+      </div>
+    );
   };
 
   if (loading) {
     return (
-      <div className="text-center py-20">
-        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+      <div className="flex-1 flex flex-col items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mb-3" />
         <p className="text-sm text-gray-500">Loading messages...</p>
       </div>
     );
   }
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="h-full flex flex-col min-h-0 pb-6">
+    <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex-1 flex flex-col min-h-0 h-full overflow-hidden">
       <motion.div className="mb-4 sm:mb-6 shrink-0" variants={fadeInUp}>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Messages</h1>
         <p className="text-sm sm:text-base text-gray-500">Your conversations with clients and freelancers.</p>
       </motion.div>
 
       <motion.div
-        className="bg-white rounded-xl border border-gray-200 overflow-hidden flex-1 flex flex-col min-h-0 shadow-sm"
+        className="bg-white rounded-xl border border-gray-200 overflow-hidden flex-1 flex flex-col min-h-0 shadow-sm mb-4"
         variants={staggerItem}
       >
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
           {/* Conversation List */}
-          <div className={`${selectedConvo ? "hidden sm:flex" : "flex"} flex-col w-full sm:w-72 md:w-80 border-r border-gray-100 shrink-0 h-full min-h-0`}>
-            <div className="px-4 py-3 border-b border-gray-100">
+          <div className={`${selectedConvo ? "hidden sm:flex" : "flex"} flex-col w-full sm:w-72 md:w-80 border-r border-gray-100 shrink-0 h-full min-h-0 overflow-hidden`}>
+            <div className="px-4 py-3 border-b border-gray-100 shrink-0">
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Conversations</h2>
             </div>
             {conversations.length === 0 ? (
@@ -129,26 +164,24 @@ export default function MessagesPage() {
                 <p className="text-xs text-center">No conversations yet.<br />Start one from a project or profile.</p>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {conversations.map((convo) => (
                   <button
                     key={convo.id}
                     onClick={() => setSelectedConvo(convo)}
-                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors border-b border-gray-50 ${
+                    className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition-colors border-b border-gray-50 min-w-0 ${
                       selectedConvo?.id === convo.id ? "bg-teal-50" : ""
                     }`}
                   >
-                    <div className="w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold shrink-0">
-                      {getOtherAvatar(convo)}
-                    </div>
+                    {renderAvatar(convo, "w-9 h-9")}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{getOtherName(convo)}</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate whitespace-nowrap overflow-hidden text-ellipsis">{getDisplayName(convo)}</p>
                         <span className="text-[10px] text-gray-400 shrink-0">
                           {convo.lastMessageAt?.toDate ? timeAgo(convo.lastMessageAt.toDate()) : ""}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 truncate mt-0.5">{convo.lastMessage || "No messages yet"}</p>
+                      <p className="text-xs text-gray-500 truncate mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{convo.lastMessage || "No messages yet"}</p>
                     </div>
                   </button>
                 ))}
@@ -157,25 +190,23 @@ export default function MessagesPage() {
           </div>
 
           {/* Chat Area */}
-          <div className={`${selectedConvo ? "flex" : "hidden sm:flex"} flex-col flex-1`}>
+          <div className={`${selectedConvo ? "flex" : "hidden sm:flex"} flex-col flex-1 min-w-0 h-full overflow-hidden`}>
             {selectedConvo ? (
               <>
                 {/* Chat Header */}
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 shrink-0">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3 shrink-0 min-w-0">
                   <button
                     onClick={() => setSelectedConvo(null)}
                     className="sm:hidden p-1 text-gray-400 hover:text-gray-600"
                   >
                     <ArrowLeft size={18} />
                   </button>
-                  <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">
-                    {getOtherAvatar(selectedConvo)}
-                  </div>
-                  <p className="text-sm font-semibold text-gray-900">{getOtherName(selectedConvo)}</p>
+                  {renderAvatar(selectedConvo, "w-8 h-8")}
+                  <p className="text-sm font-semibold text-gray-900 truncate whitespace-nowrap overflow-hidden text-ellipsis">{getDisplayName(selectedConvo)}</p>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
                   {messages.length === 0 ? (
                     <div className="text-center text-gray-400 py-12">
                       <p className="text-xs">No messages yet. Say hello!</p>

@@ -65,7 +65,7 @@ export default function PublicProfilePage() {
                   <img src={profile.coverPhotoUrl} alt="Cover" className="w-full h-full object-cover" />
                 )}
               </div>
-              <div className="px-5 sm:px-8 pb-5 sm:pb-8 -mt-12 sm:-mt-16 flex-1 flex flex-col">
+              <div className="px-5 sm:px-8 pb-5 sm:pb-8 -mt-12 sm:-mt-16 flex-1 flex flex-col relative z-10">
                 <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 mb-4">
                   {profile.profilePhotoUrl ? (
                     <img src={profile.profilePhotoUrl} alt="" className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg bg-white" />
