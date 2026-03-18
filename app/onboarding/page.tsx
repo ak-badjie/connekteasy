@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
@@ -13,7 +13,7 @@ import type { UserRole } from "@/app/lib/types";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, refreshProfile } = useAuth();
+  const { user, refreshProfile, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<UserRole | "">("");
   const [title, setTitle] = useState("");
@@ -21,6 +21,16 @@ export default function OnboardingPage() {
   const [skills, setSkills] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push("/auth/signin");
+      } else if (!user.emailVerified) {
+        router.push("/auth/verify-email");
+      }
+    }
+  }, [user, authLoading, router]);
 
   const handleFinish = async () => {
     if (!user) return;

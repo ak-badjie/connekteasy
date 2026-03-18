@@ -23,8 +23,20 @@ export default function SignUpPage() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter.");
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number.");
+      return;
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      setError("Password must contain at least one special character.");
       return;
     }
 
@@ -54,13 +66,13 @@ export default function SignUpPage() {
         linkedin: "",
         location: "",
       });
-      router.push("/onboarding");
+      router.push("/auth/verify-email");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Sign up failed";
       if (msg.includes("email-already-in-use")) {
         setError("An account with this email already exists.");
       } else if (msg.includes("weak-password")) {
-        setError("Password is too weak. Use at least 6 characters.");
+        setError(msg.replace("Firebase: ", ""));
       } else {
         setError(msg);
       }

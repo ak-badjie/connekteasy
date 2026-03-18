@@ -28,6 +28,10 @@ export default function SignInPage() {
       const { auth } = await import("@/app/lib/firebase");
       const currentUser = auth.currentUser;
       if (currentUser) {
+        if (!currentUser.emailVerified) {
+          router.push("/auth/verify-email");
+          return;
+        }
         const { getUserProfile } = await import("@/app/lib/firestore");
         const profile = await getUserProfile(currentUser.uid);
         if (profile && !profile.onboardingComplete) {
@@ -35,8 +39,7 @@ export default function SignInPage() {
           return;
         }
       }
-      router.push("/dashboard");
-    } catch (err: unknown) {
+      router.push("/dashboard");    } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Sign in failed";
       if (msg.includes("user-not-found") || msg.includes("wrong-password") || msg.includes("invalid-credential")) {
         setError("Invalid email or password. Please try again.");
@@ -153,7 +156,12 @@ export default function SignInPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1.5">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-gray-700">Password</label>
+                <Link href="/auth/forgot-password" className="text-[11px] font-medium text-teal-600 hover:text-teal-700">
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input

@@ -94,8 +94,12 @@ export default function DashboardLayout({
 
   // Route protection — redirect to sign in if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/signin");
+    if (!loading) {
+      if (!user) {
+        router.push("/auth/signin");
+      } else if (!user.emailVerified) {
+        router.push("/auth/verify-email");
+      }
     }
   }, [user, loading, router]);
 

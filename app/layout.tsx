@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   title: "Connekt — Connect with Virtual Assistants & Business Owners",
   description:
     "Connekt is the simplest way to connect virtual assistants with business owners who need projects done. Post projects, find talent, and get work done.",
+  icons: {
+    icon: "/connekt-logo.svg",
+  },
 };
 
 export default function RootLayout({
