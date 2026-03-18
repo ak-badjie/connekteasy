@@ -102,7 +102,7 @@ function ActionContent() {
           <Link href="/" className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
             <span className="text-2xl font-bold tracking-tight text-gray-900">
-              Connekt
+              CONNEKT
             </span>
           </Link>
           <p className="text-sm text-gray-500 mt-2">

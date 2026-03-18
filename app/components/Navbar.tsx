@@ -83,7 +83,7 @@ export default function Navbar() {
               <ConnektIcon className="w-5 h-5 sm:w-[26px] sm:h-[26px]" />
             </motion.div>
             <span className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 group-hover:text-teal-600 transition-colors">
-              Connekt
+              CONNEKT
             </span>
           </Link>
 

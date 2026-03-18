@@ -12,9 +12,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Connekt — Connect with Virtual Assistants & Business Owners",
+  title: "CONNEKT — Connect with Virtual Assistants & Business Owners",
   description:
-    "Connekt is the simplest way to connect virtual assistants with business owners who need projects done. Post projects, find talent, and get work done.",
+    "CONNEKT is the simplest way to connect virtual assistants with business owners who need projects done. Post projects, find talent, and get work done.",
   icons: {
     icon: "/connekt-logo.svg",
   },

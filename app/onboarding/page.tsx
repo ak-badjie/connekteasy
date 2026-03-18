@@ -67,7 +67,7 @@ export default function OnboardingPage() {
         {/* Logo */}
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <ConnektIcon className="w-10 h-10 mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-gray-900">Welcome to Connekt!</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome to CONNEKT!</h1>
           <p className="text-sm text-gray-500 mt-1">Let&apos;s set up your account in just a few steps.</p>
         </motion.div>
 
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="text-lg font-bold text-gray-900 mb-1">How will you use Connekt?</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-1">How will you use CONNEKT?</h2>
               <p className="text-sm text-gray-500 mb-6">Choose the option that best describes you.</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

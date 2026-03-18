@@ -126,7 +126,7 @@ function ReceiptModal({ tx, onClose }: { tx: Transaction; onClose: () => void })
 
           <div className="hidden print:flex items-center justify-center gap-2 mb-8">
             <ConnektWalletIcon />
-            <h1 className="text-2xl font-bold text-gray-900">Connekt Wallet</h1>
+            <h1 className="text-2xl font-bold text-gray-900">CONNEKT Wallet</h1>
           </div>
 
           {/* Receipt Content */}
@@ -178,7 +178,7 @@ function ReceiptModal({ tx, onClose }: { tx: Transaction; onClose: () => void })
           </div>
           
           <div className="mt-8 pt-6 border-t border-dashed border-gray-200 text-center">
-            <p className="text-xs text-gray-400">Powered by Connekt & Modem Pay</p>
+            <p className="text-xs text-gray-400">Powered by CONNEKT & Modem Pay</p>
           </div>
         </div>
       </motion.div>
@@ -409,7 +409,7 @@ function WalletContent() {
           <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
             <ConnektWalletIcon />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Connekt Wallet</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CONNEKT Wallet</h1>
         </motion.div>
 
         {/* Dashboard Grid */}

@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         network: network as "afrimoney" | "wave",
         account_number: accountNumber,
         beneficiary_name: beneficiaryName,
-        narration: "Connekt Wallet Withdrawal",
+        narration: "CONNEKT Wallet Withdrawal",
         metadata: { uid }
       }, idempotencyKey);
 

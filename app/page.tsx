@@ -25,117 +25,130 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden h-[calc(100dvh-80px)] lg:h-[calc(100vh-80px)] flex items-center">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-teal-50/30" />
         <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-teal-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-teal-200/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 md:pt-24 pb-16 sm:pb-20 md:pb-28">
-          <motion.div
-            className="max-w-3xl mx-auto text-center"
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-          >
-            {/* Badge */}
+        <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center h-full">
+            {/* Left Content */}
             <motion.div
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-teal-50 border border-teal-200 rounded-full text-xs sm:text-sm font-medium text-teal-700 mb-5 sm:mb-6"
-              variants={fadeInUp}
+              className="max-w-2xl text-center lg:text-left mx-auto lg:mx-0 lg:pl-8 xl:pl-16 flex flex-col justify-center"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
             >
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-teal-500 animate-pulse" />
-              Over 1,000+ projects posted this month
-            </motion.div>
+              {/* Badge */}
+              <motion.div
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 bg-teal-50 border border-teal-200 rounded-full text-xs sm:text-sm font-medium text-teal-700 mb-5 sm:mb-6"
+                variants={fadeInUp}
+              >
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-teal-500 animate-pulse" />
+                Over 1,000+ projects posted this month
+              </motion.div>
 
-            {/* Headline */}
-            <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-4 sm:mb-5 px-2 sm:px-0"
-              variants={fadeInUp}
-            >
-              {searchMode === "talent" ? (
-                <>
-                  Find the perfect
-                  <br />
-                  <span className="gradient-text">virtual assistant</span>
-                </>
-              ) : (
-                <>
-                  Find your next
-                  <br />
-                  <span className="gradient-text">project or gig</span>
-                </>
-              )}
-            </motion.h1>
+              {/* Headline */}
+              <motion.h1
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 tracking-tight leading-[1.1] mb-4 sm:mb-5 lg:pr-4"
+                variants={fadeInUp}
+              >
+                {searchMode === "talent" ? (
+                  <>
+                    Find the perfect
+                    <br />
+                    <span className="gradient-text">virtual assistant</span>
+                  </>
+                ) : (
+                  <>
+                    Find your next
+                    <br />
+                    <span className="gradient-text">project or gig</span>
+                  </>
+                )}
+              </motion.h1>
 
-            {/* Subtitle */}
-            <motion.p
-              className="text-base sm:text-lg md:text-xl text-gray-500 max-w-xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 sm:px-0"
-              variants={fadeInUp}
-            >
-              {searchMode === "talent"
-                ? "Browse skilled virtual assistants ready to help with your projects. Search by skills, expertise, or availability."
-                : "Discover open projects from businesses worldwide. Apply with a proposal and start earning today."}
-            </motion.p>
+              {/* Subtitle */}
+              <motion.p
+                className="text-base sm:text-lg md:text-xl text-gray-500 max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8 leading-relaxed"
+                variants={fadeInUp}
+              >
+                {searchMode === "talent"
+                  ? "Browse skilled virtual assistants ready to help with your projects. Search by skills, expertise, or availability."
+                  : "Discover open projects from businesses worldwide. Apply with a proposal and start earning today."}
+              </motion.p>
 
-            {/* Toggle Pill */}
-            <motion.div className="flex justify-center mb-5 sm:mb-6" variants={fadeInUp}>
-              <div className="inline-flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
-                <button
-                  onClick={() => setSearchMode("talent")}
-                  className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
+              {/* Toggle Pill */}
+              <motion.div className="flex justify-center lg:justify-start mb-5 sm:mb-6" variants={fadeInUp}>
+                <div className="inline-flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
+                  <button
+                    onClick={() => setSearchMode("talent")}
+                    className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
+                      searchMode === "talent"
+                        ? "bg-white text-teal-700 shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Find Talent
+                  </button>
+                  <button
+                    onClick={() => setSearchMode("projects")}
+                    className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
+                      searchMode === "projects"
+                        ? "bg-white text-teal-700 shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Find Work
+                  </button>
+                </div>
+              </motion.div>
+
+              {/* Search Bar */}
+              <motion.div className="max-w-xl mx-auto lg:mx-0 mb-5 sm:mb-6" variants={scaleIn}>
+                <SearchBar
+                  size="large"
+                  placeholder={
                     searchMode === "talent"
-                      ? "bg-white text-teal-700 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Find Talent
-                </button>
-                <button
-                  onClick={() => setSearchMode("projects")}
-                  className={`relative px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
-                    searchMode === "projects"
-                      ? "bg-white text-teal-700 shadow-sm"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
-                >
-                  Find Work
-                </button>
-              </div>
+                      ? 'Try "data analyst" or "social media manager"...'
+                      : 'Try "web development" or "content writing"...'
+                  }
+                  onSearch={handleSearch}
+                />
+              </motion.div>
+
+              {/* Popular searches */}
+              <motion.div
+                className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-xs sm:text-sm"
+                variants={fadeInUp}
+              >
+                <span className="text-gray-400">Popular:</span>
+                {(searchMode === "talent"
+                  ? ["Admin Support", "Social Media", "Data Entry", "Bookkeeping"]
+                  : ["Web Development", "Logo Design", "SEO", "Copywriting"]
+                ).map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => handleSearch(term)}
+                    className="px-2.5 sm:px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-600 hover:border-teal-300 hover:text-teal-600 transition-colors cursor-pointer"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </motion.div>
             </motion.div>
 
-            {/* Search Bar */}
-            <motion.div className="max-w-2xl mx-auto mb-5 sm:mb-6 px-2 sm:px-0" variants={scaleIn}>
-              <SearchBar
-                size="large"
-                placeholder={
-                  searchMode === "talent"
-                    ? 'Try "data analyst" or "social media manager"...'
-                    : 'Try "web development" or "content writing"...'
-                }
-                onSearch={handleSearch}
-              />
-            </motion.div>
-
-            {/* Popular searches */}
+            {/* Right Content: Rotating Globe */}
             <motion.div
-              className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm px-2 sm:px-0"
-              variants={fadeInUp}
+              className="flex justify-center lg:justify-end items-center mt-2 lg:mt-0 relative h-[35vh] lg:h-auto w-full"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
             >
-              <span className="text-gray-400">Popular:</span>
-              {(searchMode === "talent"
-                ? ["Admin Support", "Social Media", "Data Entry", "Bookkeeping", "Content Writing"]
-                : ["Web Development", "Logo Design", "SEO", "Virtual Assistance", "Copywriting"]
-              ).map((term) => (
-                <button
-                  key={term}
-                  onClick={() => handleSearch(term)}
-                  className="px-2.5 sm:px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-600 hover:border-teal-300 hover:text-teal-600 transition-colors cursor-pointer"
-                >
-                  {term}
-                </button>
-              ))}
+               <img src="/rotating_globe.svg" alt="Global connections" className="absolute lg:relative max-h-full lg:max-h-none w-auto max-w-[280px] sm:max-w-[400px] lg:max-w-[800px] xl:max-w-[950px] object-contain drop-shadow-2xl scale-100 lg:scale-125 lg:translate-x-8" />
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -171,7 +184,7 @@ export default function Home() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">How Connekt works</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">How CONNEKT works</h2>
             <p className="text-base sm:text-lg text-gray-500 max-w-lg mx-auto px-4 sm:px-0">
               Three simple steps to find your next project or the perfect assistant.
             </p>
@@ -195,7 +208,7 @@ export default function Home() {
                 step: "02",
                 icon: <Handshake size={24} className="text-teal-600 sm:w-7 sm:h-7" />,
                 title: "Connect",
-                desc: "Found the right match? Apply to a project or review applicants. Connekt brings both sides together.",
+                desc: "Found the right match? Apply to a project or review applicants. CONNEKT brings both sides together.",
               },
               {
                 step: "03",
@@ -294,7 +307,7 @@ export default function Home() {
             <div className="relative z-10">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Ready to get started?</h2>
               <p className="text-teal-100 text-sm sm:text-base md:text-lg max-w-md mx-auto mb-6 sm:mb-8 px-4 sm:px-0">
-                Whether you&apos;re hiring or looking for work, Connekt has you covered. Join thousands of professionals
+                Whether you&apos;re hiring or looking for work, CONNEKT has you covered. Join thousands of professionals
                 today.
               </p>
               <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center px-4 sm:px-0">

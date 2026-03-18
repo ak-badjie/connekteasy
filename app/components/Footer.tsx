@@ -28,7 +28,7 @@ export default function Footer() {
           <motion.div className="col-span-2 md:col-span-1" variants={staggerItem}>
             <Link href="/" className="flex items-center gap-2.5 mb-4">
               <ConnektIcon className="w-[22px] h-[22px]" />
-              <span className="text-lg font-bold text-white">Connekt</span>
+              <span className="text-lg font-bold text-white">CONNEKT</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
               Connecting virtual assistants with businesses that need them. Find
@@ -111,7 +111,7 @@ export default function Footer() {
           variants={fadeInUp}
         >
           <p className="text-xs sm:text-sm text-gray-500">
-            © 2026 Connekt. All rights reserved.
+            © 2026 CONNEKT. All rights reserved.
           </p>
           <div className="flex items-center gap-5">
             {["Twitter", "LinkedIn", "Instagram"].map((social) => (
