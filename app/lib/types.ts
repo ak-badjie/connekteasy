@@ -122,5 +122,5 @@ export interface Message {
   senderId: string;
   senderName: string;
   content: string;
-  createdAt: Timestamp;
+  createdAt: any; // Using any to support both RTDB (number) and Firestore Timestamp
 }

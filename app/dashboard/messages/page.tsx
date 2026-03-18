@@ -219,9 +219,8 @@ export default function MessagesPage() {
                           <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl ${isMe ? "bg-teal-500 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"}`}>
                             <p className="text-sm leading-relaxed">{msg.content}</p>
                             <p className={`text-[10px] mt-1 ${isMe ? "text-teal-100" : "text-gray-400"}`}>
-                              {msg.createdAt?.toDate ? timeAgo(msg.createdAt.toDate()) : "Now"}
-                            </p>
-                          </div>
+                              {msg.createdAt ? timeAgo(typeof msg.createdAt === 'number' ? new Date(msg.createdAt) : (msg.createdAt.toDate ? msg.createdAt.toDate() : new Date())) : "Now"}
+                            </p>                          </div>
                         </div>
                       );
                     })

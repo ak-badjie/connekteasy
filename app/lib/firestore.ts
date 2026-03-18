@@ -15,7 +15,8 @@ import {
   Timestamp,
   type Unsubscribe,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { db, rtdb } from "./firebase";
+import { ref, onValue, push, set, serverTimestamp as rtdbServerTimestamp, query as rtdbQuery, orderByChild } from "firebase/database";
 import type {
   UserProfile,
   FirestoreProject,
@@ -241,16 +242,17 @@ export function subscribeToMessages(
   conversationId: string,
   callback: (messages: Message[]) => void
 ): Unsubscribe {
-  const q = query(
-    collection(db, "conversations", conversationId, "messages"),
-    orderBy("createdAt", "asc")
-  );
-  return onSnapshot(q, (snap) => {
-    const msgs = snap.docs.map(
-      (d) => ({ id: d.id, ...d.data() } as Message)
-    );
+  const messagesRef = rtdbQuery(ref(rtdb, `messages/${conversationId}`), orderByChild("createdAt"));
+  
+  const unsubscribeRtdb = onValue(messagesRef, (snapshot) => {
+    const msgs: Message[] = [];
+    snapshot.forEach((childSnap) => {
+      msgs.push({ id: childSnap.key as string, ...childSnap.val() });
+    });
     callback(msgs);
   });
+
+  return () => unsubscribeRtdb();
 }
 
 export async function sendMessage(
@@ -259,17 +261,16 @@ export async function sendMessage(
   senderName: string,
   content: string
 ): Promise<void> {
-  await addDoc(
-    collection(db, "conversations", conversationId, "messages"),
-    {
-      conversationId,
-      senderId,
-      senderName,
-      content,
-      createdAt: serverTimestamp(),
-    }
-  );
-  // Update conversation's last message
+  const newMessageRef = push(ref(rtdb, `messages/${conversationId}`));
+  await set(newMessageRef, {
+    conversationId,
+    senderId,
+    senderName,
+    content,
+    createdAt: rtdbServerTimestamp(),
+  });
+
+  // Keep updating the conversation's last message in Firestore so the inbox list updates
   await updateDoc(doc(db, "conversations", conversationId), {
     lastMessage: content,
     lastMessageAt: serverTimestamp(),
