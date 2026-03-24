@@ -106,12 +106,12 @@ export default function Home() {
                       {searchMode === "talent" ? (
                         <span className="text-teal-700">
                           Hire a Top <br />
-                          <span className="text-teal-600">Virtual Assistants</span>
+                          <span className="text-teal-600">Virtual </span><span className="text-mustard-500">Assistants</span>
                         </span>
                       ) : (
                         <span className="text-teal-700">
                           Turn Your Skills <br />
-                          <span className="text-teal-600">Into Income</span>
+                          <span className="text-teal-600">Into </span><span className="text-mustard-500">Income</span>
                         </span>
                       )}
                     </h1>
@@ -329,12 +329,12 @@ export default function Home() {
                   {searchMode === "talent" ? (
                     <span className="text-teal-700">
                       Hire a Top <br />
-                      <span className="text-teal-600">Virtual Assistants</span>
+                      <span className="text-teal-600">Virtual </span><span className="text-mustard-500">Assistants</span>
                     </span>
                   ) : (
                     <span className="text-teal-700">
                       Turn Your Skills <br />
-                      <span className="text-teal-600">Into Income</span>
+                      <span className="text-teal-600">Into </span><span className="text-mustard-500">Income</span>
                     </span>
                   )}
                 </h1>
