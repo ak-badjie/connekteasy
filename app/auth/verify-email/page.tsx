@@ -8,7 +8,7 @@ import { auth } from "@/app/lib/firebase";
 import { applyActionCode, sendEmailVerification } from "firebase/auth";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { fadeInUp, staggerContainer, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
@@ -109,19 +109,20 @@ export default function VerifyEmailPage() {
 
         <motion.div
           className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
-          variants={staggerItem}
+          variants={scaleIn}
+          whileHover={cardHover}
         >
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700">
+            <motion.div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               {error}
-            </div>
+            </motion.div>
           )}
           {success && (
-            <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-2.5 text-sm text-teal-700">
+            <motion.div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-2.5 text-sm text-mustard-700" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
               {success}
-            </div>
+            </motion.div>
           )}
 
           <form onSubmit={handleVerifyCode} className="space-y-4">
@@ -142,29 +143,32 @@ export default function VerifyEmailPage() {
               </p>
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading || !code}
-              className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-3 text-sm font-semibold text-white bg-mustard-500 text-gray-900 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50"
+              whileTap={cardTap}
             >
               {loading ? "Verifying..." : "Verify Code"}
-            </button>
+            </motion.button>
           </form>
 
           <div className="flex flex-col gap-3 mt-6">
-            <button
+            <motion.button
               onClick={handleCheckVerification}
               className="w-full py-2.5 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
+              whileTap={cardTap}
             >
               I clicked the link
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               onClick={handleResend}
               disabled={resending}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700"
+              className="text-xs font-medium text-mustard-600 hover:text-mustard-700"
+              whileTap={{ scale: 0.95 }}
             >
               {resending ? "Sending..." : "Resend verification email"}
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       </motion.div>

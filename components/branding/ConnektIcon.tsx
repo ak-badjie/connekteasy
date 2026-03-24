@@ -19,7 +19,7 @@ export default function ConnektIcon({ className = '' }: ConnektIconProps) {
 
         .briefcase-path {
           fill: none; 
-          stroke: #009688; 
+          stroke: #0A4E53; 
           stroke-width: 0.5px; 
           stroke-linecap: round;  
           stroke-linejoin: round; 

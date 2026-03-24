@@ -93,7 +93,7 @@ export default function SkillPicker({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.85 }}
               transition={{ duration: 0.15 }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-teal-50 text-teal-700 rounded-full"
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-mustard-50 text-mustard-700 rounded-full"
             >
               {skill}
               <button
@@ -148,7 +148,7 @@ export default function SkillPicker({
                     key={skill}
                     type="button"
                     onClick={() => addSkill(skill)}
-                    className="px-2.5 py-1 text-[11px] font-medium bg-gray-50 text-gray-600 rounded-full hover:bg-teal-50 hover:text-teal-700 transition-colors border border-gray-100 hover:border-teal-200"
+                    className="px-2.5 py-1 text-[11px] font-medium bg-gray-50 text-gray-600 rounded-full hover:bg-mustard-50 hover:text-mustard-700 transition-colors border border-gray-100 hover:border-teal-200"
                   >
                     + {skill}
                   </button>
@@ -166,10 +166,10 @@ export default function SkillPicker({
               <button
                 type="button"
                 onClick={() => addSkill(query)}
-                className="flex items-center justify-between w-full px-4 py-3 text-sm text-teal-600 hover:bg-teal-50 transition-colors text-left border-t border-gray-100"
+                className="flex items-center justify-between w-full px-4 py-3 text-sm text-mustard-600 hover:bg-mustard-50 transition-colors text-left border-t border-gray-100"
               >
                 <span className="font-medium">Add "{query.trim()}"</span>
-                <span className="text-xs font-semibold px-2 py-0.5 bg-teal-100 text-teal-700 rounded-md">Create Custom</span>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-teal-100 text-mustard-700 rounded-md">Create Custom</span>
               </button>
             )}
           </motion.div>

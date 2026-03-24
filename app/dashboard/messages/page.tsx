@@ -6,6 +6,8 @@ import { db } from "@/app/lib/firebase";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 import { subscribeToMessages, sendMessage } from "@/app/lib/firestore";
 import { Conversation, Message } from "@/app/lib/types";
+import { motion, AnimatePresence } from "framer-motion";
+import { staggerContainer, staggerItem, fadeIn, fadeInUp } from "@/app/lib/animations";
 import {
   Search,
   Paperclip,
@@ -140,7 +142,7 @@ export default function MessagesPage() {
               placeholder="Search contacts..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-gray-500"
+              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-mustard-500/20 focus:border-mustard-500 transition-all placeholder:text-gray-500"
             />
           </div>
         </div>
@@ -148,11 +150,11 @@ export default function MessagesPage() {
         {/* Scrollable Contacts List */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-2">
           {filteredConversations.length === 0 ? (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <motion.div className="p-4 text-center text-sm text-gray-500" variants={fadeIn}>
               {searchQuery ? "No contacts found." : "No conversations yet."}
-            </div>
+            </motion.div>
           ) : (
-            <div className="space-y-0.5">
+            <motion.div className="space-y-0.5" initial="hidden" animate="visible" variants={staggerContainer}>
                 {filteredConversations.map((contact) => {
                   const otherId = getOtherParticipantId(contact);
                   const otherName = contact.participantNames[otherId] || "Unknown User";
@@ -164,8 +166,10 @@ export default function MessagesPage() {
                     : "";
 
                   return (
-                    <button
+                    <motion.button
                         key={contact.id}
+                        variants={staggerItem}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleContactClick(contact.id)}
                         className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-colors group ${
                         selectedContactId === contact.id
@@ -193,10 +197,10 @@ export default function MessagesPage() {
                             </p>
                         </div>
                         </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
@@ -211,7 +215,7 @@ export default function MessagesPage() {
           /* EMPTY STATE */
           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50/50 p-6 text-center">
             <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare size={32} className="text-teal-600" />
+              <MessageSquare size={32} className="text-mustard-600" />
             </div>
             <h3 className="text-xl font-display font-bold text-gray-900 mb-2">Your Messages</h3>
             <p className="text-gray-500 text-sm max-w-sm">
@@ -241,25 +245,25 @@ export default function MessagesPage() {
                   <h3 className="text-base font-bold text-gray-900 cursor-pointer hover:underline" onClick={() => setActiveView("details")}>
                     {selectedConversation?.participantNames[getOtherParticipantId(selectedConversation!)] || "Unknown User"}
                   </h3>
-                  <p className="text-xs text-teal-600 font-medium">
+                  <p className="text-xs text-mustard-600 font-medium">
                     Online
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1 sm:gap-2">
-                <button className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors hidden sm:block">
+                <button className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors hidden sm:block">
                   <Phone size={18} />
                 </button>
-                <button className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors hidden sm:block">
+                <button className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors hidden sm:block">
                   <Video size={18} />
                 </button>
                 <button
                   onClick={() => setActiveView("details")}
-                  className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors"
                 >
                   <Info size={18} />
                 </button>
-                <button className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+                <button className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors">
                   <MoreVertical size={18} />
                 </button>
               </div>
@@ -283,7 +287,7 @@ export default function MessagesPage() {
                         <div
                           className={`px-4 py-2.5 shadow-sm break-words whitespace-pre-wrap ${
                             isMe
-                              ? "bg-teal-500 text-white rounded-2xl rounded-br-sm"
+                              ? "bg-mustard-500 text-gray-900 rounded-2xl rounded-br-sm"
                               : "bg-white border border-gray-200 text-gray-900 rounded-2xl rounded-bl-sm"
                           }`}
                         >
@@ -302,8 +306,8 @@ export default function MessagesPage() {
 
             {/* Fixed Input Area */}
             <div className="p-4 bg-white border-t border-gray-200 shrink-0">
-              <div className="flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-xl p-2 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-teal-500 transition-all shadow-sm">
-                <button className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors shrink-0">
+              <div className="flex items-end gap-2 bg-gray-50 border border-gray-200 rounded-xl p-2 focus-within:ring-2 focus-within:ring-teal-500/20 focus-within:border-mustard-500 transition-all shadow-sm">
+                <button className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors shrink-0">
                   <Paperclip size={20} />
                 </button>
                 <textarea
@@ -315,12 +319,12 @@ export default function MessagesPage() {
                   rows={1}
                 />
                 <div className="flex items-center gap-1 shrink-0 pb-1">
-                  <button className="p-2 text-gray-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors">
+                  <button className="p-2 text-gray-500 hover:text-mustard-600 hover:bg-teal-50 rounded-lg transition-colors">
                     <Mic size={20} />
                   </button>
                   <button
                     onClick={handleSendMessage}
-                    className="p-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors shadow-sm disabled:opacity-50"
+                    className="p-2 bg-mustard-500 text-gray-900 rounded-lg hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50"
                     disabled={!messageInput.trim()}
                   >
                     <Send size={18} />
@@ -355,7 +359,7 @@ export default function MessagesPage() {
                     </h3>
                     <p className="text-gray-500 font-medium mb-4">Virtual Assistant</p>
                     <div className="flex gap-3 justify-center md:justify-start">
-                      <button className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 transition-colors">
+                      <button className="flex items-center gap-2 px-4 py-2 bg-mustard-500 text-gray-900 font-semibold rounded-lg hover:bg-mustard-600 transition-colors">
                         <Phone size={16} /> Call
                       </button>
                       <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
@@ -377,7 +381,7 @@ export default function MessagesPage() {
                       </div>
                       <div className="space-y-4 pt-4 border-t border-gray-100">
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-teal-50 rounded-lg"><Briefcase size={16} className="text-teal-600" /></div>
+                          <div className="p-2 bg-teal-50 rounded-lg"><Briefcase size={16} className="text-mustard-600" /></div>
                           <div><p className="text-xs text-gray-500">Category</p><p className="text-sm font-semibold text-gray-900">Admin Support</p></div>
                         </div>
                         <div className="flex items-start gap-3">

@@ -112,7 +112,7 @@ function ProposalsContent() {
       <div className="flex-1 overflow-y-auto no-scrollbar min-h-0 pb-4">
         {loading ? (
           <div className="text-center py-20">
-            <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-500">Loading proposals...</p>
           </div>
         ) : proposals.length === 0 ? (
@@ -135,7 +135,7 @@ function ProposalsContent() {
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-teal-100 text-mustard-700 flex items-center justify-center text-xs font-bold shrink-0">
                     {proposal.freelancerAvatar}
                   </div>
                   <div>
@@ -212,7 +212,7 @@ export default function ProposalsPage() {
   return (
     <Suspense fallback={
       <div className="text-center py-20">
-        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
         <p className="text-sm text-gray-500">Loading proposals...</p>
       </div>
     }>

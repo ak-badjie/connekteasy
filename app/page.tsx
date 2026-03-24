@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import SearchBar from "./components/SearchBar";
 import CategoryIcon from "./components/CategoryIcon";
 import { categories } from "./lib/data";
@@ -90,52 +90,85 @@ export default function Home() {
               animate="visible"
               variants={staggerContainer}
             >
-              {/* Headline */}
-              <motion.h1
-                className="text-4xl sm:text-5xl md:text-6xl font-display text-gray-900 mb-6"
-                variants={magneticSlideLeft}
-              >
-                Turn Your Skills{" "}
-                <span className="text-teal-600 inline-block">Into Income</span>
-              </motion.h1>
+              {/* Headline & Subtitle */}
+              <div className="h-[200px] sm:h-[180px] md:h-[220px]">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={searchMode}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <h1
+                      className="text-4xl sm:text-5xl md:text-6xl font-display text-gray-900 mb-6"
+                    >
+                      {searchMode === "talent" ? (
+                        <>
+                          Hire <span className="text-mustard-500 inline-block">Top Virtual Assistants</span>
+                        </>
+                      ) : (
+                        <>
+                          Turn Your Skills <span className="text-mustard-500 inline-block">Into Income</span>
+                        </>
+                      )}
+                    </h1>
 
-              {/* Subtitle */}
-              <motion.p
-                className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
-                variants={magneticSlideLeft}
-              >
-                Become a Virtual Assistant and work professionally with growing businesses in The Gambia.
-              </motion.p>
+                    <p
+                      className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+                    >
+                      {searchMode === "talent"
+                        ? "Scale your business with vetted professionals in The Gambia ready to handle your administrative, technical, and creative tasks."
+                        : "Become a Virtual Assistant and work professionally with growing businesses in The Gambia."}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
 
               {/* Search Toggle Area */}
               <motion.div 
-                className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 max-w-xl mx-auto lg:mx-0 mb-8 origin-center" 
+                className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 max-w-xl mx-auto lg:mx-0 mb-8 origin-center relative z-10" 
                 variants={appleDrop}
                 whileHover={{ scale: 1.02, rotateX: 5, transition: { type: "spring", stiffness: 400 } }}
               >
                 {/* Toggle Pill */}
                 <div className="flex mb-5">
-                  <div className="inline-flex w-full items-center bg-gray-50 rounded-lg p-1 border border-gray-200">  
+                  <div className="relative inline-flex w-full items-center bg-gray-50 rounded-lg p-1 border border-gray-200">  
                     <motion.button
-                      whileTap={{ scale: 0.9 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setSearchMode("talent")}
-                      className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                      className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors duration-200 z-10 ${
                         searchMode === "talent"
-                          ? "bg-white text-teal-700 shadow-sm"
+                          ? "text-white"
                           : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
+                      {searchMode === "talent" && (
+                        <motion.div
+                          layoutId="heroToggleIndicator"
+                          className="absolute inset-0 bg-mustard-500 rounded-lg shadow-sm z-[-1]"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
                       Find Talent
                     </motion.button>
+                    
                     <motion.button
-                      whileTap={{ scale: 0.9 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => setSearchMode("projects")}
-                      className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                      className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors duration-200 z-10 ${
                         searchMode === "projects"
-                          ? "bg-white text-teal-700 shadow-sm"
+                          ? "text-white"
                           : "text-gray-500 hover:text-gray-700"
                       }`}
                     >
+                      {searchMode === "projects" && (
+                        <motion.div
+                          layoutId="heroToggleIndicator"
+                          className="absolute inset-0 bg-mustard-500 rounded-lg shadow-sm z-[-1]"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
                       Find Work
                     </motion.button>
                   </div>
@@ -180,7 +213,7 @@ export default function Home() {
                  variants={spin3D}
                  whileHover={{ scale: 1.1, rotateX: 360, transition: { duration: 0.8, type: "spring" } }}
                >
-                 <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold overflow-hidden border border-gray-200">
+                 <div className="w-12 h-12 rounded-full bg-mustard-100 flex items-center justify-center text-teal-600 font-bold overflow-hidden border border-gray-200">
                    <img src="/Male_black_virtual_202603240440.jpeg" alt="User Avatar" className="w-full h-full object-cover" />
                  </div>
                  <div className="text-sm">
@@ -193,15 +226,25 @@ export default function Home() {
                <motion.div
                  className="absolute bottom-16 -left-4 lg:-left-12 bg-white px-5 py-4 rounded-lg shadow-lg border border-gray-100 z-20 w-64"
                  variants={appleDrop}
-                 whileHover={{ scale: 1.15, rotateY: 360, transition: { duration: 0.8, type: "spring" } }}
+                 whileHover={{ scale: 1.05, y: -5, transition: { duration: 0.3 } }}
                >
-                 <p className="text-sm font-semibold text-gray-900 mb-3">Top Category</p>
+                 <p className="text-sm font-semibold text-gray-900 mb-3">Top Categories</p>
                  <ul className="space-y-2.5 text-xs text-gray-600 font-medium">
-                   <li className="flex items-center gap-2"><span className="text-teal-500 text-base">✓</span> Admin Support</li>
-                   <li className="flex items-center gap-2"><span className="text-teal-500 text-base">✓</span> Bookkeeping</li>
-                   <li className="flex items-center gap-2"><span className="text-teal-500 text-base">✓</span> Social Media Mgmt</li>
-                   <li className="flex items-center gap-2"><span className="text-teal-500 text-base">✓</span> Research & Data Entry</li>
-                   <li className="flex items-center gap-2"><span className="text-teal-500 text-base">✓</span> Customer Support</li>
+                   {["Admin Support", "Bookkeeping", "Social Media Mgmt", "Research", "Customer Support"].map(cat => (
+                     <motion.li 
+                       key={cat}
+                       className="flex items-center gap-2 cursor-pointer group"
+                       onClick={() => router.push(`/explore?mode=talent&q=${encodeURIComponent(cat)}`)}
+                       whileHover={{ x: 5 }}
+                     >
+                       <motion.span 
+                         className="text-mustard-500 text-base"
+                         whileHover={{ scale: 1.5, rotate: 15 }}
+                         transition={{ type: "spring", stiffness: 400 }}
+                       >✓</motion.span> 
+                       <span className="group-hover:text-teal-600 transition-colors">{cat}</span>
+                     </motion.li>
+                   ))}
                  </ul>
                </motion.div>
             </motion.div>
@@ -223,7 +266,7 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <Rocket size={24} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Get Trained</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Hire Talent</h3>
                 </motion.div>
                 <motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
@@ -233,7 +276,7 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-mustard-50 flex items-center justify-center text-mustard-600 mb-3">
                     <FileEdit size={24} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Find Jobs</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Delegate Tasks</h3>
                 </motion.div>
                 <motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
@@ -243,7 +286,7 @@ export default function Home() {
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <Handshake size={24} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Support Businesses</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Scale Fast</h3>
                 </motion.div>
                 <motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
@@ -353,24 +396,24 @@ export default function Home() {
             >
               {[
                 {
-                  icon: <Rocket size={24} className="text-teal-600" />,
-                  title: "Skill Development",
-                  desc: "Access training and resources to enhance your professional capabilities.",
+                  icon: <Rocket size={24} className="text-mustard-600" />,
+                  title: "Top-tier Talent",
+                  desc: "Access vetted and trained professionals ready to handle your business needs.",
                 },
                 {
-                  icon: <Handshake size={24} className="text-teal-600" />,
-                  title: "Job Opportunities",
-                  desc: "Connect with global businesses looking for your specific skill set.",
+                  icon: <Handshake size={24} className="text-mustard-600" />,
+                  title: "Cost Effective",
+                  desc: "Scale your operations without the overhead of traditional full-time hires.",
                 },
                 {
-                  icon: <DollarSign size={24} className="text-teal-600" />,
+                  icon: <FileEdit size={24} className="text-mustard-600" />,
+                  title: "Seamless Operations",
+                  desc: "Manage contracts, file sharing, and communication in one secure platform.",
+                },
+                {
+                  icon: <DollarSign size={24} className="text-mustard-600" />,
                   title: "Flexible Earnings",
-                  desc: "Set your own rates and get paid securely for the work you deliver.",
-                },
-                {
-                  icon: <FileEdit size={24} className="text-teal-600" />,
-                  title: "Manage Your Work",
-                  desc: "Use our platform to handle contracts, files, and communication in one place.",
+                  desc: "For VAs: Set your own rates and get paid securely for the work you deliver.",
                 },
               ].map((item, idx) => (
                 <motion.div
@@ -419,25 +462,25 @@ export default function Home() {
                 whileHover={{ scale: 1.05, y: -10, rotateZ: [0, 2, -2, 0], transition: { duration: 0.5 } }}
               >
                 <h4 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
-                  Start Building Your VA Career Today
+                  Scale Your Business Today
                 </h4>
                 <ul className="space-y-3 mb-5">
                   <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-teal-500 mt-0.5">✓</span>
-                    Connect with top companies worldwide
+                    <span className="text-mustard-500 mt-0.5">✓</span>
+                    Connect with vetted professionals
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-teal-500 mt-0.5">✓</span>
-                    Manage your schedule and calendar
+                    <span className="text-mustard-500 mt-0.5">✓</span>
+                    Reduce operational overhead
                   </li>
                   <li className="flex items-start gap-2 text-sm text-gray-600">
-                    <span className="text-teal-500 mt-0.5">✓</span>
-                    Get paid on time, every time
+                    <span className="text-mustard-500 mt-0.5">✓</span>
+                    Secure escrow payments
                   </li>
                 </ul>
                 <div className="flex gap-3">
-                  <Link href="/onboarding" className="flex-1 text-center bg-teal-500 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-teal-600 transition-colors">
-                    <motion.span whileTap={{ scale: 0.9 }}>Apply to Be a VA</motion.span>
+                  <Link href="/onboarding" className="flex-1 text-center bg-mustard-500 text-gray-900 text-sm font-semibold py-2.5 rounded-lg hover:bg-mustard-600 transition-colors">
+                    <motion.span whileTap={{ scale: 0.9 }}>Hire a VA</motion.span>
                   </Link>
                   <Link href="/explore" className="flex-1 text-center bg-gray-50 text-gray-700 text-sm font-semibold py-2.5 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                     <motion.span whileTap={{ scale: 0.9 }}>Learn More</motion.span>
@@ -480,7 +523,7 @@ export default function Home() {
                 variants={spin3D}
                 whileHover={{ scale: 1.2, rotateY: 180, transition: { duration: 0.8, type: "spring" } }}
               >
-                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
+                <div className="w-10 h-10 rounded-full bg-mustard-100 flex items-center justify-center text-mustard-600">
                   <ShieldCheck size={20} />
                 </div>
                 <div>
@@ -511,28 +554,28 @@ export default function Home() {
                 className="text-3xl sm:text-4xl font-display text-gray-900 mb-6"
                 variants={magneticSlideRight}
               >
-                Why Choose <span className="text-teal-600 inline-block">CONNEKT?</span>
+                Why Choose <span className="text-mustard-500 inline-block">CONNEKT?</span>
               </motion.h2>
 
               <div className="space-y-6 lg:space-y-8 mt-8">
                 {[
                   {
-                    icon: <ShieldCheck size={24} className="text-teal-600" />,
+                    icon: <ShieldCheck size={24} className="text-mustard-600" />,
                     title: "Verified Professionals",
                     desc: "Every virtual assistant undergoes a rigorous vetting process to ensure top-tier quality.",
                   },
                   {
-                    icon: <Lock size={24} className="text-teal-600" />,
+                    icon: <Lock size={24} className="text-mustard-600" />,
                     title: "Secure Payments",
                     desc: "Our integrated escrow system ensures funds are protected until milestones are approved.",
                   },
                   {
-                    icon: <MessageSquare size={24} className="text-teal-600" />,
+                    icon: <MessageSquare size={24} className="text-mustard-600" />,
                     title: "Seamless Communication",
                     desc: "Integrated messaging, file sharing, and feedback loops right within the platform.",
                   },
                   {
-                    icon: <Calendar size={24} className="text-teal-600" />,
+                    icon: <Calendar size={24} className="text-mustard-600" />,
                     title: "Automated Scheduling",
                     desc: "Easy coordination across time zones with built-in calendar and scheduling tools.",
                   },
@@ -544,7 +587,7 @@ export default function Home() {
                     whileHover={{ x: -10, scale: 1.02, transition: { type: "spring" } }}
                   >
                     <motion.div 
-                      className="flex-shrink-0 w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center border border-teal-100 shadow-sm"
+                      className="flex-shrink-0 w-12 h-12 rounded-lg bg-mustard-50 flex items-center justify-center border border-mustard-100 shadow-sm"
                       whileHover={{ rotateY: 360, transition: { type: "spring", duration: 1 } }}
                     >
                       {feature.icon}
@@ -577,7 +620,7 @@ export default function Home() {
             </div>
             <Link
               href="/explore"
-              className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1 group"
+              className="text-sm font-semibold text-teal-600 hover:text-mustard-700 transition-colors flex items-center gap-1 group"
             >
               View all categories
               <motion.div whileHover={{ x: 5 }}>
@@ -607,11 +650,11 @@ export default function Home() {
                 }}
               >
                 <Link
-                  href="/explore"
+                  href={`/explore?mode=talent&q=${encodeURIComponent(cat.name)}`}
                   className="block bg-white rounded-lg p-4 sm:p-5 border border-gray-200 group h-full"
                 >
                   <motion.div
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-teal-100 transition-colors"
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-mustard-100 transition-colors"
                     whileHover={{ rotateY: 360, scale: 1.2, transition: { duration: 0.8, type: "spring" } }}
                   >
                     <CategoryIcon name={cat.iconName} size={18} className="sm:w-5 sm:h-5" />
@@ -631,7 +674,7 @@ export default function Home() {
       <section className="py-14 sm:py-20 md:py-24 bg-white overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="relative bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden origin-center"
+            className="relative bg-gradient-to-br from-teal-700 to-teal-900 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden origin-center"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
@@ -671,7 +714,7 @@ export default function Home() {
                 <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: -2 }} whileTap={{ scale: 0.9 }}>
                   <Link
                     href="/explore"
-                    className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-white text-teal-700 rounded-lg hover:bg-teal-50 transition-colors shadow-lg"
+                    className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-white text-mustard-700 rounded-lg hover:bg-teal-50 transition-colors shadow-lg"
                   >
                     Explore Projects
                   </Link>
@@ -679,7 +722,7 @@ export default function Home() {
                 <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: 2 }} whileTap={{ scale: 0.9 }}>
                   <Link
                     href="/dashboard/post"
-                    className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-teal-500 text-white border border-teal-400 rounded-lg hover:bg-teal-600 transition-colors"
+                    className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-mustard-500 text-gray-900 border border-mustard-400 rounded-lg hover:bg-mustard-600 transition-colors"
                   >
                     Post a Project
                   </Link>

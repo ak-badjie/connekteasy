@@ -406,7 +406,7 @@ function WalletContent() {
       <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="print:hidden flex-1 flex flex-col min-h-0">
         {/* Header */}
         <motion.div variants={fadeInUp} className="flex items-center gap-3 mb-4 sm:mb-6 shrink-0">
-          <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
+          <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center text-mustard-600 shadow-sm border border-teal-100">
             <ConnektWalletIcon />
           </div>
           <h1 className="font-display text-2xl font-bold text-gray-900 tracking-tight">CONNEKT Wallet</h1>
@@ -425,10 +425,10 @@ function WalletContent() {
                 {balance.toLocaleString()} <span className="text-xl text-teal-200 font-medium">GMD</span>
               </div>
               <div className="flex gap-3 relative z-10">
-                <button onClick={() => setActiveModal("deposit")} className="flex-1 bg-white text-teal-700 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5">
+                <button onClick={() => setActiveModal("deposit")} className="flex-1 bg-white text-mustard-700 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5">
                   <Plus size={16} /> Deposit
                 </button>
-                <button onClick={() => setActiveModal("withdraw")} className="flex-1 bg-teal-700/50 hover:bg-teal-700/70 border border-teal-500/30 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => setActiveModal("withdraw")} className="flex-1 bg-teal-700/50 hover:bg-mustard-600/70 border border-mustard-500/30 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5">
                   <ArrowUpRight size={16} /> Withdraw
                 </button>
               </div>
@@ -439,7 +439,7 @@ function WalletContent() {
               <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-display text-base font-bold text-gray-900 flex items-center gap-2">
-                    <ShieldCheck size={18} className="text-teal-600" /> Escrow Holdings
+                    <ShieldCheck size={18} className="text-mustard-600" /> Escrow Holdings
                   </h2>
                   <span className="text-sm font-semibold text-gray-900">{formatGMD(totalEscrow)}</span>
                 </div>
@@ -503,7 +503,7 @@ function WalletContent() {
                             <p className={`text-sm font-bold ${isPositive ? 'text-emerald-600' : 'text-gray-900'}`}>
                               {isPositive ? '+' : '-'}{formatGMD(tx.amount)}
                             </p>
-                            <p className="text-[10px] sm:text-xs text-gray-400 font-medium capitalize mt-0.5 group-hover:text-teal-600 transition-colors">
+                            <p className="text-[10px] sm:text-xs text-gray-400 font-medium capitalize mt-0.5 group-hover:text-mustard-600 transition-colors">
                                View Receipt
                             </p>
                           </div>
@@ -532,14 +532,14 @@ function WalletContent() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Amount (GMD)</label>
                   <div className="relative">
-                    <input type="number" min="1" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} disabled={paymentStatus === "waiting"} className="w-full pl-4 pr-16 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" placeholder="0" />
+                    <input type="number" min="1" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} disabled={paymentStatus === "waiting"} className="w-full pl-4 pr-16 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 transition-all" placeholder="0" />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                       <span className="text-gray-500 font-medium">GMD</span>
                     </div>
                   </div>
                 </div>
                 {depositError && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100">{depositError}</p>}
-                <button onClick={handleDeposit} disabled={depositLoading || paymentStatus === "waiting" || !depositAmount} className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2">
+                <button onClick={handleDeposit} disabled={depositLoading || paymentStatus === "waiting" || !depositAmount} className="w-full bg-teal-600 hover:bg-mustard-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2">
                   {depositLoading ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Connecting...</> : "Deposit via Modem Pay"}
                 </button>
               </div>
@@ -562,20 +562,20 @@ function WalletContent() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Amount to Withdraw</label>
                   <div className="relative">
-                    <input type="number" min="1" max={balance} value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full pl-4 pr-16 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" placeholder="0" />
+                    <input type="number" min="1" max={balance} value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} className="w-full pl-4 pr-16 py-3 bg-gray-50 border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 transition-all" placeholder="0" />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                       <span className="text-gray-500 font-medium">GMD</span>
                     </div>
                   </div>
                   <div className="flex justify-between mt-1.5">
                     <span className="text-xs text-gray-500">Avail: {formatGMD(balance)}</span>
-                    <button onClick={() => setWithdrawAmount(balance.toString())} className="text-xs font-semibold text-teal-600 hover:text-teal-700">Max</button>
+                    <button onClick={() => setWithdrawAmount(balance.toString())} className="text-xs font-semibold text-mustard-600 hover:text-mustard-700">Max</button>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Network</label>
-                  <select value={network} onChange={(e) => setNetwork(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 outline-none">
+                  <select value={network} onChange={(e) => setNetwork(e.target.value)} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 outline-none">
                     <option value="afrimoney">Afrimoney</option>
                     <option value="wave">Wave</option>
                   </select>
@@ -583,17 +583,17 @@ function WalletContent() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Account Number</label>
-                  <input type="text" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="e.g. 7000000" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" />
+                  <input type="text" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} placeholder="e.g. 7000000" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 transition-all" />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Beneficiary Name</label>
-                  <input type="text" value={beneficiaryName} onChange={(e) => setBeneficiaryName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all" />
+                  <input type="text" value={beneficiaryName} onChange={(e) => setBeneficiaryName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 transition-all" />
                 </div>
 
                 {withdrawError && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100">{withdrawError}</p>}
                 
-                <button onClick={handleWithdraw} disabled={withdrawLoading || !withdrawAmount || !accountNumber || !beneficiaryName} className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all mt-2 flex items-center justify-center gap-2">
+                <button onClick={handleWithdraw} disabled={withdrawLoading || !withdrawAmount || !accountNumber || !beneficiaryName} className="w-full bg-teal-600 hover:bg-mustard-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all mt-2 flex items-center justify-center gap-2">
                   {withdrawLoading ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</> : "Confirm Withdrawal"}
                 </button>
               </div>

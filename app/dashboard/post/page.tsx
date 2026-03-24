@@ -105,7 +105,7 @@ export default function PostProjectPage() {
     }
   };
 
-  const inputClasses = "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all";
+  const inputClasses = "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-mustard-500/20 focus:border-mustard-500 transition-all";
   const labelClasses = "block text-sm font-medium text-gray-900 mb-1.5";
   const cardClasses = "bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6 sm:mb-8";
 
@@ -215,7 +215,7 @@ export default function PostProjectPage() {
                 onClick={() => handleChange("budgetType", type)}
                 className={`px-5 py-2.5 text-sm font-medium rounded-xl border transition-colors ${
                   formData.budgetType === type 
-                    ? "bg-teal-50 text-teal-700 border-teal-300" 
+                    ? "bg-teal-50 text-mustard-700 border-teal-300" 
                     : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
                 }`}
                 whileTap={{ scale: 0.95 }}
@@ -257,7 +257,7 @@ export default function PostProjectPage() {
           <motion.button 
             type="submit" 
             disabled={loading} 
-            className="px-8 py-3.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50" 
+            className="px-8 py-3.5 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50" 
             whileTap={{ scale: 0.97 }}
           >
             {loading ? "Holding Escrow & Posting..." : "Post Project & Hold Escrow"}

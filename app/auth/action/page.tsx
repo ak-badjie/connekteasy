@@ -8,7 +8,7 @@ import { auth } from "@/app/lib/firebase";
 import { applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import { Lock, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { fadeInUp, staggerContainer, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 function ActionContent() {
   const router = useRouter();
@@ -101,7 +101,7 @@ function ActionContent() {
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <Link href="/" className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
-            <span className="font-display text-2xl font-bold tracking-tight text-gray-900">
+            <span className="font-display text-2xl font-bold tracking-tight text-mustard-700">
               CONNEKT
             </span>
           </Link>
@@ -112,20 +112,21 @@ function ActionContent() {
 
         <motion.div
           className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
-          variants={staggerItem}
+          variants={scaleIn}
+          whileHover={cardHover}
         >
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700">
+            <motion.div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               {error}
-            </div>
+            </motion.div>
           )}
 
           {success && (
-            <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-2.5 text-sm text-teal-700">
+            <motion.div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-start gap-2.5 text-sm text-mustard-700" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <CheckCircle2 size={16} className="shrink-0 mt-0.5" />
               {success}
-            </div>
+            </motion.div>
           )}
 
           {mode === "resetPassword" && isCodeValid && !success && (
@@ -157,19 +158,20 @@ function ActionContent() {
                 </div>
               </div>
 
-              <button
+              <motion.button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
+                className="w-full py-3 text-sm font-semibold text-white bg-mustard-500 text-gray-900 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50"
+                whileTap={cardTap}
               >
                 {loading ? "Resetting..." : "Reset Password"}
-              </button>
+              </motion.button>
             </form>
           )}
 
           {mode === "verifyEmail" && !isCodeValid && !success && (
             <div className="text-center">
-              <Link href="/auth/verify-email" className="text-teal-600 font-medium hover:underline">
+              <Link href="/auth/verify-email" className="text-mustard-600 font-medium hover:underline">
                 Go back to Verification page
               </Link>
             </div>

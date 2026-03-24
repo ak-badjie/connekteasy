@@ -10,7 +10,7 @@ import DetailSidebar from "@/app/components/DetailSidebar";
 import { categories } from "@/app/lib/data";
 import { getProjects, getFreelancers } from "@/app/lib/firestore";
 import { SearchX, MapPin, DollarSign, UserSearch } from "lucide-react";
-import { staggerContainer, staggerItem, fadeInUp } from "@/app/lib/animations";
+import { staggerContainer, staggerItem, fadeInUp, scaleIn, cardHover, cardTap, iconHover, iconTap } from "@/app/lib/animations";
 import type { FirestoreProject, UserProfile } from "@/app/lib/types";
 
 // ─── Adapt Firestore project to match ProjectCard shape ────
@@ -177,26 +177,28 @@ function ExploreContent() {
           {/* Mode Toggle Pill */}
           <div className="flex justify-start mb-4 sm:mb-5">
             <div className="inline-flex items-center bg-soft-surface rounded-full p-1 border border-gray-200">
-              <button
+              <motion.button
+                whileTap={cardTap}
                 onClick={() => setMode("projects")}
                 className={`px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
                   mode === "projects"
-                    ? "bg-white text-teal-700 shadow-sm"
+                    ? "bg-white text-mustard-700 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Projects
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={cardTap}
                 onClick={() => setMode("talent")}
                 className={`px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
                   mode === "talent"
-                    ? "bg-white text-teal-700 shadow-sm"
+                    ? "bg-white text-mustard-700 shadow-sm"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 Talent
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -221,7 +223,7 @@ function ExploreContent() {
                 <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
                   {["All", ...categories.slice(0, 6).map((c) => c.name)].map((cat) => (
                     <motion.button key={cat} onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-medium rounded-full border transition-colors whitespace-nowrap shrink-0 ${selectedCategory === cat ? "bg-teal-500 text-white border-teal-500" : "bg-white text-gray-600 border-gray-200 hover:border-teal-300 hover:text-teal-600"}`}
+                      className={`px-3 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-medium rounded-full border transition-colors whitespace-nowrap shrink-0 ${selectedCategory === cat ? "bg-mustard-500 text-gray-900 border-mustard-500" : "bg-white text-gray-600 border-gray-200 hover:border-mustard-300 hover:text-mustard-600"}`}
                       whileTap={{ scale: 0.95 }}
                     >{cat}</motion.button>
                   ))}
@@ -265,7 +267,7 @@ function ExploreContent() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-sm text-gray-500">Loading {mode === "projects" ? "projects" : "talent"}...</p>
           </div>
         ) : resultCount > 0 ? (
@@ -284,9 +286,9 @@ function ExploreContent() {
                   <motion.div key={person.uid} variants={staggerItem}>
                     <Link href={`/profile/${person.uid}`}>
                       <motion.div
-                        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 group cursor-pointer hover:shadow-md transition-shadow"
-                        whileHover={{ y: -3, transition: { duration: 0.2 } }}
-                        whileTap={{ scale: 0.98 }}
+                        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 group cursor-pointer"
+                        whileHover={cardHover}
+                        whileTap={cardTap}
                       >
                         <div className="flex items-center gap-3 mb-3">
                           {person.profilePhotoUrl ? (
@@ -330,7 +332,7 @@ function ExploreContent() {
                 ))}
           </motion.div>
         ) : (
-          <motion.div className="text-center py-16 sm:py-20" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+          <motion.div className="text-center py-16 sm:py-20" variants={fadeInUp} initial="hidden" animate="visible">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-soft-surface flex items-center justify-center mx-auto mb-3 sm:mb-4 text-gray-400">
               {mode === "projects" ? <SearchX size={24} /> : <UserSearch size={24} />}
             </div>
@@ -352,7 +354,7 @@ export default function ExplorePage() {
     <Suspense fallback={
       <div className="bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-sm text-gray-500">Loading...</p>
         </div>
       </div>

@@ -8,7 +8,7 @@ import { updateUserProfile } from "@/app/lib/firestore";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import SkillPicker from "@/app/components/SkillPicker";
 import { Briefcase, UserCheck, ArrowRight, AlertCircle } from "lucide-react";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 import type { UserRole } from "@/app/lib/types";
 
 export default function OnboardingPage() {
@@ -77,7 +77,7 @@ export default function OnboardingPage() {
             <div
               key={s}
               className={`flex-1 h-1.5 rounded-full transition-colors ${
-                s <= step ? "bg-teal-500" : "bg-gray-200"
+                s <= step ? "bg-mustard-500" : "bg-gray-200"
               }`}
             />
           ))}
@@ -85,13 +85,14 @@ export default function OnboardingPage() {
 
         <motion.div
           className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
-          variants={staggerItem}
+          variants={scaleIn}
+          whileHover={cardHover}
         >
           {error && (
             <motion.div
               className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
             >
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               {error}
@@ -114,15 +115,15 @@ export default function OnboardingPage() {
                   onClick={() => setRole("client")}
                   className={`p-5 rounded-xl border-2 text-left transition-all ${
                     role === "client"
-                      ? "border-teal-500 bg-teal-50"
+                      ? "border-mustard-500 bg-mustard-50"
                       : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={cardTap}
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
                       role === "client"
-                        ? "bg-teal-100 text-teal-600"
+                        ? "bg-teal-100 text-mustard-600"
                         : "bg-gray-100 text-gray-500"
                     }`}
                   >
@@ -139,15 +140,15 @@ export default function OnboardingPage() {
                   onClick={() => setRole("va")}
                   className={`p-5 rounded-xl border-2 text-left transition-all ${
                     role === "va"
-                      ? "border-teal-500 bg-teal-50"
+                      ? "border-mustard-500 bg-mustard-50"
                       : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={cardTap}
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
                       role === "va"
-                        ? "bg-teal-100 text-teal-600"
+                        ? "bg-teal-100 text-mustard-600"
                         : "bg-gray-100 text-gray-500"
                     }`}
                   >
@@ -163,8 +164,8 @@ export default function OnboardingPage() {
               <motion.button
                 onClick={() => role && setStep(2)}
                 disabled={!role}
-                className="w-full mt-6 py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-40 flex items-center justify-center gap-2"
-                whileTap={{ scale: 0.98 }}
+                className="w-full mt-6 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-40 flex items-center justify-center gap-2"
+                whileTap={cardTap}
               >
                 Continue
                 <ArrowRight size={16} />
@@ -227,15 +228,15 @@ export default function OnboardingPage() {
                 <motion.button
                   onClick={() => setStep(1)}
                   className="px-5 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={cardTap}
                 >
                   Back
                 </motion.button>
                 <motion.button
                   onClick={handleFinish}
                   disabled={loading}
-                  className="flex-1 py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
-                  whileTap={{ scale: 0.98 }}
+                  className="flex-1 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                  whileTap={cardTap}
                 >
                   {loading ? "Setting up..." : "Complete Setup"}
                   {!loading && <ArrowRight size={16} />}

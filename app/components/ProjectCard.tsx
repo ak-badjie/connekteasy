@@ -20,13 +20,13 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
         >
             {/* Header */}
             <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <h3 className="font-display text-sm sm:text-base font-semibold text-gray-900 group-hover:text-teal-600 transition-colors leading-snug line-clamp-2">
+                <h3 className="font-display text-sm sm:text-base font-semibold text-gray-900 group-hover:text-mustard-600 transition-colors leading-snug line-clamp-2">
                     {project.title}
                 </h3>
                 <span
                     className={`shrink-0 px-2 py-1 text-[10px] sm:text-xs font-medium rounded-full ${
                         project.status === "open"
-                            ? "bg-teal-50 text-teal-700"
+                            ? "bg-mustard-50 text-mustard-700"
                             : project.status === "in-progress"
                                 ? "bg-yellow-50 text-yellow-700"
                                 : "bg-gray-100 text-gray-500"
@@ -59,7 +59,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
             {/* Footer */}
             <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[10px] sm:text-xs font-bold">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 text-mustard-700 flex items-center justify-center text-[10px] sm:text-xs font-bold">
                         {project.postedByAvatar}
                     </div>
                     <div>

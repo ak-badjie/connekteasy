@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
+import { fadeInUp, iconHover, iconTap } from "@/app/lib/animations";
 import {
   LayoutDashboard,
   FileText,
@@ -75,7 +76,7 @@ export default function DashboardLayout({
     <div className="flex w-full h-[calc(100vh-theme(spacing.14))] sm:h-[calc(100vh-theme(spacing.16))] overflow-hidden bg-white">
       {/* Sidebar */}
       <aside className="hidden lg:flex flex-col w-[260px] shrink-0 h-full border-r border-gray-200 bg-white">
-        <nav className="flex-1 overflow-y-auto no-scrollbar p-3 flex flex-col gap-1">
+        <nav className="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col gap-1.5">
           {navItems.map((item) => {
             if (item.roles && userProfile?.role && !item.roles.includes(userProfile.role)) {
               return null;
@@ -86,15 +87,15 @@ export default function DashboardLayout({
               <motion.div key={item.href} whileTap={{ scale: 0.97 }}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-4 px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-teal-50 text-teal-700"
+                      ? "bg-mustard-50 text-mustard-700"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
                   <span
                     className={`shrink-0 ${
-                      isActive ? "text-teal-600" : "text-gray-400"
+                      isActive ? "text-mustard-600" : "text-gray-400"
                     }`}
                   >
                     {item.icon}
@@ -135,10 +136,13 @@ export default function DashboardLayout({
       {/* Main Content */}
       <main className="flex-1 min-w-0 h-full flex flex-col overflow-hidden bg-gray-50">
         <motion.div
-          className="flex-1 flex flex-col min-h-0 overflow-y-auto relative"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
+          className={`flex-1 flex flex-col min-h-0 overflow-y-auto relative origin-top ${
+            pathname.includes("/messages") ? "" : "p-4 sm:p-6 lg:p-8"
+          }`}
+          variants={fadeInUp}
+          initial="hidden"
+          animate="visible"
+          key={pathname}
         >
           {children}
         </motion.div>
@@ -155,10 +159,10 @@ export default function DashboardLayout({
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg min-w-[64px] transition-colors ${   
-                isActive ? "text-teal-600" : "text-gray-500 hover:text-gray-900"
+                isActive ? "text-mustard-600" : "text-gray-500 hover:text-gray-900"
               }`}
             >
-              <span className={`shrink-0 ${isActive ? "text-teal-600" : "text-gray-400"}`}>
+              <span className={`shrink-0 ${isActive ? "text-mustard-600" : "text-gray-400"}`}>
                 {item.icon}
               </span>
               <span className="text-[10px] font-medium leading-none">{item.label}</span>

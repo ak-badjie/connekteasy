@@ -74,7 +74,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[3px]" variants={backdropFade} initial="hidden" animate="visible" exit="exit" onClick={onClose} />
+          <motion.div className="fixed inset-0 z-40 bg-black/30" variants={backdropFade} initial="hidden" animate="visible" exit="exit" onClick={onClose} />
           <motion.div className="fixed top-0 right-0 z-50 h-full w-full sm:w-[520px] bg-white shadow-2xl" variants={slideInRight} initial="hidden" animate="visible" exit="exit">
             {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
@@ -110,7 +110,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
                   <h3 className="font-display text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Skills Required</h3>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     {project.tags.map((tag) => (
-                      <span key={tag} className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium bg-teal-50 text-teal-700 rounded-full">{tag}</span>
+                      <span key={tag} className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium bg-mustard-50 text-mustard-700 rounded-full">{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -121,7 +121,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
                 <div className="mb-6 sm:mb-8 p-5 sm:p-6 bg-soft-surface rounded-2xl">
                   <h3 className="font-display text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Posted By</h3>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs sm:text-sm font-bold">{project.postedByAvatar}</div>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-teal-100 text-mustard-700 flex items-center justify-center text-xs sm:text-sm font-bold">{project.postedByAvatar}</div>
                     <div>
                       <p className="text-xs sm:text-sm font-semibold text-gray-900">{project.postedBy}</p>
                       <p className="text-[10px] sm:text-xs text-gray-500">Business Owner</p>
@@ -139,7 +139,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
                         if (!user) { router.push("/auth/signin"); return; }
                         setShowProposalForm(true);
                       }}
-                      className="w-full py-3 sm:py-3.5 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                      className="w-full py-3 sm:py-3.5 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm flex items-center justify-center gap-2"
                       whileTap={{ scale: 0.97 }}
                     >
                       <Send size={16} />
@@ -218,7 +218,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
                       <motion.button
                         onClick={handleSubmitProposal}
                         disabled={submitting || !coverLetter}
-                        className="flex-1 py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        className="flex-1 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                         whileTap={{ scale: 0.97 }}
                       >
                         {submitting ? "Sending..." : "Submit Proposal"}

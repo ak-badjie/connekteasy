@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { Eye, EyeOff, Mail, Lock, User, AlertCircle } from "lucide-react";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle, ArrowRight } from "lucide-react";
+import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -118,7 +118,7 @@ export default function SignUpPage() {
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <Link href="/" className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
-            <span className="font-display text-2xl font-bold tracking-tight text-gray-900">
+            <span className="font-display text-2xl font-bold tracking-tight text-mustard-700">
               CONNEKT
             </span>
           </Link>
@@ -128,13 +128,14 @@ export default function SignUpPage() {
         {/* Card */}
         <motion.div
           className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
-          variants={staggerItem}
+          variants={scaleIn}
+          whileHover={cardHover}
         >
           {error && (
             <motion.div
               className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-sm text-red-700"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
             >
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
               {error}
@@ -147,7 +148,7 @@ export default function SignUpPage() {
             onClick={handleGoogleSignUp}
             disabled={loading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50"
-            whileTap={{ scale: 0.98 }}
+            whileTap={cardTap}
           >
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -221,7 +222,7 @@ export default function SignUpPage() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-3 text-sm font-semibold text-white bg-mustard-500 text-gray-900 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50"
               whileTap={{ scale: 0.98 }}
             >
               {loading ? "Creating account..." : "Create Account"}
@@ -235,7 +236,7 @@ export default function SignUpPage() {
 
         <motion.p className="text-center text-sm text-gray-500 mt-6" variants={fadeInUp}>
           Already have an account?{" "}
-          <Link href="/auth/signin" className="text-teal-600 font-semibold hover:text-teal-700 transition-colors">
+          <Link href="/auth/signin" className="text-mustard-600 font-semibold hover:text-mustard-700 transition-colors">
             Sign In
           </Link>
         </motion.p>
