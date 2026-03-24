@@ -7,7 +7,10 @@ import ConnektWalletLogo from "@/components/branding/ConnektWalletLogo";
 function CallbackContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
-  const transactionId = searchParams.get("transaction_id");
+  
+  const [fallbackId] = useState(`local_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`);
+  const transactionId = searchParams.get("transaction_id") || searchParams.get("id") || searchParams.get("payment_intent_id") || searchParams.get("reference") || fallbackId;
+  
   const uid = searchParams.get("uid");
   const amount = searchParams.get("amount");
   

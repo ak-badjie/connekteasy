@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
 
         // Initialize ModemPay SDK
         const modempay = new ModemPay(secretKey);
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const isProd = process.env.NODE_ENV === 'production';
+        const baseUrl = isProd ? 'https://connekt.africa' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
 
         // Create payment intent using the ModemPay SDK
         const intent = await modempay.paymentIntents.create({
@@ -36,6 +37,7 @@ export async function POST(request: NextRequest) {
             // Include UID and AMOUNT directly in the redirect URL so the frontend can credit them if the webhook fails locally
             return_url: `${baseUrl}/payment-callback?status=completed&uid=${uid}&amount=${amount}`,
             cancel_url: `${baseUrl}/payment-callback?status=cancelled`,
+            callback_url: `${baseUrl}/api/webhooks/modem-pay`,
             metadata: {
                ...metadata,
                uid, // CRITICAL: Used in webhook to identify user

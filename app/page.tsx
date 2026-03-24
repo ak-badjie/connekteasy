@@ -176,22 +176,66 @@ export default function Home() {
 
       {/* Trusted By (Social Proof) */}
       <motion.section
-        className="border-y border-gray-100 bg-white pt-24 lg:pt-32 pb-6 sm:pb-8"
+        className="border-y border-gray-100 bg-white pt-24 lg:pt-32 pb-6 sm:pb-8 overflow-hidden"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs sm:text-sm text-gray-400 font-medium mb-4 sm:mb-6">
-            TRUSTED BY TEAMS AT
+          <p className="text-center text-xs sm:text-sm text-gray-400 font-medium mb-8 sm:mb-10">
+            TRUSTED BY & IN PARTNERSHIP WITH
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-5 sm:gap-8 md:gap-14 text-gray-300">
-            {["Notion", "Stripe", "Shopify", "Slack", "Linear", "Vercel"].map((brand) => (
-              <span key={brand} className="text-base sm:text-lg md:text-xl font-bold tracking-tight">
-                {brand}
-              </span>
-            ))}
+          
+          <div className="relative flex overflow-x-hidden group">
+            <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div className="absolute right-0 top-0 w-24 h-full bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+            
+            <motion.div 
+              className="flex items-center gap-12 sm:gap-16 md:gap-24 text-gray-300 w-max whitespace-nowrap"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
+            >
+              {[
+                "G-Tech Hub",
+                "Alliance Française de Banjul",
+                "French Embassy",
+                "National Youth Council",
+                "UNDP Accelerator Labs",
+                "DaveLabs",
+                "CS Painting",
+                "Tech4SDGs",
+                "Aspire Institute",
+                "Teranga Tech Network",
+                "GoMindz",
+                "Smart Professional College",
+                "IIHT",
+                "University of The Gambia",
+                "Polaris Asso",
+                "YouthConnekt Gambia",
+                // Duplicated for seamless infinite scroll
+                "G-Tech Hub",
+                "Alliance Française de Banjul",
+                "French Embassy",
+                "National Youth Council",
+                "UNDP Accelerator Labs",
+                "DaveLabs",
+                "CS Painting",
+                "Tech4SDGs",
+                "Aspire Institute",
+                "Teranga Tech Network",
+                "GoMindz",
+                "Smart Professional College",
+                "IIHT",
+                "University of The Gambia",
+                "Polaris Asso",
+                "YouthConnekt Gambia"
+              ].map((brand, i) => (
+                <span key={`${brand}-${i}`} className="text-base sm:text-lg md:text-xl font-bold tracking-tight">
+                  {brand}
+                </span>
+              ))}
+            </motion.div>
           </div>
         </div>
       </motion.section>
