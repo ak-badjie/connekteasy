@@ -8,7 +8,62 @@ import SearchBar from "./components/SearchBar";
 import CategoryIcon from "./components/CategoryIcon";
 import { categories } from "./lib/data";
 import { FileEdit, Handshake, Rocket, ArrowRight, DollarSign, ShieldCheck, Lock, MessageSquare, Calendar } from "lucide-react";
-import { fadeInUp, staggerContainer, staggerItem, scaleIn } from "./lib/animations";
+
+// CUSTOM MOTION VARIANTS
+const magneticSlideLeft = {
+  hidden: { x: -200, opacity: 0, rotateZ: -8 },
+  visible: { 
+    x: 0, 
+    opacity: 1, 
+    rotateZ: 0,
+    transition: { type: "spring", bounce: 0.5, duration: 1.4 }
+  }
+};
+
+const magneticSlideRight = {
+  hidden: { x: 200, opacity: 0, rotateZ: 8 },
+  visible: { 
+    x: 0, 
+    opacity: 1, 
+    rotateZ: 0,
+    transition: { type: "spring", bounce: 0.5, duration: 1.4 }
+  }
+};
+
+const magneticSlideUp = {
+  hidden: { y: 200, opacity: 0, rotateZ: -4 },
+  visible: { 
+    y: 0, 
+    opacity: 1, 
+    rotateZ: 0,
+    transition: { type: "spring", bounce: 0.4, duration: 1.2 }
+  }
+};
+
+const appleDrop = {
+  hidden: { scale: 0, y: -80, opacity: 0 },
+  visible: { 
+    scale: 1, 
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 350, damping: 15, mass: 1.2 }
+  }
+};
+
+const spin3D = {
+  hidden: { rotateX: 180, opacity: 0, scale: 0.4 },
+  visible: { 
+    rotateX: 0, 
+    opacity: 1, 
+    scale: 1,
+    transition: { type: "spring", bounce: 0.6, duration: 1.6 }
+  }
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
 
 export default function Home() {
   const router = useRouter();
@@ -25,7 +80,7 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-soft-surface pt-12 pb-24 lg:pt-20 lg:pb-32">
+      <section className="relative overflow-hidden bg-soft-surface pt-12 pb-24 lg:pt-20 lg:pb-32" style={{ perspective: "1500px" }}>
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pb-8 lg:pb-12">
             {/* Left Content */}
@@ -38,26 +93,31 @@ export default function Home() {
               {/* Headline */}
               <motion.h1
                 className="text-4xl sm:text-5xl md:text-6xl font-display text-gray-900 mb-6"
-                variants={fadeInUp}
+                variants={magneticSlideLeft}
               >
                 Turn Your Skills{" "}
-                <span className="text-teal-600">Into Income</span>
+                <span className="text-teal-600 inline-block">Into Income</span>
               </motion.h1>
 
               {/* Subtitle */}
               <motion.p
                 className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed"
-                variants={fadeInUp}
+                variants={magneticSlideLeft}
               >
                 Become a Virtual Assistant and work professionally with growing businesses in The Gambia.
               </motion.p>
 
               {/* Search Toggle Area */}
-              <motion.div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 max-w-xl mx-auto lg:mx-0 mb-8" variants={scaleIn}>
+              <motion.div 
+                className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 max-w-xl mx-auto lg:mx-0 mb-8 origin-center" 
+                variants={appleDrop}
+                whileHover={{ scale: 1.02, rotateX: 5, transition: { type: "spring", stiffness: 400 } }}
+              >
                 {/* Toggle Pill */}
                 <div className="flex mb-5">
                   <div className="inline-flex w-full items-center bg-gray-50 rounded-lg p-1 border border-gray-200">  
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => setSearchMode("talent")}
                       className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                         searchMode === "talent"
@@ -66,8 +126,9 @@ export default function Home() {
                       }`}
                     >
                       Find Talent
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => setSearchMode("projects")}
                       className={`flex-1 relative px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                         searchMode === "projects"
@@ -76,7 +137,7 @@ export default function Home() {
                       }`}
                     >
                       Find Work
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -96,23 +157,28 @@ export default function Home() {
             {/* Right Content: Image */}
             <motion.div
               className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-auto lg:h-[600px] flex items-center justify-center"
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              initial="hidden"
+              animate="visible"
+              variants={magneticSlideRight}
             >
-               <div className="absolute inset-0 bg-teal-500/5 rounded-lg rotate-3 transform-gpu"></div>
-               <img
+               <motion.div 
+                 className="absolute inset-0 bg-teal-500/5 rounded-lg transform-gpu"
+                 animate={{ rotate: 3 }}
+                 whileHover={{ rotate: -3, scale: 1.05 }}
+                 transition={{ type: "spring", stiffness: 200 }}
+               ></motion.div>
+               <motion.img
                  src="/Black_virtual_assistant_202603240436.jpeg"
                  alt="Virtual Assistant"
                  className="relative w-full h-full object-cover rounded-lg shadow-2xl z-10 border-4 border-white" 
+                 whileHover={{ scale: 1.03, rotateY: -5, transition: { type: "spring" } }}
                />
 
                {/* Floating Card 1: User Profile Summary */}
                <motion.div
                  className="absolute top-10 -right-4 lg:-right-12 bg-white p-4 rounded-lg shadow-lg border border-gray-100 z-20 flex items-center gap-4 min-w-[220px]"
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.6 }}
+                 variants={spin3D}
+                 whileHover={{ scale: 1.1, rotateX: 360, transition: { duration: 0.8, type: "spring" } }}
                >
                  <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 font-bold overflow-hidden border border-gray-200">
                    <img src="/Male_black_virtual_202603240440.jpeg" alt="User Avatar" className="w-full h-full object-cover" />
@@ -126,9 +192,8 @@ export default function Home() {
                {/* Floating Card 2: Top Category */}
                <motion.div
                  className="absolute bottom-16 -left-4 lg:-left-12 bg-white px-5 py-4 rounded-lg shadow-lg border border-gray-100 z-20 w-64"
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.8 }}
+                 variants={appleDrop}
+                 whileHover={{ scale: 1.15, rotateY: 360, transition: { duration: 0.8, type: "spring" } }}
                >
                  <p className="text-sm font-semibold text-gray-900 mb-3">Top Category</p>
                  <ul className="space-y-2.5 text-xs text-gray-600 font-medium">
@@ -144,32 +209,53 @@ export default function Home() {
           
           {/* 4 Info Cards overlapping the bottom */}
           <div className="absolute left-0 right-0 -bottom-12 lg:-bottom-16 px-4 sm:px-6 lg:px-8 z-30">
-             <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-                <div className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center hover:border-teal-500 transition-colors">
+             <motion.div 
+               className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6"
+               initial="hidden"
+               animate="visible"
+               variants={staggerContainer}
+             >
+                <motion.div 
+                  className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
+                  variants={spin3D}
+                  whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
+                >
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <Rocket size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Get Trained</h3>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center hover:border-mustard-500 transition-colors">
+                </motion.div>
+                <motion.div 
+                  className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
+                  variants={spin3D}
+                  whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
+                >
                   <div className="w-12 h-12 rounded-full bg-mustard-50 flex items-center justify-center text-mustard-600 mb-3">
                     <FileEdit size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Find Jobs</h3>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center hover:border-teal-500 transition-colors">
+                </motion.div>
+                <motion.div 
+                  className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
+                  variants={spin3D}
+                  whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
+                >
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <Handshake size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Support Businesses</h3>
-                </div>
-                <div className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center hover:border-teal-500 transition-colors">
+                </motion.div>
+                <motion.div 
+                  className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
+                  variants={spin3D}
+                  whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
+                >
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <DollarSign size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Earn Income</h3>
-                </div>
-             </div>
+                </motion.div>
+             </motion.div>
           </div>
         </div>
       </section>
@@ -177,15 +263,18 @@ export default function Home() {
       {/* Trusted By (Social Proof) */}
       <motion.section
         className="border-y border-gray-100 bg-white pt-24 lg:pt-32 pb-6 sm:pb-8 overflow-hidden"
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        variants={magneticSlideUp}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs sm:text-sm text-gray-400 font-medium mb-8 sm:mb-10">
+          <motion.p 
+            className="text-center text-xs sm:text-sm text-gray-400 font-medium mb-8 sm:mb-10"
+            variants={appleDrop}
+          >
             TRUSTED BY & IN PARTNERSHIP WITH
-          </p>
+          </motion.p>
           
           <div className="relative flex overflow-x-hidden group">
             <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
@@ -231,7 +320,7 @@ export default function Home() {
                 "Polaris Asso",
                 "YouthConnekt Gambia"
               ].map((brand, i) => (
-                <span key={`${brand}-${i}`} className="text-base sm:text-lg md:text-xl font-bold tracking-tight">
+                <span key={`${brand}-${i}`} className="text-base sm:text-lg md:text-xl font-bold tracking-tight hover:text-teal-400 transition-colors cursor-default">
                   {brand}
                 </span>
               ))}
@@ -241,14 +330,14 @@ export default function Home() {
       </motion.section>
 
       {/* What's in it for you? */}
-      <section className="py-16 sm:py-24 bg-white relative">
+      <section className="py-16 sm:py-24 bg-white relative overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="mb-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
-            variants={fadeInUp}
+            variants={magneticSlideLeft}
           >
             <h2 className="text-3xl sm:text-4xl font-display text-gray-900 mb-4">What&apos;s in it for you?</h2>
           </motion.div>
@@ -286,12 +375,16 @@ export default function Home() {
               ].map((item, idx) => (
                 <motion.div
                   key={idx}
-                  className="bg-soft-surface rounded-lg p-6 hover:shadow-md transition-shadow"
-                  variants={staggerItem}
+                  className="bg-soft-surface rounded-lg p-6 origin-center"
+                  variants={spin3D}
+                  whileHover={{ scale: 1.08, rotateX: -10, rotateY: 10, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
                 >
-                  <div className="w-12 h-12 rounded-lg bg-white border border-teal-100 flex items-center justify-center mb-4 shadow-sm">
+                  <motion.div 
+                    className="w-12 h-12 rounded-lg bg-white border border-teal-100 flex items-center justify-center mb-4 shadow-sm"
+                    whileHover={{ rotate: 360, transition: { type: "spring", stiffness: 200 } }}
+                  >
                     {item.icon}
-                  </div>
+                  </motion.div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
                 </motion.div>
@@ -301,25 +394,29 @@ export default function Home() {
             {/* Right Content: Image & Overlaps */}
             <motion.div
               className="relative w-full aspect-square lg:aspect-auto lg:h-[500px]"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              variants={magneticSlideRight}
             >
-              <div className="absolute inset-0 bg-mustard-500/10 rounded-lg -rotate-3 transform-gpu"></div>       
-              <img
+              <motion.div 
+                className="absolute inset-0 bg-mustard-500/10 rounded-lg transform-gpu"
+                animate={{ rotate: -3 }}
+                whileHover={{ rotate: 0, scale: 1.05 }}
+              ></motion.div>       
+              <motion.img
                 src="/Male_black_virtual_202603240440.jpeg"
                 alt="Professional Virtual Assistant"
                 className="relative w-full h-full object-cover rounded-lg shadow-xl z-10"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring" }}
               />
 
               {/* Overlapping Info Card */}
               <motion.div
                 className="absolute -bottom-8 lg:-bottom-12 -left-4 lg:-left-12 bg-white p-6 rounded-lg shadow-xl border border-gray-100 z-20 max-w-sm"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
+                variants={appleDrop}
+                whileHover={{ scale: 1.05, y: -10, rotateZ: [0, 2, -2, 0], transition: { duration: 0.5 } }}
               >
                 <h4 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
                   Start Building Your VA Career Today
@@ -340,10 +437,10 @@ export default function Home() {
                 </ul>
                 <div className="flex gap-3">
                   <Link href="/onboarding" className="flex-1 text-center bg-teal-500 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-teal-600 transition-colors">
-                    Apply to Be a VA
+                    <motion.span whileTap={{ scale: 0.9 }}>Apply to Be a VA</motion.span>
                   </Link>
                   <Link href="/explore" className="flex-1 text-center bg-gray-50 text-gray-700 text-sm font-semibold py-2.5 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                    Learn More
+                    <motion.span whileTap={{ scale: 0.9 }}>Learn More</motion.span>
                   </Link>
                 </div>
               </motion.div>
@@ -353,31 +450,35 @@ export default function Home() {
       </section>
 
       {/* Platform Features */}
-      <section className="py-16 sm:py-24 bg-soft-surface relative border-t border-gray-100">
+      <section className="py-16 sm:py-24 bg-soft-surface relative border-t border-gray-100 overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Content: Image with overlaps */}
             <motion.div
               className="relative w-full aspect-square lg:aspect-auto lg:h-[600px] order-2 lg:order-1"
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              variants={magneticSlideLeft}
             >
-              <div className="absolute inset-0 bg-teal-500/10 rounded-lg rotate-3 transform-gpu"></div>       
-              <img
+              <motion.div 
+                className="absolute inset-0 bg-teal-500/10 rounded-lg transform-gpu"
+                animate={{ rotate: 3 }}
+                whileHover={{ rotate: 0, scale: 1.05 }}
+              ></motion.div>       
+              <motion.img
                 src="/Black_virtual_assistant_202603240439.jpeg"
                 alt="Platform Features"
                 className="relative w-full h-full object-cover rounded-lg shadow-xl z-10"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring" }}
               />
               
               {/* Overlapping Badge */}
               <motion.div
-                className="absolute top-8 -left-4 lg:-left-8 bg-white px-4 py-3 rounded-lg shadow-lg border border-gray-100 z-20 flex items-center gap-3"
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.5 }}
+                className="absolute top-8 -left-4 lg:-left-8 bg-white px-4 py-3 rounded-lg shadow-lg border border-gray-100 z-20 flex items-center gap-3 origin-center"
+                variants={spin3D}
+                whileHover={{ scale: 1.2, rotateY: 180, transition: { duration: 0.8, type: "spring" } }}
               >
                 <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
                   <ShieldCheck size={20} />
@@ -390,11 +491,9 @@ export default function Home() {
 
               {/* Overlapping Image/Card */}
               <motion.div
-                 className="absolute bottom-8 -right-4 lg:-right-8 bg-white p-2 rounded-lg shadow-xl border border-gray-100 z-20 w-48 h-32 hidden sm:block"
-                 initial={{ opacity: 0, y: 20 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true }}
-                 transition={{ delay: 0.7 }}
+                 className="absolute bottom-8 -right-4 lg:-right-8 bg-white p-2 rounded-lg shadow-xl border border-gray-100 z-20 w-48 h-32 hidden sm:block origin-bottom-right"
+                 variants={appleDrop}
+                 whileHover={{ scale: 1.15, rotateZ: -5, transition: { type: "spring" } }}
               >
                  <img src="/Black_virtual_assistant_202603240435.jpeg" alt="Professional" className="w-full h-full object-cover rounded-lg" />
               </motion.div>
@@ -410,9 +509,9 @@ export default function Home() {
             >
               <motion.h2 
                 className="text-3xl sm:text-4xl font-display text-gray-900 mb-6"
-                variants={fadeInUp}
+                variants={magneticSlideRight}
               >
-                Why Choose <span className="text-teal-600">CONNEKT?</span>
+                Why Choose <span className="text-teal-600 inline-block">CONNEKT?</span>
               </motion.h2>
 
               <div className="space-y-6 lg:space-y-8 mt-8">
@@ -438,10 +537,18 @@ export default function Home() {
                     desc: "Easy coordination across time zones with built-in calendar and scheduling tools.",
                   },
                 ].map((feature, idx) => (
-                  <motion.div key={idx} className="flex gap-4 sm:gap-6" variants={staggerItem}>
-                    <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center border border-teal-100 shadow-sm">
+                  <motion.div 
+                    key={idx} 
+                    className="flex gap-4 sm:gap-6" 
+                    variants={magneticSlideRight}
+                    whileHover={{ x: -10, scale: 1.02, transition: { type: "spring" } }}
+                  >
+                    <motion.div 
+                      className="flex-shrink-0 w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center border border-teal-100 shadow-sm"
+                      whileHover={{ rotateY: 360, transition: { type: "spring", duration: 1 } }}
+                    >
                       {feature.icon}
-                    </div>
+                    </motion.div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-1">{feature.title}</h3>
                       <p className="text-sm text-gray-600 leading-relaxed">{feature.desc}</p>
@@ -455,14 +562,14 @@ export default function Home() {
       </section>
 
       {/* Categories */}
-      <section className="py-14 sm:py-20 md:py-24 bg-gray-50">
+      <section className="py-14 sm:py-20 md:py-24 bg-gray-50 overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-10 gap-3 sm:gap-4"        
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
-            variants={fadeInUp}
+            variants={magneticSlideUp}
           >
             <div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Popular categories</h2>
@@ -470,10 +577,12 @@ export default function Home() {
             </div>
             <Link
               href="/explore"
-              className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1"
+              className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors flex items-center gap-1 group"
             >
               View all categories
-              <ArrowRight size={16} />
+              <motion.div whileHover={{ x: 5 }}>
+                <ArrowRight size={16} />
+              </motion.div>
             </Link>
           </motion.div>
 
@@ -485,14 +594,25 @@ export default function Home() {
             variants={staggerContainer}
           >
             {categories.map((cat) => (
-              <motion.div key={cat.id} variants={staggerItem}>
+              <motion.div 
+                key={cat.id} 
+                variants={appleDrop}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -5,
+                  rotateX: 10,
+                  rotateY: -10,
+                  boxShadow: "0px 15px 30px rgba(0,0,0,0.1)",
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+              >
                 <Link
                   href="/explore"
-                  className="block bg-white rounded-lg p-4 sm:p-5 border border-gray-200 group"
+                  className="block bg-white rounded-lg p-4 sm:p-5 border border-gray-200 group h-full"
                 >
                   <motion.div
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-teal-100 transition-colors"
-                    whileHover={{ scale: 1.1, rotate: -5 }}
+                    whileHover={{ rotateY: 360, scale: 1.2, transition: { duration: 0.8, type: "spring" } }}
                   >
                     <CategoryIcon name={cat.iconName} size={18} className="sm:w-5 sm:h-5" />
                   </motion.div>
@@ -508,27 +628,47 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-14 sm:py-20 md:py-24 bg-white">
+      <section className="py-14 sm:py-20 md:py-24 bg-white overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="relative bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            className="relative bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden origin-center"
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+            variants={spin3D}
+            whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2, transition: { type: "spring" } }}
           >
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-40 sm:w-64 h-40 sm:h-64 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+            <motion.div 
+              className="absolute top-0 right-0 w-40 sm:w-64 h-40 sm:h-64 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" 
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+            />
+            <motion.div 
+              className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" 
+              animate={{ scale: [1, 1.5, 1], rotate: [0, -90, 0] }}
+              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+            />
 
             <div className="relative z-10">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Ready to get started?</h2>
-              <p className="text-teal-100 text-sm sm:text-base md:text-lg max-w-md mx-auto mb-6 sm:mb-8 px-4 sm:px-0">
+              <motion.h2 
+                className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4"
+                variants={appleDrop}
+              >
+                Ready to get started?
+              </motion.h2>
+              <motion.p 
+                className="text-teal-100 text-sm sm:text-base md:text-lg max-w-md mx-auto mb-6 sm:mb-8 px-4 sm:px-0"
+                variants={appleDrop}
+              >
                 Whether you&apos;re hiring or looking for work, CONNEKT has you covered. Join thousands of professionals
                 today.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center px-4 sm:px-0">
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              </motion.p>
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center px-4 sm:px-0"
+                variants={staggerContainer}
+              >
+                <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: -2 }} whileTap={{ scale: 0.9 }}>
                   <Link
                     href="/explore"
                     className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-white text-teal-700 rounded-lg hover:bg-teal-50 transition-colors shadow-lg"
@@ -536,7 +676,7 @@ export default function Home() {
                     Explore Projects
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: 2 }} whileTap={{ scale: 0.9 }}>
                   <Link
                     href="/dashboard/post"
                     className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-teal-500 text-white border border-teal-400 rounded-lg hover:bg-teal-600 transition-colors"
@@ -544,7 +684,7 @@ export default function Home() {
                     Post a Project
                   </Link>
                 </motion.div>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
