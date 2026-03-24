@@ -222,7 +222,7 @@ export default function SignUpPage() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-sm font-semibold text-white bg-mustard-500 text-gray-900 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
               whileTap={{ scale: 0.98 }}
             >
               {loading ? "Creating account..." : "Create Account"}

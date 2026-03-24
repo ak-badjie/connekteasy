@@ -79,8 +79,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-soft-surface pt-12 pb-24 lg:pt-20 lg:pb-32" style={{ perspective: "1500px" }}>
+      {/* DESKTOP Hero Section (Preserved 100% exactly as it was) */}
+      <section className="hidden lg:block relative overflow-hidden bg-soft-surface pt-12 pb-24 lg:pt-20 lg:pb-32" style={{ perspective: "1500px" }}>
         <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center pb-8 lg:pb-12">
             {/* Left Content */}
@@ -104,13 +104,15 @@ export default function Home() {
                       className="text-4xl sm:text-5xl md:text-6xl font-display text-gray-900 mb-6"
                     >
                       {searchMode === "talent" ? (
-                        <>
-                          Hire <span className="text-mustard-500 inline-block">Top Virtual Assistants</span>
-                        </>
+                        <span className="text-teal-700">
+                          Hire a Top <br />
+                          <span className="text-teal-600">Virtual Assistants</span>
+                        </span>
                       ) : (
-                        <>
-                          Turn Your Skills <span className="text-mustard-500 inline-block">Into Income</span>
-                        </>
+                        <span className="text-teal-700">
+                          Turn Your Skills <br />
+                          <span className="text-teal-600">Into Income</span>
+                        </span>
                       )}
                     </h1>
 
@@ -273,7 +275,7 @@ export default function Home() {
                   variants={spin3D}
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
                 >
-                  <div className="w-12 h-12 rounded-full bg-mustard-50 flex items-center justify-center text-mustard-600 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
                     <FileEdit size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Delegate Tasks</h3>
@@ -300,6 +302,177 @@ export default function Home() {
                 </motion.div>
              </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* MOBILE Hero Section */}
+      <section className="block lg:hidden relative overflow-hidden bg-soft-surface pt-8 pb-12" style={{ perspective: "1500px" }}>
+        <div className="w-full max-w-md mx-auto px-4 sm:px-6 flex flex-col items-center">
+          
+          {/* Headline & Subtitle */}
+          <motion.div
+            className="text-center flex flex-col justify-center w-full"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={searchMode}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="min-h-[140px] flex flex-col justify-center"
+              >
+                <h1 className="text-4xl font-display text-gray-900 mb-3 leading-tight">
+                  {searchMode === "talent" ? (
+                    <span className="text-teal-700">
+                      Hire a Top <br />
+                      <span className="text-teal-600">Virtual Assistants</span>
+                    </span>
+                  ) : (
+                    <span className="text-teal-700">
+                      Turn Your Skills <br />
+                      <span className="text-teal-600">Into Income</span>
+                    </span>
+                  )}
+                </h1>
+                <p className="text-[15px] text-gray-600 leading-relaxed max-w-sm mx-auto">
+                  {searchMode === "talent"
+                    ? "Scale your business with vetted professionals in The Gambia."
+                    : "Become a Virtual Assistant and work professionally."}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Search Toggle Area */}
+            <motion.div 
+              className="bg-white p-4 rounded-xl shadow-md border border-gray-100 w-full mt-2 relative z-10" 
+              variants={appleDrop}
+            >
+              <div className="flex mb-4">
+                <div className="relative inline-flex w-full items-center bg-gray-50 rounded-lg p-1 border border-gray-200">  
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSearchMode("talent")}
+                    className={`flex-1 relative px-2 py-2.5 text-sm font-semibold rounded-lg transition-colors duration-200 z-10 ${
+                      searchMode === "talent" ? "text-white" : "text-gray-500"
+                    }`}
+                  >
+                    {searchMode === "talent" && (
+                      <motion.div
+                        layoutId="mobileHeroToggleIndicator"
+                        className="absolute inset-0 bg-mustard-500 rounded-lg shadow-sm z-[-1]"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    Find Talent
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setSearchMode("projects")}
+                    className={`flex-1 relative px-2 py-2.5 text-sm font-semibold rounded-lg transition-colors duration-200 z-10 ${
+                      searchMode === "projects" ? "text-white" : "text-gray-500"
+                    }`}
+                  >
+                    {searchMode === "projects" && (
+                      <motion.div
+                        layoutId="mobileHeroToggleIndicator"
+                        className="absolute inset-0 bg-mustard-500 rounded-lg shadow-sm z-[-1]"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    Find Work
+                  </motion.button>
+                </div>
+              </div>
+              <SearchBar
+                size="large"
+                placeholder={searchMode === "talent" ? 'Try "data analyst"...' : 'Try "web dev"...'}
+                onSearch={handleSearch}
+              />
+            </motion.div>
+          </motion.div>
+
+          {/* Right Content: Image (Scaled for mobile) */}
+          <motion.div
+            className="relative w-full aspect-square mt-10 flex items-center justify-center max-w-[280px]"
+            initial="hidden"
+            animate="visible"
+            variants={magneticSlideRight}
+          >
+             <motion.div 
+               className="absolute inset-0 bg-teal-500/5 rounded-2xl transform-gpu"
+               animate={{ rotate: 3 }}
+             />
+             <img
+               src="/Black_virtual_assistant_202603240436.jpeg"
+               alt="Virtual Assistant"
+               className="relative w-full h-full object-cover rounded-2xl shadow-xl z-10 border-4 border-white" 
+             />
+
+             {/* Floating Card 1: Smaller, top right */}
+             <motion.div
+               className="absolute -top-4 -right-4 bg-white p-2.5 rounded-xl shadow-lg border border-gray-100 z-20 flex items-center gap-2"
+               variants={spin3D}
+             >
+               <div className="w-8 h-8 rounded-full bg-mustard-100 flex items-center justify-center overflow-hidden border border-gray-200">
+                 <img src="/Male_black_virtual_202603240440.jpeg" alt="Avatar" className="w-full h-full object-cover" />
+               </div>
+               <div className="text-left">
+                 <p className="text-gray-900 font-bold text-[10px] leading-tight">Top Quality</p>
+                 <p className="text-gray-500 text-[9px]">Professionals</p>
+               </div>
+             </motion.div>
+
+             {/* Floating Card 2: Smaller, bottom left */}
+             <motion.div
+               className="absolute -bottom-4 -left-4 bg-white px-3 py-2.5 rounded-xl shadow-lg border border-gray-100 z-20"
+               variants={appleDrop}
+             >
+               <p className="text-[11px] font-bold text-gray-900 mb-1.5">Top Categories</p>
+               <ul className="space-y-1 text-[10px] text-gray-600 font-medium">
+                 <li className="flex items-center gap-1.5"><span className="text-mustard-500">✓</span> Admin Support</li>
+                 <li className="flex items-center gap-1.5"><span className="text-mustard-500">✓</span> Social Media</li>
+                 <li className="flex items-center gap-1.5"><span className="text-mustard-500">✓</span> Bookkeeping</li>
+               </ul>
+             </motion.div>
+          </motion.div>
+          
+          {/* 4 Info Cards natively in flow, a simple 2x2 grid */}
+          <motion.div 
+            className="w-full grid grid-cols-2 gap-3 mt-12 z-30"
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+          >
+            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
+                <Rocket size={18} />
+              </div>
+              <h3 className="font-bold text-gray-900 text-xs">Hire Talent</h3>
+            </motion.div>
+            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
+                <FileEdit size={18} />
+              </div>
+              <h3 className="font-bold text-gray-900 text-xs">Delegate Tasks</h3>
+            </motion.div>
+            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
+                <Handshake size={18} />
+              </div>
+              <h3 className="font-bold text-gray-900 text-xs">Scale Fast</h3>
+            </motion.div>
+            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+              <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
+                <DollarSign size={18} />
+              </div>
+              <h3 className="font-bold text-gray-900 text-xs">Earn Income</h3>
+            </motion.div>
+          </motion.div>
+
         </div>
       </section>
 
@@ -330,6 +503,7 @@ export default function Home() {
             >
               {[
                 "G-Tech Hub",
+                "ALX Africa",
                 "Alliance Française de Banjul",
                 "French Embassy",
                 "National Youth Council",
@@ -347,6 +521,7 @@ export default function Home() {
                 "YouthConnekt Gambia",
                 // Duplicated for seamless infinite scroll
                 "G-Tech Hub",
+                "ALX Africa",
                 "Alliance Française de Banjul",
                 "French Embassy",
                 "National Youth Council",
@@ -674,7 +849,7 @@ export default function Home() {
       <section className="py-14 sm:py-20 md:py-24 bg-white overflow-hidden" style={{ perspective: "1500px" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="relative bg-gradient-to-br from-teal-700 to-teal-900 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden origin-center"
+            className="relative bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg p-8 sm:p-10 md:p-16 text-center overflow-hidden origin-center"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}

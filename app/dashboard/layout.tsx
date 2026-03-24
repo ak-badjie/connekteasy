@@ -89,7 +89,7 @@ export default function DashboardLayout({
                   href={item.href}
                   className={`flex items-center gap-4 px-4 py-3 mx-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-mustard-50 text-mustard-700"
+                      ? "bg-teal-50 text-teal-700"
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
