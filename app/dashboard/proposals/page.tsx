@@ -84,7 +84,7 @@ function ProposalsContent() {
   return (
     <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="h-full flex flex-col min-h-0 pb-6">
       <motion.div className="mb-4 sm:mb-6 shrink-0" variants={fadeInUp}>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Proposals</h1>
+        <h1 className="text-xl sm:text-2xl font-display font-bold text-gray-900 mb-1">Proposals</h1>
         <p className="text-sm sm:text-base text-gray-500">
           {tab === "received"
             ? "Review proposals for your projects."
@@ -116,9 +116,9 @@ function ProposalsContent() {
             <p className="text-sm text-gray-500">Loading proposals...</p>
           </div>
         ) : proposals.length === 0 ? (
-          <motion.div className="text-center py-16 bg-white rounded-xl border border-gray-200" variants={staggerItem}>
+          <motion.div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200" variants={staggerItem}>
             <FileText size={36} className="mx-auto mb-3 text-gray-300" />
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">No proposals yet</h3>
+            <h3 className="text-sm font-display font-semibold text-gray-900 mb-1">No proposals yet</h3>
             <p className="text-xs text-gray-500">
               {tab === "received"
                 ? "Proposals for your projects will appear here."
@@ -130,7 +130,7 @@ function ProposalsContent() {
             {proposals.map((proposal) => (
               <motion.div
                 key={proposal.id}
-                className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5"
+                className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-5"
                 variants={staggerItem}
               >
                 <div className="flex items-start justify-between gap-3 mb-3">

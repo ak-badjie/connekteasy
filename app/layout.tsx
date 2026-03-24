@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -7,6 +7,19 @@ import { AuthProvider } from "./lib/AuthContext";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const poppins = Poppins({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -27,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} antialiased overflow-x-hidden flex flex-col min-h-screen`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable} font-sans antialiased overflow-x-hidden flex flex-col min-h-screen`} suppressHydrationWarning>
         <AuthProvider>
           <Navbar />
           <main className="flex-1 flex flex-col min-h-0">{children}</main>

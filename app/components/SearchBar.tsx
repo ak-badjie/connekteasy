@@ -36,7 +36,7 @@ export default function SearchBar({
     return (
         <form onSubmit={handleSubmit} className="w-full">
             <motion.div
-                className={`relative flex items-center w-full bg-white rounded-full border border-gray-200 shadow-sm transition-shadow ${isLarge ? "h-12 sm:h-14 md:h-16" : "h-11 sm:h-12"
+                className={`relative flex items-center w-full bg-white rounded-xl border border-gray-200 shadow-sm transition-all focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-500 ${isLarge ? "h-12 sm:h-14 md:h-16" : "h-11 sm:h-12"
                     }`}
                 whileFocus={{ boxShadow: "0 4px 20px rgba(0, 128, 128, 0.1)" }}
                 whileHover={{ boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)" }}
@@ -74,7 +74,7 @@ export default function SearchBar({
                 <div className={`${isLarge ? "pr-1.5 sm:pr-2 md:pr-2.5" : "pr-1 sm:pr-1.5"}`}>
                     <motion.button
                         type="submit"
-                        className={`bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-full transition-colors ${isLarge
+                        className={`bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors ${isLarge
                                 ? "px-4 sm:px-5 md:px-7 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm md:text-base"
                                 : "px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm"
                             }`}

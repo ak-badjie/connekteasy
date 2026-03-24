@@ -118,7 +118,7 @@ export default function SignUpPage() {
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <Link href="/" className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
-            <span className="text-2xl font-bold tracking-tight text-gray-900">
+            <span className="font-display text-2xl font-bold tracking-tight text-gray-900">
               CONNEKT
             </span>
           </Link>
@@ -127,7 +127,7 @@ export default function SignUpPage() {
 
         {/* Card */}
         <motion.div
-          className="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-100/50 p-6 sm:p-8"
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
           variants={staggerItem}
         >
           {error && (
@@ -174,7 +174,7 @@ export default function SignUpPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   required
                 />
               </div>
@@ -189,7 +189,7 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   required
                 />
               </div>
@@ -204,7 +204,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min. 6 characters"
-                  className="w-full pl-9 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-9 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   required
                   minLength={6}
                 />
@@ -221,7 +221,7 @@ export default function SignUpPage() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-sm font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
               whileTap={{ scale: 0.98 }}
             >
               {loading ? "Creating account..." : "Create Account"}

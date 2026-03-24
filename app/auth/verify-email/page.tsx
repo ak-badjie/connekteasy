@@ -98,7 +98,7 @@ export default function VerifyEmailPage() {
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <div className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-gray-900">
               Verify your email
             </h1>
           </div>
@@ -108,7 +108,7 @@ export default function VerifyEmailPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-100/50 p-6 sm:p-8"
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
           variants={staggerItem}
         >
           {error && (
@@ -134,7 +134,7 @@ export default function VerifyEmailPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="Paste link or code here"
-                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
+                  className="w-full pl-9 pr-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
               <p className="text-[11px] text-gray-400 mt-1.5">
@@ -145,7 +145,7 @@ export default function VerifyEmailPage() {
             <button
               type="submit"
               disabled={loading || !code}
-              className="w-full py-3 text-sm font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 transition-colors shadow-sm disabled:opacity-50"
+              className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
             >
               {loading ? "Verifying..." : "Verify Code"}
             </button>

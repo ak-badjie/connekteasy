@@ -67,7 +67,7 @@ export default function OnboardingPage() {
         {/* Logo */}
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <ConnektIcon className="w-10 h-10 mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-gray-900">Welcome to CONNEKT!</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-900">Welcome to CONNEKT!</h1>
           <p className="text-sm text-gray-500 mt-1">Let&apos;s set up your account in just a few steps.</p>
         </motion.div>
 
@@ -84,7 +84,7 @@ export default function OnboardingPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-2xl border border-gray-200 shadow-xl shadow-gray-100/50 p-6 sm:p-8"
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8"
           variants={staggerItem}
         >
           {error && (
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="text-lg font-bold text-gray-900 mb-1">How will you use CONNEKT?</h2>
+              <h2 className="font-display text-lg font-bold text-gray-900 mb-1">How will you use CONNEKT?</h2>
               <p className="text-sm text-gray-500 mb-6">Choose the option that best describes you.</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                   >
                     <Briefcase size={20} />
                   </div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Client</h3>
+                  <h3 className="font-display text-sm font-bold text-gray-900 mb-1">I&apos;m a Client</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
                     I want to hire virtual assistants for my projects.
                   </p>
@@ -153,7 +153,7 @@ export default function OnboardingPage() {
                   >
                     <UserCheck size={20} />
                   </div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-1">I&apos;m a Virtual Assistant</h3>
+                  <h3 className="font-display text-sm font-bold text-gray-900 mb-1">I&apos;m a Virtual Assistant</h3>
                   <p className="text-xs text-gray-500 leading-relaxed">
                     I want to find projects and offer my services.
                   </p>
@@ -163,7 +163,7 @@ export default function OnboardingPage() {
               <motion.button
                 onClick={() => role && setStep(2)}
                 disabled={!role}
-                className="w-full mt-6 py-3 text-sm font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 transition-colors shadow-sm disabled:opacity-40 flex items-center justify-center gap-2"
+                className="w-full mt-6 py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-40 flex items-center justify-center gap-2"
                 whileTap={{ scale: 0.98 }}
               >
                 Continue
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="text-lg font-bold text-gray-900 mb-1">Tell us about yourself</h2>
+              <h2 className="font-display text-lg font-bold text-gray-900 mb-1">Tell us about yourself</h2>
               <p className="text-sm text-gray-500 mb-6">
                 {role === "va"
                   ? "Help clients understand what you bring to the table."
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder={role === "va" ? "e.g. Virtual Assistant, Social Media Manager" : "e.g. Startup Founder, E-commerce Owner"}
-                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>
 
@@ -209,7 +209,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setBio(e.target.value)}
                     rows={3}
                     placeholder="A brief description about yourself..."
-                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 resize-none"
+                    className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export default function OnboardingPage() {
                 <motion.button
                   onClick={handleFinish}
                   disabled={loading}
-                  className="flex-1 py-3 text-sm font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   whileTap={{ scale: 0.98 }}
                 >
                   {loading ? "Setting up..." : "Complete Setup"}

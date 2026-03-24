@@ -13,21 +13,22 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
     return (
         <motion.button
             onClick={() => onClick(project)}
-            className="w-full text-left bg-white rounded-xl border border-gray-200 p-4 sm:p-5 md:p-6 cursor-pointer group"
+            className="w-full text-left bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md p-2 sm:p-3 cursor-pointer group"
             whileHover={cardHover}
             whileTap={cardTap}
             layout
         >
             {/* Header */}
             <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <h3 className="text-sm sm:text-base font-semibold text-gray-900 group-hover:text-teal-600 transition-colors leading-snug line-clamp-2">
+                <h3 className="font-display text-sm sm:text-base font-semibold text-gray-900 group-hover:text-teal-600 transition-colors leading-snug line-clamp-2">
                     {project.title}
                 </h3>
                 <span
-                    className={`shrink-0 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium rounded-full ${project.status === "open"
-                            ? "bg-emerald-50 text-emerald-700"
+                    className={`shrink-0 px-2 py-1 text-[10px] sm:text-xs font-medium rounded-full ${
+                        project.status === "open"
+                            ? "bg-teal-50 text-teal-700"
                             : project.status === "in-progress"
-                                ? "bg-amber-50 text-amber-700"
+                                ? "bg-yellow-50 text-yellow-700"
                                 : "bg-gray-100 text-gray-500"
                         }`}
                 >
@@ -43,32 +44,32 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
                 {project.tags.slice(0, 3).map((tag) => (
                     <span
                         key={tag}
-                        className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium bg-gray-100 text-gray-600 rounded-full"
+                        className="px-2 py-1 text-[10px] sm:text-xs font-medium bg-gray-50 text-gray-500 rounded-full"
                     >
                         {tag}
                     </span>
                 ))}
                 {project.tags.length > 3 && (
-                    <span className="px-2 py-0.5 text-[10px] sm:text-xs font-medium bg-gray-50 text-gray-400 rounded-full">
+                    <span className="px-2 py-1 text-[10px] sm:text-xs font-medium bg-gray-50 text-gray-500 rounded-full">
                         +{project.tags.length - 3}
                     </span>
                 )}
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-2">
                     <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[10px] sm:text-xs font-bold">
                         {project.postedByAvatar}
                     </div>
                     <div>
-                        <p className="text-[11px] sm:text-xs font-medium text-gray-700">{project.postedBy}</p>
-                        <p className="text-[10px] sm:text-xs text-gray-400">{project.postedAt}</p>
+                        <p className="text-[11px] sm:text-xs font-medium text-gray-900">{project.postedBy}</p>
+                        <p className="text-[10px] sm:text-xs text-gray-500">{project.postedAt}</p>
                     </div>
                 </div>
                 <div className="text-right">
                     <p className="text-xs sm:text-sm font-semibold text-gray-900">{project.budget}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-400">
+                    <p className="text-[10px] sm:text-xs text-gray-500">
                         {project.budgetType === "hourly" ? "Hourly" : "Fixed Price"}
                     </p>
                 </div>

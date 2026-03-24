@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { getProjectsByOwner, getProposalsByUser, getConversations } from "@/app/lib/firestore";
-import { FolderOpen, Send, MessageSquare, Eye, Search, PenLine } from "lucide-react";
+import { FolderOpen, Send, MessageSquare, Eye, Search, PenLine, ArrowRight } from "lucide-react";
 import { staggerContainer, staggerItem, fadeInUp } from "@/app/lib/animations";
 
 export default function DashboardOverview() {
@@ -37,65 +37,77 @@ export default function DashboardOverview() {
   }, [user]);
 
   const statCards = [
-    { label: "Active Projects", value: stats.projects.toString(), change: "View all", icon: <FolderOpen size={18} />, color: "bg-teal-50 text-teal-700" },
-    { label: "Proposals Sent", value: stats.proposals.toString(), change: "View all", icon: <Send size={18} />, color: "bg-blue-50 text-blue-700" },
-    { label: "Conversations", value: stats.messages.toString(), change: "View all", icon: <MessageSquare size={18} />, color: "bg-purple-50 text-purple-700" },
-    { label: "Profile Views", value: "—", change: "Coming soon", icon: <Eye size={18} />, color: "bg-amber-50 text-amber-700" },
+    { label: "Active Projects", value: stats.projects.toString(), link: "/dashboard/projects", icon: <FolderOpen size={20} />, color: "bg-teal-50 text-teal-700 border-teal-100" },
+    { label: "Proposals Sent", value: stats.proposals.toString(), link: "/dashboard/proposals", icon: <Send size={20} />, color: "bg-teal-50 text-teal-700 border-teal-100" },
+    { label: "Conversations", value: stats.messages.toString(), link: "/dashboard/messages", icon: <MessageSquare size={20} />, color: "bg-mustard-50 text-mustard-700 border-mustard-100" },
+    { label: "Profile Views", value: "—", link: "/dashboard/profile", icon: <Eye size={20} />, color: "bg-gray-50 text-gray-700 border-gray-200" },
   ];
 
   return (
     <div className="h-full overflow-y-auto no-scrollbar pb-6">
-      <motion.div className="mb-6 sm:mb-8" initial="hidden" animate="visible" variants={fadeInUp}>        
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
-        <p className="text-sm sm:text-base text-gray-500">
-          Welcome back, {userProfile?.firstName || user?.displayName || "there"}! Here&apos;s what&apos;s happening.
+      <motion.div className="mb-8 sm:mb-10" initial="hidden" animate="visible" variants={fadeInUp}>
+        <h1 className="text-3xl sm:text-4xl font-display text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-base text-gray-500 max-w-2xl">
+          Welcome back, {userProfile?.firstName || user?.displayName || "there"}. Here&apos;s a quick overview of your activity.
         </p>
       </motion.div>
 
-      <motion.div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8" initial="hidden" animate="visible" variants={staggerContainer}>      
+      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10" initial="hidden" animate="visible" variants={staggerContainer}>
         {statCards.map((stat) => (
-          <motion.div key={stat.label} className="bg-white rounded-xl border border-gray-200 p-3.5 sm:p-5" variants={staggerItem} whileHover={{ y: -2, transition: { duration: 0.2 } }}>
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <span className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center ${stat.color}`}>{stat.icon}</span>
-            </div>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 mb-0.5">
-              {loadingStats ? <span className="inline-block w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" /> : stat.value}  
-            </p>
-            <p className="text-[10px] sm:text-xs text-gray-500">{stat.label}</p>
-            <p className="text-[10px] sm:text-xs text-teal-600 font-medium mt-0.5 sm:mt-1">{stat.change}</p>
+          <motion.div key={stat.label} variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+            <Link href={stat.link} className="block bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-all h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${stat.color}`}>
+                  {stat.icon}
+                </div>
+                <ArrowRight size={16} className="text-gray-300" />
+              </div>
+              <p className="text-3xl font-display font-bold text-gray-900 mb-1">
+                {loadingStats ? <span className="inline-block w-6 h-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin mt-1" /> : stat.value}
+              </p>
+              <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+            </Link>
           </motion.div>
         ))}
       </motion.div>
 
-      <motion.div 
-        className={`grid grid-cols-1 ${userProfile?.role === 'client' ? 'sm:grid-cols-2' : 'max-w-md mx-auto'} gap-3 sm:gap-4 mb-6 sm:mb-8`} 
+      <motion.div
+        className={`grid grid-cols-1 ${userProfile?.role === 'client' ? 'lg:grid-cols-2' : 'max-w-3xl'} gap-4 sm:gap-6`}
         initial="hidden" animate="visible" variants={staggerContainer}
-      >      
-        <motion.div variants={staggerItem} whileHover={{ y: -2, transition: { duration: 0.2 } }}>
-          <Link href="/explore" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 group flex items-center gap-3 sm:gap-4 h-full">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 flex items-center justify-center shrink-0 text-teal-600">
-              <Search size={20} />
+      >
+        <motion.div variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+          <Link href="/explore" className="bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl p-6 sm:p-8 group flex flex-col h-full relative overflow-hidden shadow-md">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-xl -translate-y-1/2 translate-x-1/2" />
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-white mb-6 backdrop-blur-sm">
+              <Search size={24} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">Explore Projects</h3>
-              <p className="text-[11px] sm:text-xs text-gray-500">Browse open projects matching your skills</p>
+              <h3 className="text-xl font-display font-bold text-white mb-2">Explore Projects</h3>
+              <p className="text-sm text-teal-100 mb-6 max-w-sm">Browse open projects matching your skills and start sending proposals today.</p>
+              <span className="inline-flex items-center text-sm font-semibold text-white group-hover:underline">
+                Start Browsing <ArrowRight size={16} className="ml-1" />
+              </span>
             </div>
           </Link>
         </motion.div>
 
         {userProfile?.role === 'client' && (
-          <motion.div variants={staggerItem} whileHover={{ y: -2, transition: { duration: 0.2 } }}>
-            <Link href="/dashboard/post" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-5 group flex items-center gap-3 sm:gap-4 h-full">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-teal-50 flex items-center justify-center shrink-0 text-teal-600">
-                <PenLine size={20} />
+          <motion.div variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+            <Link href="/dashboard/post" className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 group flex flex-col h-full shadow-sm hover:shadow-md transition-all">
+              <div className="w-12 h-12 rounded-xl bg-mustard-500/10 flex items-center justify-center shrink-0 text-mustard-600 mb-6">
+                <PenLine size={24} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">Post a Project</h3>
-                <p className="text-[11px] sm:text-xs text-gray-500">Find the right virtual assistant for your job</p>
+                <h3 className="text-xl font-display font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">Post a New Project</h3>
+                <p className="text-sm text-gray-500 mb-6 max-w-sm">Find the right virtual assistant for your job by posting a detailed project brief.</p>
+                <span className="inline-flex items-center text-sm font-semibold text-teal-600">
+                  Create Project <ArrowRight size={16} className="ml-1" />
+                </span>
               </div>
             </Link>
           </motion.div>
         )}
       </motion.div>
-    </div>  );
+    </div>
+  );
 }

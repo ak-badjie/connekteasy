@@ -126,7 +126,7 @@ function ReceiptModal({ tx, onClose }: { tx: Transaction; onClose: () => void })
 
           <div className="hidden print:flex items-center justify-center gap-2 mb-8">
             <ConnektWalletIcon />
-            <h1 className="text-2xl font-bold text-gray-900">CONNEKT Wallet</h1>
+            <h1 className="font-display text-2xl font-bold text-gray-900">CONNEKT Wallet</h1>
           </div>
 
           {/* Receipt Content */}
@@ -134,7 +134,7 @@ function ReceiptModal({ tx, onClose }: { tx: Transaction; onClose: () => void })
             <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
               {getIcon()}
             </div>
-            <h2 className="text-lg font-medium text-gray-600 mb-1">{getLabel()}</h2>
+            <h2 className="font-display text-lg font-medium text-gray-600 mb-1">{getLabel()}</h2>
             <div className="text-4xl font-bold text-gray-900">{formatGMD(tx.amount)}</div>
             <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full uppercase tracking-wide">
                <ShieldCheck size={14} /> {tx.status}
@@ -409,7 +409,7 @@ function WalletContent() {
           <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
             <ConnektWalletIcon />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">CONNEKT Wallet</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-900 tracking-tight">CONNEKT Wallet</h1>
         </motion.div>
 
         {/* Dashboard Grid */}
@@ -418,7 +418,7 @@ function WalletContent() {
           {/* Left Column: Balance & Actions */}
           <div className="lg:col-span-1 flex flex-col gap-6 overflow-y-auto no-scrollbar">
             {/* Balance Card */}
-            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-teal-600 to-teal-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
+            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
               <p className="text-teal-100 font-medium mb-1">Available Balance</p>
               <div className="text-4xl font-bold tracking-tight mb-8">
@@ -436,9 +436,9 @@ function WalletContent() {
 
             {/* Escrow Holdings (Clients Only) */}
             {userProfile?.role === "client" && (
-              <motion.div variants={fadeInUp} className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm">
+              <motion.div variants={fadeInUp} className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                  <h2 className="font-display text-base font-bold text-gray-900 flex items-center gap-2">
                     <ShieldCheck size={18} className="text-teal-600" /> Escrow Holdings
                   </h2>
                   <span className="text-sm font-semibold text-gray-900">{formatGMD(totalEscrow)}</span>
@@ -464,9 +464,9 @@ function WalletContent() {
 
           {/* Right Column: Transaction History */}
           <div className="lg:col-span-2">
-            <motion.div variants={fadeInUp} className="bg-white rounded-3xl border border-gray-200 shadow-sm h-full flex flex-col">
+            <motion.div variants={fadeInUp} className="bg-white rounded-2xl border border-gray-200 shadow-sm h-full flex flex-col">
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <h2 className="font-display text-lg font-bold text-gray-900 flex items-center gap-2">
                   <FileText size={20} className="text-gray-400" /> Transaction History
                 </h2>
               </div>
@@ -474,7 +474,7 @@ function WalletContent() {
                 {transactions.length === 0 ? (
                   <div className="h-full flex flex-col justify-center items-center text-center py-12">
                     <Clock size={40} className="text-gray-300 mb-3" />
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">No transactions yet</h3>
+                    <h3 className="font-display text-sm font-semibold text-gray-900 mb-1">No transactions yet</h3>
                     <p className="text-xs text-gray-500">Your deposits, withdrawals, and escrow activity will appear here.</p>
                   </div>
                 ) : (
@@ -523,9 +523,9 @@ function WalletContent() {
         {activeModal === "deposit" && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center print:hidden">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
-            <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden p-6">
+            <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Deposit Funds</h2>
+                <h2 className="font-display text-xl font-bold text-gray-900">Deposit Funds</h2>
                 <button onClick={() => setActiveModal(null)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
               </div>
               <div className="space-y-5">
@@ -553,9 +553,9 @@ function WalletContent() {
         {activeModal === "withdraw" && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center print:hidden">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setActiveModal(null)} />
-            <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden p-6">
+            <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Withdraw Funds</h2>
+                <h2 className="font-display text-xl font-bold text-gray-900">Withdraw Funds</h2>
                 <button onClick={() => setActiveModal(null)} className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors"><X size={20} /></button>
               </div>
               <div className="space-y-4">
@@ -593,7 +593,7 @@ function WalletContent() {
 
                 {withdrawError && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100">{withdrawError}</p>}
                 
-                <button onClick={handleWithdraw} disabled={withdrawLoading || !withdrawAmount || !accountNumber || !beneficiaryName} className="w-full bg-gray-900 hover:bg-black disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all mt-2 flex items-center justify-center gap-2">
+                <button onClick={handleWithdraw} disabled={withdrawLoading || !withdrawAmount || !accountNumber || !beneficiaryName} className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all mt-2 flex items-center justify-center gap-2">
                   {withdrawLoading ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</> : "Confirm Withdrawal"}
                 </button>
               </div>

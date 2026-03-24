@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { slideDown } from "@/app/lib/animations";
 import { useAuth } from "@/app/lib/AuthContext";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { LogOut, User, LayoutDashboard, MessageSquare } from "lucide-react";
+import { LogOut, User, LayoutDashboard, MessageSquare, Search } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -59,36 +59,34 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: "/explore", label: "Explore" },
+    { href: "/", label: "Home" },
+    { href: "/explore", label: "Explore Jobs" },
     { href: "/dashboard", label: "Dashboard" },
   ];
-  
-  if (userProfile?.role !== "va") {
-    navLinks.push({ href: "/dashboard/post", label: "Post a Project" });
-  }
 
   if (hideNavbar) return null;
-
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
-            <motion.div
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center"
-              whileHover={{ rotate: -6, scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ConnektIcon className="w-5 h-5 sm:w-[26px] sm:h-[26px]" />
-            </motion.div>
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-gray-900 group-hover:text-teal-600 transition-colors">
-              CONNEKT
-            </span>
-          </Link>
+          <div className="flex-1 flex justify-start">
+            <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group w-fit">
+              <motion.div
+                className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center"
+                whileHover={{ rotate: -6, scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ConnektIcon className="w-5 h-5 sm:w-[26px] sm:h-[26px]" />
+              </motion.div>
+              <span className="text-lg sm:text-xl font-display font-bold tracking-tight text-gray-900 group-hover:text-teal-600 transition-colors">
+                CONNEKT
+              </span>
+            </Link>
+          </div>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex flex-1 justify-center items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -116,7 +114,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA / User Menu */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex flex-1 justify-end items-center gap-3">
             {!loading && user ? (
               /* Logged in — show avatar dropdown */
               <div className="relative" ref={dropdownRef}>
@@ -157,7 +155,7 @@ export default function Navbar() {
                 <AnimatePresence>
                   {dropdownOpen && (
                     <motion.div
-                      className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-xl shadow-lg shadow-gray-100/50 overflow-hidden z-50"
+                      className="absolute right-0 top-full mt-1.5 w-52 bg-white border border-gray-200 rounded-lg shadow-lg shadow-gray-100/50 overflow-hidden z-50"
                       initial={{ opacity: 0, y: -8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.95 }}
@@ -216,7 +214,7 @@ export default function Navbar() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/auth/signin"
-                    className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                    className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                   >
                     Sign In
                   </Link>
@@ -262,7 +260,7 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            className="md:hidden absolute right-4 left-4 top-[calc(100%+0.5rem)] bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50"
+            className="md:hidden absolute right-4 left-4 top-[calc(100%+0.5rem)] bg-white border border-gray-100 rounded-lg shadow-xl overflow-hidden z-50"
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
@@ -279,7 +277,7 @@ export default function Navbar() {
                   <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive(link.href)
                         ? "text-teal-600 bg-teal-50"
                         : "text-gray-600 hover:bg-gray-50"
@@ -295,14 +293,14 @@ export default function Navbar() {
                     <Link
                       href="/dashboard/profile"
                       onClick={() => setMobileOpen(false)}
-                      className="w-full py-3 text-sm font-medium text-gray-600 text-left px-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      className="w-full py-3 text-sm font-medium text-gray-600 text-left px-3 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Profile
                     </Link>
                     <Link
                       href="/dashboard/messages"
                       onClick={() => setMobileOpen(false)}
-                      className="w-full py-3 text-sm font-medium text-gray-600 text-left px-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      className="w-full py-3 text-sm font-medium text-gray-600 text-left px-3 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Messages
                     </Link>
@@ -311,7 +309,7 @@ export default function Navbar() {
                         handleSignOut();
                         setMobileOpen(false);
                       }}
-                      className="w-full py-3 text-sm font-medium text-red-600 text-left px-3 rounded-xl hover:bg-red-50 transition-colors"
+                      className="w-full py-3 text-sm font-medium text-red-600 text-left px-3 rounded-lg hover:bg-red-50 transition-colors"
                     >
                       Sign Out
                     </button>
@@ -321,14 +319,14 @@ export default function Navbar() {
                     <Link
                       href="/auth/signin"
                       onClick={() => setMobileOpen(false)}
-                      className="w-full py-3 text-sm font-medium text-gray-600 hover:text-gray-900 text-left px-3 rounded-xl hover:bg-gray-50 transition-colors"
+                      className="w-full py-3 text-sm font-medium text-gray-600 hover:text-gray-900 text-left px-3 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/auth/signup"
                       onClick={() => setMobileOpen(false)}
-                      className="w-full py-3 text-sm font-semibold text-white bg-teal-500 rounded-xl hover:bg-teal-600 transition-colors text-center"
+                      className="w-full py-3 text-sm font-semibold text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors text-center"
                     >
                       Get Started
                     </Link>

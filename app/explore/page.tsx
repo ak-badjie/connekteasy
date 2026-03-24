@@ -167,7 +167,7 @@ function ExploreContent() {
       {/* Header */}
       <motion.div className="bg-white border-b border-gray-200" initial="hidden" animate="visible" variants={fadeInUp}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1">Explore</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900 mb-1">Explore</h1>
           <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
             {mode === "projects"
               ? "Discover open projects from businesses worldwide"
@@ -176,7 +176,7 @@ function ExploreContent() {
 
           {/* Mode Toggle Pill */}
           <div className="flex justify-start mb-4 sm:mb-5">
-            <div className="inline-flex items-center bg-gray-100 rounded-full p-1 border border-gray-200">
+            <div className="inline-flex items-center bg-soft-surface rounded-full p-1 border border-gray-200">
               <button
                 onClick={() => setMode("projects")}
                 className={`px-5 sm:px-7 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold rounded-full transition-all duration-200 ${
@@ -284,23 +284,23 @@ function ExploreContent() {
                   <motion.div key={person.uid} variants={staggerItem}>
                     <Link href={`/profile/${person.uid}`}>
                       <motion.div
-                        className="bg-white rounded-xl border border-gray-200 p-5 sm:p-6 group cursor-pointer"
+                        className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 group cursor-pointer hover:shadow-md transition-shadow"
                         whileHover={{ y: -3, transition: { duration: 0.2 } }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className="flex items-center gap-3 mb-3">
                           {person.profilePhotoUrl ? (
-                            <img src={person.profilePhotoUrl} alt="" className="w-12 h-12 rounded-full object-cover border border-gray-200" />
+                            <img src={person.profilePhotoUrl} alt="" className="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-sm" />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-bold">
+                            <div className="w-12 h-12 rounded-full bg-mustard-50 text-mustard-700 flex items-center justify-center text-sm font-display font-bold shadow-sm">
                               {(person.firstName || "")[0]}{(person.lastName || "")[0]}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h3 className="text-sm font-semibold text-gray-900 group-hover:text-teal-600 transition-colors truncate">
+                            <h3 className="text-base font-display font-bold text-gray-900 group-hover:text-mustard-600 transition-colors truncate">
                               {person.displayName}
                             </h3>
-                            <p className="text-xs text-teal-600 truncate">{person.title || "Virtual Assistant"}</p>
+                            <p className="text-xs text-mustard-600 font-medium truncate">{person.title || "Virtual Assistant"}</p>
                           </div>
                         </div>
                         {person.bio && (
@@ -331,10 +331,10 @@ function ExploreContent() {
           </motion.div>
         ) : (
           <motion.div className="text-center py-16 sm:py-20" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3 sm:mb-4 text-gray-400">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-soft-surface flex items-center justify-center mx-auto mb-3 sm:mb-4 text-gray-400">
               {mode === "projects" ? <SearchX size={24} /> : <UserSearch size={24} />}
             </div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-display font-semibold text-gray-900 mb-2">
               No {mode === "projects" ? "projects" : "talent"} found
             </h3>
             <p className="text-xs sm:text-sm text-gray-500">Try adjusting your search or filters.</p>

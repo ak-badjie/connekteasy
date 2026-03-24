@@ -131,7 +131,7 @@ export default function MyProjectsPage() {
               className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl z-[101] overflow-hidden"
             >
               <div className="flex items-center justify-between p-4 border-b border-gray-100">
-                <h2 className="text-lg font-bold text-gray-900">Complete & Release Funds</h2>
+                <h2 className="text-lg font-bold font-display text-gray-900">Complete & Release Funds</h2>
                 <button
                   onClick={() => setReleaseModalOpen(false)}
                   className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
@@ -160,7 +160,7 @@ export default function MyProjectsPage() {
                 <button
                   onClick={handleReleaseFunds}
                   disabled={releaseLoading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors flex items-center justify-center"
+                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors flex items-center justify-center shadow-sm"
                 >
                   {releaseLoading ? "Releasing..." : "Release Funds & Close Project"}
                 </button>
@@ -172,11 +172,11 @@ export default function MyProjectsPage() {
 
       <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8" variants={fadeInUp}>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">My Projects</h1>
+          <h1 className="text-xl sm:text-2xl font-bold font-display text-gray-900 mb-1">My Projects</h1>
           <p className="text-sm sm:text-base text-gray-500">Manage the projects you&apos;ve posted.</p>
         </div>
         <motion.div whileTap={{ scale: 0.96 }}>
-          <Link href="/dashboard/post" className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors shrink-0 w-full sm:w-auto">
+          <Link href="/dashboard/post" className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shrink-0 w-full sm:w-auto shadow-sm">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M12 8v8M8 12h8" /></svg>
             Post a Project
           </Link>
@@ -184,20 +184,20 @@ export default function MyProjectsPage() {
       </motion.div>
 
       {projects.length === 0 ? (
-        <motion.div className="text-center py-16 bg-white rounded-xl border border-gray-200" variants={staggerItem}>
+        <motion.div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm" variants={staggerItem}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" className="mx-auto mb-3">
             <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
           </svg>
-          <h3 className="text-sm font-semibold text-gray-900 mb-1">No projects yet</h3>
+          <h3 className="text-sm font-semibold font-display text-gray-900 mb-1">No projects yet</h3>
           <p className="text-xs text-gray-500 mb-4">Post your first project to start finding talent.</p>
-          <Link href="/dashboard/post" className="inline-flex px-4 py-2 text-xs font-semibold text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors">
+          <Link href="/dashboard/post" className="inline-flex px-4 py-2 text-xs font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm">
             Post a Project
           </Link>
         </motion.div>
       ) : (
         <>
           {/* Desktop Table */}
-          <motion.div className="hidden sm:block bg-white rounded-xl border border-gray-200 overflow-hidden" variants={staggerItem}>
+          <motion.div className="hidden sm:block bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" variants={staggerItem}>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -217,7 +217,7 @@ export default function MyProjectsPage() {
                         <p className="text-xs text-gray-400 mt-0.5">{project.category} · {project.createdAt?.toDate ? timeAgo(project.createdAt.toDate()) : "Just now"}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${project.status === "open" ? "bg-emerald-50 text-emerald-700" : project.status === "in-progress" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
+                        <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${project.status === "open" ? "bg-teal-50 text-teal-700" : project.status === "in-progress" ? "bg-mustard-500/10 text-mustard-600" : "bg-gray-100 text-gray-500"}`}>
                           {project.status === "open" ? "Open" : project.status === "in-progress" ? "In Progress" : "Closed"}
                         </span>
                       </td>
@@ -225,11 +225,11 @@ export default function MyProjectsPage() {
                       <td className="px-5 py-4"><span className="text-sm text-gray-700">{project.budget}</span></td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
-                          <Link href={`/dashboard/proposals?project=${project.id}`} className="px-3 py-1.5 text-xs font-medium text-teal-600 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors">
+                          <Link href={`/dashboard/proposals?project=${project.id}`} className="px-3 py-1.5 text-xs font-medium text-teal-600 bg-teal-50 rounded-xl hover:bg-teal-100 transition-colors">
                             Proposals
                           </Link>
                           {project.status === "in-progress" && project.escrowStatus === "held" && (
-                            <button onClick={() => handleOpenReleaseModal(project)} className="px-3 py-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors">
+                            <button onClick={() => handleOpenReleaseModal(project)} className="px-3 py-1.5 text-xs font-medium text-mustard-600 bg-mustard-500/10 rounded-xl hover:bg-mustard-500/20 transition-colors">
                               Release Funds
                             </button>
                           )}
@@ -245,10 +245,10 @@ export default function MyProjectsPage() {
           {/* Mobile Cards */}
           <div className="sm:hidden space-y-3">
             {projects.map((project) => (
-              <motion.div key={project.id} className="bg-white rounded-xl border border-gray-200 p-4" variants={staggerItem} whileTap={{ scale: 0.98 }}>
+              <motion.div key={project.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4" variants={staggerItem} whileTap={{ scale: 0.98 }}>
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 flex-1">{project.title}</h3>
-                  <span className={`shrink-0 px-2 py-0.5 text-[10px] font-medium rounded-full ${project.status === "open" ? "bg-emerald-50 text-emerald-700" : project.status === "in-progress" ? "bg-amber-50 text-amber-700" : "bg-gray-100 text-gray-500"}`}>
+                  <h3 className="text-sm font-semibold font-display text-gray-900 leading-snug line-clamp-2 flex-1">{project.title}</h3>
+                  <span className={`shrink-0 px-2 py-0.5 text-[10px] font-medium rounded-full ${project.status === "open" ? "bg-teal-50 text-teal-700" : project.status === "in-progress" ? "bg-mustard-500/10 text-mustard-600" : "bg-gray-100 text-gray-500"}`}>
                     {project.status === "open" ? "Open" : project.status === "in-progress" ? "In Progress" : "Closed"}
                   </span>
                 </div>
@@ -259,11 +259,11 @@ export default function MyProjectsPage() {
                     <span>{project.budget}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/proposals?project=${project.id}`} className="px-2.5 py-1 text-[11px] font-medium text-teal-600 bg-teal-50 rounded-lg">
+                    <Link href={`/dashboard/proposals?project=${project.id}`} className="px-2.5 py-1 text-[11px] font-medium text-teal-600 bg-teal-50 rounded-xl hover:bg-teal-100 transition-colors">
                       Proposals
                     </Link>
                     {project.status === "in-progress" && project.escrowStatus === "held" && (
-                      <button onClick={() => handleOpenReleaseModal(project)} className="px-2.5 py-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 rounded-lg">
+                      <button onClick={() => handleOpenReleaseModal(project)} className="px-2.5 py-1 text-[11px] font-medium text-mustard-600 bg-mustard-500/10 rounded-xl hover:bg-mustard-500/20 transition-colors">
                         Release
                       </button>
                     )}
