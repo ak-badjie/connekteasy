@@ -105,7 +105,7 @@ export default function Home() {
                     >
                       {searchMode === "talent" ? (
                         <span className="text-teal-700">
-                          Hire a Top <br />
+                      Hire Top <br />
                           <span className="text-teal-600">Virtual </span><span className="text-mustard-500">Assistants</span>
                         </span>
                       ) : (
@@ -328,7 +328,7 @@ export default function Home() {
                 <h1 className="text-4xl font-display text-gray-900 mb-3 leading-tight">
                   {searchMode === "talent" ? (
                     <span className="text-teal-700">
-                      Hire a Top <br />
+                      Hire Top <br />
                       <span className="text-teal-600">Virtual </span><span className="text-mustard-500">Assistants</span>
                     </span>
                   ) : (

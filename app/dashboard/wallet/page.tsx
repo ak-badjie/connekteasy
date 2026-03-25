@@ -413,10 +413,10 @@ function WalletContent() {
         </motion.div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 pb-2">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 flex-1 min-h-0 pb-2 overflow-y-auto lg:overflow-hidden">
           
           {/* Left Column: Balance & Actions */}
-          <div className="lg:col-span-1 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+          <div className="lg:col-span-1 flex flex-col gap-6 lg:overflow-y-auto no-scrollbar shrink-0">
             {/* Balance Card */}
             <motion.div variants={fadeInUp} className="bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
@@ -425,10 +425,10 @@ function WalletContent() {
                 {balance.toLocaleString()} <span className="text-xl text-teal-200 font-medium">GMD</span>
               </div>
               <div className="flex gap-3 relative z-10">
-                <button onClick={() => setActiveModal("deposit")} className="flex-1 bg-white text-mustard-700 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5">
+                <button onClick={() => setActiveModal("deposit")} className="flex-1 bg-white text-teal-900 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5">
                   <Plus size={16} /> Deposit
                 </button>
-                <button onClick={() => setActiveModal("withdraw")} className="flex-1 bg-teal-700/50 hover:bg-mustard-600/70 border border-mustard-500/30 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => setActiveModal("withdraw")} className="flex-1 bg-teal-700/50 hover:bg-teal-600/70 border border-teal-500/30 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5">
                   <ArrowUpRight size={16} /> Withdraw
                 </button>
               </div>
