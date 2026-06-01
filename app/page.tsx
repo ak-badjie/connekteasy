@@ -11,58 +11,55 @@ import { FileEdit, Handshake, Rocket, ArrowRight, DollarSign, ShieldCheck, Lock,
 
 // CUSTOM MOTION VARIANTS
 const magneticSlideLeft = {
-  hidden: { x: -200, opacity: 0, rotateZ: -8 },
+  hidden: { x: -50, opacity: 0 },
   visible: { 
     x: 0, 
     opacity: 1, 
-    rotateZ: 0,
-    transition: { type: "spring", bounce: 0.5, duration: 1.4 }
+    transition: { type: "spring", bounce: 0.15, duration: 0.8 }
   }
 };
 
 const magneticSlideRight = {
-  hidden: { x: 200, opacity: 0, rotateZ: 8 },
+  hidden: { x: 50, opacity: 0 },
   visible: { 
     x: 0, 
     opacity: 1, 
-    rotateZ: 0,
-    transition: { type: "spring", bounce: 0.5, duration: 1.4 }
+    transition: { type: "spring", bounce: 0.15, duration: 0.8 }
   }
 };
 
 const magneticSlideUp = {
-  hidden: { y: 200, opacity: 0, rotateZ: -4 },
+  hidden: { y: 40, opacity: 0 },
   visible: { 
     y: 0, 
     opacity: 1, 
-    rotateZ: 0,
-    transition: { type: "spring", bounce: 0.4, duration: 1.2 }
+    transition: { type: "spring", bounce: 0.15, duration: 0.8 }
   }
 };
 
 const appleDrop = {
-  hidden: { scale: 0, y: -80, opacity: 0 },
+  hidden: { scale: 0.9, y: -20, opacity: 0 },
   visible: { 
     scale: 1, 
     y: 0,
     opacity: 1,
-    transition: { type: "spring", stiffness: 350, damping: 15, mass: 1.2 }
+    transition: { type: "spring", stiffness: 200, damping: 20, mass: 1 }
   }
 };
 
 const spin3D = {
-  hidden: { rotateX: 180, opacity: 0, scale: 0.4 },
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
   visible: { 
-    rotateX: 0, 
     opacity: 1, 
     scale: 1,
-    transition: { type: "spring", bounce: 0.6, duration: 1.6 }
+    y: 0,
+    transition: { type: "spring", bounce: 0.2, duration: 0.7 }
   }
 };
 
 const staggerContainer = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
 };
 
 export default function Home() {
@@ -131,7 +128,7 @@ export default function Home() {
               <motion.div 
                 className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-100 max-w-xl mx-auto lg:mx-0 mb-8 origin-center relative z-10" 
                 variants={appleDrop}
-                whileHover={{ scale: 1.02, rotateX: 5, transition: { type: "spring", stiffness: 400 } }}
+                whileHover={{ scale: 1.01, transition: { type: "spring", stiffness: 300 } }}
               >
                 {/* Toggle Pill */}
                 <div className="flex mb-5">
@@ -198,22 +195,22 @@ export default function Home() {
             >
                <motion.div 
                  className="absolute inset-0 bg-teal-500/5 rounded-lg transform-gpu"
-                 animate={{ rotate: 3 }}
-                 whileHover={{ rotate: -3, scale: 1.05 }}
-                 transition={{ type: "spring", stiffness: 200 }}
+                 animate={{ rotate: 2 }}
+                 whileHover={{ rotate: -1, scale: 1.02 }}
+                 transition={{ type: "spring", stiffness: 150 }}
                ></motion.div>
                <motion.img
                  src="/Black_virtual_assistant_202603240436.jpeg"
                  alt="Virtual Assistant"
                  className="relative w-full h-full object-cover rounded-lg shadow-2xl z-10 border-4 border-white" 
-                 whileHover={{ scale: 1.03, rotateY: -5, transition: { type: "spring" } }}
+                 whileHover={{ scale: 1.01, transition: { type: "spring" } }}
                />
 
                {/* Floating Card 1: User Profile Summary */}
                <motion.div
                  className="absolute top-10 -right-4 lg:-right-12 bg-white p-4 rounded-lg shadow-lg border border-gray-100 z-20 flex items-center gap-4 min-w-[220px]"
                  variants={spin3D}
-                 whileHover={{ scale: 1.1, rotateX: 360, transition: { duration: 0.8, type: "spring" } }}
+                 whileHover={{ scale: 1.04, y: -3, transition: { duration: 0.3, type: "spring" } }}
                >
                  <div className="w-12 h-12 rounded-full bg-mustard-100 flex items-center justify-center text-teal-600 font-bold overflow-hidden border border-gray-200">
                    <img src="/Male_black_virtual_202603240440.jpeg" alt="User Avatar" className="w-full h-full object-cover" />
@@ -237,12 +234,12 @@ export default function Home() {
                        key={cat}
                        className="flex items-center gap-2 cursor-pointer group"
                        onClick={() => router.push(`/explore?mode=talent&q=${encodeURIComponent(cat)}`)}
-                       whileHover={{ x: 5 }}
+                       whileHover={{ x: 3 }}
                      >
                        <motion.span 
                          className="text-mustard-500 text-base"
-                         whileHover={{ scale: 1.5, rotate: 15 }}
-                         transition={{ type: "spring", stiffness: 400 }}
+                         whileHover={{ scale: 1.15 }}
+                         transition={{ type: "spring", stiffness: 300 }}
                        >✓</motion.span> 
                        <span className="group-hover:text-teal-600 transition-colors">{cat}</span>
                      </motion.li>
@@ -499,7 +496,7 @@ export default function Home() {
             <motion.div 
               className="flex items-center gap-12 sm:gap-16 md:gap-24 text-gray-300 w-max whitespace-nowrap"
               animate={{ x: ["0%", "-50%"] }}
-              transition={{ repeat: Infinity, ease: "linear", duration: 50 }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 80 }}
             >
               {[
                 "G-Tech Hub",
@@ -595,11 +592,11 @@ export default function Home() {
                   key={idx}
                   className="bg-soft-surface rounded-lg p-6 origin-center"
                   variants={spin3D}
-                  whileHover={{ scale: 1.08, rotateX: -10, rotateY: 10, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                  whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(0,0,0,0.08)" }}
                 >
                   <motion.div 
                     className="w-12 h-12 rounded-lg bg-white border border-teal-100 flex items-center justify-center mb-4 shadow-sm"
-                    whileHover={{ rotate: 360, transition: { type: "spring", stiffness: 200 } }}
+                    whileHover={{ rotate: 8, transition: { type: "spring", stiffness: 200 } }}
                   >
                     {item.icon}
                   </motion.div>
@@ -620,7 +617,7 @@ export default function Home() {
               <motion.div 
                 className="absolute inset-0 bg-mustard-500/10 rounded-lg transform-gpu"
                 animate={{ rotate: -3 }}
-                whileHover={{ rotate: 0, scale: 1.05 }}
+                whileHover={{ rotate: 0, scale: 1.02 }}
               ></motion.div>       
               <motion.img
                 src="/Male_black_virtual_202603240440.jpeg"
@@ -634,7 +631,7 @@ export default function Home() {
               <motion.div
                 className="absolute -bottom-8 lg:-bottom-12 -left-4 lg:-left-12 bg-white p-6 rounded-lg shadow-xl border border-gray-100 z-20 max-w-sm"
                 variants={appleDrop}
-                whileHover={{ scale: 1.05, y: -10, rotateZ: [0, 2, -2, 0], transition: { duration: 0.5 } }}
+                whileHover={{ scale: 1.03, y: -4, transition: { duration: 0.3 } }}
               >
                 <h4 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
                   Scale Your Business Today
@@ -682,7 +679,7 @@ export default function Home() {
               <motion.div 
                 className="absolute inset-0 bg-teal-500/10 rounded-lg transform-gpu"
                 animate={{ rotate: 3 }}
-                whileHover={{ rotate: 0, scale: 1.05 }}
+                whileHover={{ rotate: 0, scale: 1.02 }}
               ></motion.div>       
               <motion.img
                 src="/Black_virtual_assistant_202603240439.jpeg"
@@ -696,7 +693,7 @@ export default function Home() {
               <motion.div
                 className="absolute top-8 -left-4 lg:-left-8 bg-white px-4 py-3 rounded-lg shadow-lg border border-gray-100 z-20 flex items-center gap-3 origin-center"
                 variants={spin3D}
-                whileHover={{ scale: 1.2, rotateY: 180, transition: { duration: 0.8, type: "spring" } }}
+                whileHover={{ scale: 1.05, y: -3, transition: { duration: 0.3, type: "spring" } }}
               >
                 <div className="w-10 h-10 rounded-full bg-mustard-100 flex items-center justify-center text-mustard-600">
                   <ShieldCheck size={20} />
@@ -711,7 +708,7 @@ export default function Home() {
               <motion.div
                  className="absolute bottom-8 -right-4 lg:-right-8 bg-white p-2 rounded-lg shadow-xl border border-gray-100 z-20 w-48 h-32 hidden sm:block origin-bottom-right"
                  variants={appleDrop}
-                 whileHover={{ scale: 1.15, rotateZ: -5, transition: { type: "spring" } }}
+                 whileHover={{ scale: 1.04, transition: { type: "spring" } }}
               >
                  <img src="/Black_virtual_assistant_202603240435.jpeg" alt="Professional" className="w-full h-full object-cover rounded-lg" />
               </motion.div>
@@ -759,11 +756,11 @@ export default function Home() {
                     key={idx} 
                     className="flex gap-4 sm:gap-6" 
                     variants={magneticSlideRight}
-                    whileHover={{ x: -10, scale: 1.02, transition: { type: "spring" } }}
+                    whileHover={{ x: -4, scale: 1.01, transition: { type: "spring" } }}
                   >
                     <motion.div 
                       className="flex-shrink-0 w-12 h-12 rounded-lg bg-mustard-50 flex items-center justify-center border border-mustard-100 shadow-sm"
-                      whileHover={{ rotateY: 360, transition: { type: "spring", duration: 1 } }}
+                      whileHover={{ rotate: 8, transition: { type: "spring", duration: 0.4 } }}
                     >
                       {feature.icon}
                     </motion.div>
@@ -816,11 +813,9 @@ export default function Home() {
                 key={cat.id} 
                 variants={appleDrop}
                 whileHover={{ 
-                  scale: 1.05, 
-                  y: -5,
-                  rotateX: 10,
-                  rotateY: -10,
-                  boxShadow: "0px 15px 30px rgba(0,0,0,0.1)",
+                  scale: 1.03, 
+                  y: -3,
+                  boxShadow: "0px 8px 20px rgba(0,0,0,0.08)",
                   transition: { type: "spring", stiffness: 300 }
                 }}
               >
@@ -830,7 +825,7 @@ export default function Home() {
                 >
                   <motion.div
                     className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-mustard-100 transition-colors"
-                    whileHover={{ rotateY: 360, scale: 1.2, transition: { duration: 0.8, type: "spring" } }}
+                    whileHover={{ scale: 1.1, transition: { duration: 0.3, type: "spring" } }}
                   >
                     <CategoryIcon name={cat.iconName} size={18} className="sm:w-5 sm:h-5" />
                   </motion.div>
@@ -854,18 +849,18 @@ export default function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             variants={spin3D}
-            whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2, transition: { type: "spring" } }}
+            whileHover={{ scale: 1.01, transition: { type: "spring" } }}
           >
             {/* Decorative elements */}
             <motion.div 
               className="absolute top-0 right-0 w-40 sm:w-64 h-40 sm:h-64 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" 
-              animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
-              transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
+              animate={{ scale: [1, 1.08, 1], rotate: [0, 30, 0] }}
+              transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
             />
             <motion.div 
               className="absolute bottom-0 left-0 w-32 sm:w-48 h-32 sm:h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" 
-              animate={{ scale: [1, 1.5, 1], rotate: [0, -90, 0] }}
-              transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+              animate={{ scale: [1, 1.15, 1], rotate: [0, -30, 0] }}
+              transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
             />
 
             <div className="relative z-10">
@@ -886,7 +881,7 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center px-4 sm:px-0"
                 variants={staggerContainer}
               >
-                <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: -2 }} whileTap={{ scale: 0.9 }}>
+                <motion.div variants={appleDrop} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/explore"
                     className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-white text-mustard-700 rounded-lg hover:bg-teal-50 transition-colors shadow-lg"
@@ -894,7 +889,7 @@ export default function Home() {
                     Explore Projects
                   </Link>
                 </motion.div>
-                <motion.div variants={appleDrop} whileHover={{ scale: 1.1, rotateZ: 2 }} whileTap={{ scale: 0.9 }}>
+                <motion.div variants={appleDrop} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/dashboard/post"
                     className="block px-6 sm:px-8 py-3 sm:py-3.5 text-sm font-semibold bg-mustard-500 text-gray-900 border border-mustard-400 rounded-lg hover:bg-mustard-600 transition-colors"

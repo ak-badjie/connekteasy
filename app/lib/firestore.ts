@@ -23,6 +23,9 @@ import type {
   Proposal,
   Conversation,
   Message,
+  Job,
+  JobApplication,
+  JobApplicationStatus,
 } from "./types";
 
 // ─── Users ─────────────────────────────────────────────────
@@ -183,6 +186,106 @@ export async function updateProposalStatus(
       hiredVaId: freelancerId,
     });
   }
+}
+
+// ─── Jobs ──────────────────────────────────────────────────
+
+export async function createJob(
+  data: Omit<Job, "id" | "createdAt" | "updatedAt" | "applicants">
+): Promise<string> {
+  const ref = await addDoc(collection(db, "jobs"), {
+    ...data,
+    applicants: 0,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return ref.id;
+}
+
+export async function getJobs(): Promise<Job[]> {
+  const q = query(
+    collection(db, "jobs"),
+    where("status", "==", "open"),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Job));
+}
+
+export async function getJob(jobId: string): Promise<Job | null> {
+  const snap = await getDoc(doc(db, "jobs", jobId));
+  return snap.exists() ? ({ id: snap.id, ...snap.data() } as Job) : null;
+}
+
+export async function getJobsByEmployer(employerId: string): Promise<Job[]> {
+  const q = query(
+    collection(db, "jobs"),
+    where("postedBy", "==", employerId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Job));
+}
+
+export async function closeJob(jobId: string): Promise<void> {
+  await updateDoc(doc(db, "jobs", jobId), {
+    status: "closed",
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function createJobApplication(
+  data: Omit<JobApplication, "id" | "createdAt" | "status">
+): Promise<string> {
+  const ref = await addDoc(collection(db, "jobApplications"), {
+    ...data,
+    status: "pending" as JobApplicationStatus,
+    createdAt: serverTimestamp(),
+  });
+  await updateDoc(doc(db, "jobs", data.jobId), {
+    applicants: increment(1),
+  });
+  return ref.id;
+}
+
+export async function getApplicationsByJob(jobId: string): Promise<JobApplication[]> {
+  const q = query(
+    collection(db, "jobApplications"),
+    where("jobId", "==", jobId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as JobApplication));
+}
+
+export async function getApplicationsByUser(applicantId: string): Promise<JobApplication[]> {
+  const q = query(
+    collection(db, "jobApplications"),
+    where("applicantId", "==", applicantId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as JobApplication));
+}
+
+export async function updateJobApplicationStatus(
+  applicationId: string,
+  status: JobApplicationStatus
+): Promise<void> {
+  await updateDoc(doc(db, "jobApplications", applicationId), { status });
+}
+
+export async function hasAppliedToJob(
+  jobId: string,
+  applicantId: string
+): Promise<boolean> {
+  const q = query(
+    collection(db, "jobApplications"),
+    where("jobId", "==", jobId),
+    where("applicantId", "==", applicantId)
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
 }
 
 // ─── Messaging ─────────────────────────────────────────────

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { createProject } from "@/app/lib/firestore";
+import { escrowHold } from "@/app/lib/payment";
 import { categories } from "@/app/lib/data";
 import { CheckCircle } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
@@ -45,15 +46,11 @@ export default function PostProjectPage() {
       }
 
       // Step 1: Hold Escrow
-      const escrowRes = await fetch("/api/escrow/hold", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, amount: bMax }),
-      });
-
-      const escrowData = await escrowRes.json();
-      if (!escrowRes.ok) {
-        alert(`Escrow Error: ${escrowData.error}. Please deposit funds into your wallet.`);
+      try {
+        await escrowHold({ amount: bMax });
+      } catch (escrowErr: unknown) {
+        const msg = escrowErr instanceof Error ? escrowErr.message : "Failed to hold escrow";
+        alert(`Escrow Error: ${msg}. Please deposit funds into your wallet.`);
         setLoading(false);
         return;
       }

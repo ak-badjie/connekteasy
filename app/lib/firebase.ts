@@ -3,17 +3,18 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
+import { getFunctions } from "firebase/functions";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyBaRusV2fFWQtdqmzr1y8Rt9_Yo-3FcCw4",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "connekt-490205.firebaseapp.com",
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "https://connekt-490205-default-rtdb.firebaseio.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "connekt-490205",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "connekt-490205.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "807126756679",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:807126756679:web:6c4e7b16ede44db809b062",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-59H6XQ2PBV"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDUgt3F7NaAn4e_L-8uu2U_a7WdFuqDaqs",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "connekt-13630.firebaseapp.com",
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "https://connekt-13630-default-rtdb.firebaseio.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "connekt-13630",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "connekt-13630.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "552767437457",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:552767437457:web:01d46fc1c60e0801a29d30",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-PT9N5JTWSV"
 };
 
 // Initialize Firebase (prevent duplicate initialization)
@@ -23,6 +24,7 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const rtdb = getDatabase(app);
+export const functions = getFunctions(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Safely initialize analytics only on the client

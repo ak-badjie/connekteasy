@@ -12,6 +12,8 @@ import {
   MessageSquare,
   User as UserIcon,
   Wallet,
+  Briefcase,
+  GraduationCap,
   LogOut
 } from "lucide-react";
 
@@ -24,6 +26,8 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Overview", icon: <LayoutDashboard size={20} /> },
+  { href: "/dashboard/jobs", label: "Jobs", icon: <Briefcase size={20} /> },
+  { href: "/dashboard/internships", label: "Internships", icon: <GraduationCap size={20} /> },
   { href: "/dashboard/proposals", label: "Proposals", icon: <FileText size={20} /> },
   { href: "/dashboard/messages", label: "Messages", icon: <MessageSquare size={20} /> },
   { href: "/dashboard/profile", label: "Profile", icon: <UserIcon size={20} /> },

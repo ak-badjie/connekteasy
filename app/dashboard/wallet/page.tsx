@@ -6,6 +6,7 @@ import { useAuth } from "@/app/lib/AuthContext";
 import { rtdb } from "@/app/lib/firebase";
 import { ref, onValue } from "firebase/database";
 import { getProjectsByOwner } from "@/app/lib/firestore";
+import { createPayment, requestWithdrawal } from "@/app/lib/payment";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import ConnektWalletLogo from "@/components/branding/ConnektWalletLogo";
 import ConnektWalletIcon from "@/components/branding/ConnektWalletIcon";
@@ -291,14 +292,14 @@ function WalletContent() {
     setDepositLoading(true);
 
     try {
-      const res = await fetch("/api/modem-pay/deposit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid: user.uid, amount: Number(depositAmount) }),
+      const result = await createPayment({
+        amount: Number(depositAmount),
+        type: "wallet_deposit",
+        customer_name: userProfile?.displayName,
+        customer_email: userProfile?.email,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to initialize deposit");
+      if (!result.paymentUrl) throw new Error("Failed to get payment link");
 
       setPaymentStatus("waiting");
 
@@ -306,9 +307,9 @@ function WalletContent() {
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
-      
+
       const popup = window.open(
-        data.checkoutUrl,
+        result.paymentUrl,
         "ModemPayCheckout",
         `width=${width},height=${height},top=${top},left=${left},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
       );
@@ -352,27 +353,19 @@ function WalletContent() {
     setWithdrawLoading(true);
 
     try {
-      const res = await fetch("/api/modem-pay/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          uid: user.uid, 
-          amount: Number(withdrawAmount),
-          network,
-          accountNumber,
-          beneficiaryName
-        }),
+      await requestWithdrawal({
+        amount: Number(withdrawAmount),
+        network,
+        account_number: accountNumber,
+        beneficiary_name: beneficiaryName,
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to withdraw");
 
       // Success
       setActiveModal(null);
       setWithdrawAmount("");
       setAccountNumber("");
       setBeneficiaryName("");
-      alert(`Withdrawal of ${formatGMD(Number(withdrawAmount))} successfully initiated via ${network}!`);
+      alert(`Withdrawal of ${formatGMD(Number(withdrawAmount))} initiated via ${network}. It will be confirmed shortly.`);
 
     } catch (err: unknown) {
       setWithdrawError(err instanceof Error ? err.message : "Unknown error");

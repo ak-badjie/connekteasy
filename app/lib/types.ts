@@ -105,6 +105,61 @@ export interface Proposal {
   createdAt: Timestamp;
 }
 
+// ─── Job Board ─────────────────────────────────────────────
+export type JobEmploymentType = "full-time" | "part-time" | "contract" | "internship";
+export type JobStatus = "open" | "closed";
+
+export interface Job {
+  id: string;
+  title: string;
+  company: string;
+  description: string;
+  location: string;
+  employmentType: JobEmploymentType;
+  salary: string;
+  category: string;
+  skills: string[];
+  postedBy: string;
+  postedByName: string;
+  postedByAvatar: string;
+  status: JobStatus;
+  applicants: number;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export type JobApplicationStatus = "pending" | "reviewed" | "shortlisted" | "rejected";
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  applicantId: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicantAvatar: string;
+  phone: string;
+  coverLetter: string;
+  status: JobApplicationStatus;
+  createdAt: Timestamp;
+}
+
+// ─── Internship Subscription ───────────────────────────────
+export type SubscriptionStatus = "active" | "expired" | "cancelled";
+
+export interface InternshipSubscription {
+  uid: string;
+  plan: "internship";
+  status: SubscriptionStatus;
+  amount: number;
+  currency: string;
+  startedAt: Timestamp;
+  currentPeriodEnd: Timestamp;
+  lastPaymentRef: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
 // ─── Messaging ─────────────────────────────────────────────
 export interface Conversation {
   id: string;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { getProjectsByOwner } from "@/app/lib/firestore";
+import { escrowRelease } from "@/app/lib/payment";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { X } from "lucide-react";
 import type { FirestoreProject } from "@/app/lib/types";
@@ -68,27 +69,18 @@ export default function MyProjectsPage() {
     setReleaseError("");
 
     try {
-      const res = await fetch("/api/escrow/release", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId: selectedProject.id,
-          ownerId: user.uid,
-          vaId: selectedProject.hiredVaId,
-          finalAmount: amount
-        })
+      const data = await escrowRelease({
+        projectId: selectedProject.id,
+        finalAmount: amount,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to release funds");
-
       // Update local state
-      setProjects(prev => prev.map(p => 
-        p.id === selectedProject.id 
-          ? { ...p, status: "closed", escrowStatus: "released", finalPayout: amount } 
+      setProjects(prev => prev.map(p =>
+        p.id === selectedProject.id
+          ? { ...p, status: "closed", escrowStatus: "released", finalPayout: amount }
           : p
       ));
-      
+
       setReleaseModalOpen(false);
       alert(`Successfully released funds! VA received ${data.vaPayout} GMD (Platform fee: ${data.platformFee} GMD). ${data.refundAmount > 0 ? `Refunded ${data.refundAmount} GMD back to your wallet.` : ""}`);
     } catch (err: unknown) {
