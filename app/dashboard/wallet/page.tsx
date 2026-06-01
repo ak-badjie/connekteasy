@@ -291,6 +291,23 @@ function WalletContent() {
     setDepositError(null);
     setDepositLoading(true);
 
+    // Detect mobile/iOS — popups are blocked after async calls on these devices
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // On desktop, pre-open the popup synchronously (preserves user gesture context)
+    let popup: Window | null = null;
+    if (!isMobile) {
+      const width = 500;
+      const height = 600;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      popup = window.open(
+        "about:blank",
+        "ModemPayCheckout",
+        `width=${width},height=${height},top=${top},left=${left},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+    }
+
     try {
       const result = await createPayment({
         amount: Number(depositAmount),
@@ -299,35 +316,42 @@ function WalletContent() {
         customer_email: userProfile?.email,
       });
 
-      if (!result.paymentUrl) throw new Error("Failed to get payment link");
+      if (!result.paymentUrl) {
+        if (popup) popup.close();
+        throw new Error("Failed to get payment link");
+      }
 
       setPaymentStatus("waiting");
 
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
+      if (isMobile) {
+        // On mobile: redirect in same tab (popups are unreliable on iOS Safari)
+        window.location.href = result.paymentUrl;
+        return;
+      }
 
-      const popup = window.open(
-        result.paymentUrl,
-        "ModemPayCheckout",
-        `width=${width},height=${height},top=${top},left=${left},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
-      );
+      // On desktop: navigate the pre-opened popup to the payment URL
+      if (popup && !popup.closed) {
+        popup.location.href = result.paymentUrl;
 
-      const pollTimer = window.setInterval(() => {
-        if (popup && popup.closed) {
-          window.clearInterval(pollTimer);
-          if (paymentStatusRef.current === "waiting") {
-             setTimeout(() => {
-                if (paymentStatusRef.current === "waiting") {
-                   setPaymentStatus("idle");
-                }
-             }, 1500);
+        const pollTimer = window.setInterval(() => {
+          if (popup && popup.closed) {
+            window.clearInterval(pollTimer);
+            if (paymentStatusRef.current === "waiting") {
+               setTimeout(() => {
+                  if (paymentStatusRef.current === "waiting") {
+                     setPaymentStatus("idle");
+                  }
+               }, 1500);
+            }
           }
-        }
-      }, 500);
+        }, 500);
+      } else {
+        // Popup was still blocked somehow — fallback to redirect
+        window.location.href = result.paymentUrl;
+      }
 
     } catch (err: unknown) {
+      if (popup && !popup.closed) popup.close();
       setDepositError(err instanceof Error ? err.message : "Unknown error");
       setPaymentStatus("error");
     } finally {

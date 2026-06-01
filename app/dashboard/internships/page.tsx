@@ -72,6 +72,22 @@ export default function InternshipsPage() {
     if (!user || !userProfile) return;
     setError(null);
     setPaying(true);
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    let popup: Window | null = null;
+    
+    if (!isMobile) {
+      const width = 500;
+      const height = 600;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      popup = window.open(
+        "about:blank",
+        "ModemPayInternship",
+        `width=${width},height=${height},top=${top},left=${left},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+    }
+
     try {
       const result = await createPayment({
         amount: INTERNSHIP_PRICE_GMD,
@@ -79,27 +95,31 @@ export default function InternshipsPage() {
         customer_name: userProfile.displayName,
         customer_email: userProfile.email,
       });
-      if (!result.paymentUrl) throw new Error("Failed to get payment link");
-
-      const width = 500;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
+      if (!result.paymentUrl) {
+        if (popup) popup.close();
+        throw new Error("Failed to get payment link");
+      }
 
       setWaitingForActivation(true);
-      const popup = window.open(
-        result.paymentUrl,
-        "ModemPayInternship",
-        `width=${width},height=${height},top=${top},left=${left},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
-      );
 
-      const pollTimer = window.setInterval(() => {
-        if (popup && popup.closed) {
-          window.clearInterval(pollTimer);
-          setTimeout(() => setWaitingForActivation(false), 4000);
-        }
-      }, 500);
+      if (isMobile) {
+        window.location.href = result.paymentUrl;
+        return;
+      }
+
+      if (popup && !popup.closed) {
+        popup.location.href = result.paymentUrl;
+        const pollTimer = window.setInterval(() => {
+          if (popup && popup.closed) {
+            window.clearInterval(pollTimer);
+            setTimeout(() => setWaitingForActivation(false), 4000);
+          }
+        }, 500);
+      } else {
+        window.location.href = result.paymentUrl;
+      }
     } catch (err) {
+      if (popup && !popup.closed) popup.close();
       setError(err instanceof Error ? err.message : "Failed to initialize payment");
       setWaitingForActivation(false);
     } finally {
