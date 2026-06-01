@@ -312,8 +312,8 @@ function WalletContent() {
       const result = await createPayment({
         amount: Number(depositAmount),
         type: "wallet_deposit",
-        customer_name: userProfile?.displayName,
-        customer_email: userProfile?.email,
+        customer_name: userProfile?.displayName || "",
+        customer_email: userProfile?.email || "",
       });
 
       if (!result.paymentUrl) {

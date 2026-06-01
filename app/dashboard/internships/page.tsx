@@ -92,8 +92,8 @@ export default function InternshipsPage() {
       const result = await createPayment({
         amount: INTERNSHIP_PRICE_GMD,
         type: "internship_subscription",
-        customer_name: userProfile.displayName,
-        customer_email: userProfile.email,
+        customer_name: userProfile.displayName || "",
+        customer_email: userProfile.email || "",
       });
       if (!result.paymentUrl) {
         if (popup) popup.close();
