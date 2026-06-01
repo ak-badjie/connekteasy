@@ -47,7 +47,7 @@ export const createPayment = onCall(async (request) => {
             type,
         };
 
-        const response = await modempay.paymentIntents.create({
+        const response: any = await modempay.paymentIntents.create({
             amount,
             currency,
             customer_name,
@@ -58,8 +58,19 @@ export const createPayment = onCall(async (request) => {
             metadata: paymentMetadata,
         });
 
-        const reference = response.data?.id;
+        console.log('Modem Pay raw response:', JSON.stringify(response));
+
+        // The SDK returns the HTTP body directly.  The body shape is
+        // { status: boolean, message: string, data: { id, payment_link, ... } }
+        // but some API versions may return data at the top level.
+        const inner = response?.data ?? response;
+        const reference: string | undefined =
+            inner?.id ?? response?.id ?? inner?.reference ?? response?.reference;
+        const paymentLink: string | undefined =
+            inner?.payment_link ?? inner?.link ?? response?.payment_link ?? response?.link;
+
         if (!reference) {
+            console.error('Modem Pay response missing reference. Keys:', Object.keys(response || {}));
             throw new HttpsError('internal', 'Modem Pay did not return a payment reference');
         }
 
@@ -79,15 +90,18 @@ export const createPayment = onCall(async (request) => {
         return {
             success: true,
             reference,
-            paymentUrl: response.data?.payment_link,
-            amount: response.data?.amount,
-            currency: response.data?.currency,
-            status: response.data?.status,
+            paymentUrl: paymentLink,
+            amount: inner?.amount ?? amount,
+            currency: inner?.currency ?? currency,
+            status: inner?.status ?? 'initialized',
         };
     } catch (error: any) {
-        console.error('createPayment error:', error);
+        console.error('createPayment error:', error?.message || error);
         if (error instanceof HttpsError) throw error;
-        throw new HttpsError('internal', error?.message || 'Failed to create payment');
+        const msg = error?.statusCode
+            ? `Modem Pay API error (${error.statusCode}): ${error.message}`
+            : (error?.message || 'Failed to create payment');
+        throw new HttpsError('internal', msg);
     }
 });
 
