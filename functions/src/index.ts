@@ -61,11 +61,11 @@ export const createPayment = onCall(async (request) => {
         console.log('Modem Pay raw response:', JSON.stringify(response));
 
         // The SDK returns the HTTP body directly.  The body shape is
-        // { status: boolean, message: string, data: { id, payment_link, ... } }
-        // but some API versions may return data at the top level.
+        // { status: boolean, message: string, data: { payment_intent_id, payment_link, ... } }
+        // Note: the actual API returns "payment_intent_id" not "id" despite the SDK types.
         const inner = response?.data ?? response;
         const reference: string | undefined =
-            inner?.id ?? response?.id ?? inner?.reference ?? response?.reference;
+            inner?.payment_intent_id ?? inner?.id ?? response?.payment_intent_id ?? response?.id ?? inner?.reference ?? response?.reference;
         const paymentLink: string | undefined =
             inner?.payment_link ?? inner?.link ?? response?.payment_link ?? response?.link;
 
