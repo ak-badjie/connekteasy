@@ -237,7 +237,7 @@ export default function MyProjectsPage() {
           {/* Mobile Cards */}
           <div className="sm:hidden space-y-3">
             {projects.map((project) => (
-              <motion.div key={project.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4" variants={staggerItem} whileHover={cardHover} whileTap={cardTap}>
+              <motion.div key={project.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4" variants={staggerItem}>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="text-sm font-semibold font-display text-gray-900 leading-snug line-clamp-2 flex-1">{project.title}</h3>
                   <span className={`shrink-0 px-2 py-0.5 text-[10px] font-medium rounded-full ${project.status === "open" ? "bg-teal-50 text-mustard-700" : project.status === "in-progress" ? "bg-mustard-500/10 text-mustard-600" : "bg-gray-100 text-gray-500"}`}>

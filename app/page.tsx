@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import SearchBar from "./components/SearchBar";
 import CategoryIcon from "./components/CategoryIcon";
 import { categories } from "./lib/data";
 import { FileEdit, Handshake, Rocket, ArrowRight, DollarSign, ShieldCheck, Lock, MessageSquare, Calendar } from "lucide-react";
 
 // CUSTOM MOTION VARIANTS
-const magneticSlideLeft = {
+const magneticSlideLeft: Variants = {
   hidden: { x: -50, opacity: 0 },
   visible: { 
     x: 0, 
@@ -19,7 +19,7 @@ const magneticSlideLeft = {
   }
 };
 
-const magneticSlideRight = {
+const magneticSlideRight: Variants = {
   hidden: { x: 50, opacity: 0 },
   visible: { 
     x: 0, 
@@ -28,7 +28,7 @@ const magneticSlideRight = {
   }
 };
 
-const magneticSlideUp = {
+const magneticSlideUp: Variants = {
   hidden: { y: 40, opacity: 0 },
   visible: { 
     y: 0, 
@@ -37,7 +37,7 @@ const magneticSlideUp = {
   }
 };
 
-const appleDrop = {
+const appleDrop: Variants = {
   hidden: { scale: 0.9, y: -20, opacity: 0 },
   visible: { 
     scale: 1, 
@@ -47,7 +47,7 @@ const appleDrop = {
   }
 };
 
-const spin3D = {
+const spin3D: Variants = {
   hidden: { opacity: 0, scale: 0.9, y: 20 },
   visible: { 
     opacity: 1, 
@@ -57,7 +57,7 @@ const spin3D = {
   }
 };
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } }
 };

@@ -13,7 +13,6 @@ const EMPLOYMENT_FILTERS: { value: JobEmploymentType | "all"; label: string }[] 
   { value: "full-time", label: "Full-time" },
   { value: "part-time", label: "Part-time" },
   { value: "contract", label: "Contract" },
-  { value: "internship", label: "Internship" },
 ];
 
 function timeAgo(date: Date): string {
@@ -40,7 +39,13 @@ export default function JobsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = typeFilter === "all" ? jobs : jobs.filter((j) => j.employmentType === typeFilter);
+  // Internships live behind a paid subscription, so they're surfaced only on
+  // the dedicated /dashboard/internships page — never on the free Job Board.
+  const visibleJobs = jobs.filter((j) => j.employmentType !== "internship");
+  const filtered =
+    typeFilter === "all"
+      ? visibleJobs
+      : visibleJobs.filter((j) => j.employmentType === typeFilter);
 
   if (loading) {
     return (
