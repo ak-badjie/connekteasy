@@ -130,8 +130,8 @@ export default function InternshipsPage() {
           </p>
         </motion.div>
 
-        <motion.div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" variants={staggerItem}>
-          <div className="bg-gradient-to-br from-teal-600 to-teal-800 p-8 text-white">
+        <motion.div className="isolate transform-gpu z-0 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" variants={staggerItem}>
+          <div className="bg-teal-700 bg-gradient-to-br from-teal-600 to-teal-800 p-8 text-white">
             <p className="text-teal-100 font-medium mb-1">Internship Membership</p>
             <div className="flex items-baseline gap-2 mb-4">
               <span className="text-4xl font-bold tracking-tight">{INTERNSHIP_PRICE_GMD}</span>

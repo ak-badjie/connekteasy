@@ -411,7 +411,7 @@ function WalletContent() {
           {/* Left Column: Balance & Actions */}
           <div className="lg:col-span-1 flex flex-col gap-6 lg:overflow-y-auto no-scrollbar shrink-0">
             {/* Balance Card */}
-            <motion.div variants={fadeInUp} className="bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
+            <motion.div variants={fadeInUp} className="isolate transform-gpu z-0 bg-teal-700 bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
               <p className="text-teal-100 font-medium mb-1">Available Balance</p>
               <div className="text-4xl font-bold tracking-tight mb-8">

@@ -153,7 +153,7 @@ export default function DashboardLayout({
       </main>
 
       {/* Mobile Bottom Nav */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-2 py-2 flex items-center justify-around pb-safe">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-1 py-1.5 flex items-center justify-between pb-safe">
         {navItems.map((item) => {
           if (item.roles && userProfile?.role && !item.roles.includes(userProfile.role)) return null;
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
@@ -162,14 +162,14 @@ export default function DashboardLayout({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg min-w-[64px] transition-colors ${   
+              className={`flex flex-col items-center justify-center gap-1 p-1 rounded-lg flex-1 min-w-0 transition-colors ${   
                 isActive ? "text-mustard-600" : "text-gray-500 hover:text-gray-900"
               }`}
             >
               <span className={`shrink-0 ${isActive ? "text-mustard-600" : "text-gray-400"}`}>
                 {item.icon}
               </span>
-              <span className="text-[10px] font-medium leading-none">{item.label}</span>
+              <span className="text-[9px] font-medium leading-none truncate w-full text-center px-0.5">{item.label}</span>
             </Link>
           );
         })}
