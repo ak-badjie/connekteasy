@@ -418,11 +418,11 @@ function WalletContent() {
                 {balance.toLocaleString()} <span className="text-xl text-teal-200 font-medium">GMD</span>
               </div>
               <div className="flex gap-3 relative z-10">
-                <button onClick={() => setActiveModal("deposit")} className="flex-1 bg-white text-teal-900 py-2.5 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5">
-                  <Plus size={16} /> Deposit
+                <button onClick={() => setActiveModal("deposit")} className="flex-1 min-w-0 bg-white text-teal-900 py-2.5 px-4 rounded-xl font-semibold text-sm hover:bg-teal-50 transition-colors shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
+                  <Plus size={16} className="shrink-0" /> Deposit
                 </button>
-                <button onClick={() => setActiveModal("withdraw")} className="flex-1 bg-teal-700/50 hover:bg-teal-600/70 border border-teal-500/30 text-white py-2.5 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5">
-                  <ArrowUpRight size={16} /> Withdraw
+                <button onClick={() => setActiveModal("withdraw")} className="flex-1 min-w-0 bg-teal-700/50 hover:bg-teal-600/70 border border-teal-500/30 text-white py-2.5 px-4 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap">
+                  <ArrowUpRight size={16} className="shrink-0" /> Withdraw
                 </button>
               </div>
             </motion.div>
