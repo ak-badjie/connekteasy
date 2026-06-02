@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
-export default function SignInPage() {
+// Allowed redirect targets after signin — must start with `/` and not `//` to
+// prevent open-redirect to external hosts.
+function safeRedirect(raw: string | null): string | null {
+  if (!raw) return null;
+  if (!raw.startsWith("/") || raw.startsWith("//")) return null;
+  return raw;
+}
+
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = safeRedirect(searchParams.get("redirect"));
   const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +49,7 @@ export default function SignInPage() {
           return;
         }
       }
-      router.push("/dashboard");    } catch (err: unknown) {
+      router.push(redirectTo || "/dashboard");    } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Sign in failed";
       if (msg.includes("user-not-found") || msg.includes("wrong-password") || msg.includes("invalid-credential")) {
         setError("Invalid email or password. Please try again.");
@@ -62,7 +72,7 @@ export default function SignInPage() {
       if (profile && !profile.onboardingComplete) {
         router.push("/onboarding");
       } else {
-        router.push("/dashboard");
+        router.push(redirectTo || "/dashboard");
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Google sign in failed";
@@ -206,5 +216,19 @@ export default function SignInPage() {
         </motion.p>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }
