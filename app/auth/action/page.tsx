@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { auth } from "@/app/lib/firebase";
 import { applyActionCode, verifyPasswordResetCode, confirmPasswordReset } from "firebase/auth";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { Lock, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Lock, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { fadeInUp, staggerContainer, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 function ActionContent() {
@@ -92,6 +92,9 @@ function ActionContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50/30 flex items-center justify-center px-4 py-12">
+      <Link href="/" className="absolute top-5 left-5 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors z-20">
+        <ArrowLeft size={15} /> Back to Home
+      </Link>
       <motion.div
         className="relative w-full max-w-md"
         initial="hidden"
