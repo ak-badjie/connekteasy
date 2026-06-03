@@ -69,7 +69,7 @@ export default function PublicJobsPage() {
             <div>
               <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Job Board</h1>
               <p className="text-sm sm:text-base text-gray-500">
-                Browse opportunities posted by employers — free to apply.
+                Browse opportunities posted by employers across Africa. A membership is required to apply.
               </p>
             </div>
             <Link

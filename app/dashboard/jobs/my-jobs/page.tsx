@@ -10,6 +10,7 @@ import {
   closeJob,
   updateJobApplicationStatus,
 } from "@/app/lib/firestore";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { Briefcase, X, Plus, Mail, Phone } from "lucide-react";
 import type { Job, JobApplication, JobApplicationStatus } from "@/app/lib/types";
@@ -22,6 +23,7 @@ const STATUS_LABELS: Record<JobApplicationStatus, { label: string; classes: stri
 };
 
 export default function MyJobsPage() {
+  const { allowed, checking } = useRoleGuard((c) => c.postJobs);
   const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,15 @@ export default function MyJobsPage() {
     await updateJobApplicationStatus(appId, status);
     setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status } : a)));
   };
+
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
 
   if (loading) {
     return (

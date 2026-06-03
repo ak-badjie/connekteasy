@@ -10,6 +10,7 @@ import {
   getProjectsByOwner,
   updateProposalStatus,
 } from "@/app/lib/firestore";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { CheckCircle, XCircle, Clock, FileText } from "lucide-react";
 import type { Proposal } from "@/app/lib/types";
@@ -27,6 +28,7 @@ function timeAgo(date: Date): string {
 }
 
 function ProposalsContent() {
+  const { allowed, checking } = useRoleGuard((c) => c.receiveProposals || c.sendProposals);
   const { user, userProfile } = useAuth();
   const searchParams = useSearchParams();
   const projectFilter = searchParams.get("project");
@@ -70,6 +72,13 @@ function ProposalsContent() {
     load();
   }, [user, tab, projectFilter]);
 
+  // Freelancers only ever send; employers only ever receive. Lock the view to
+  // the role's relevant side so neither sees an always-empty tab.
+  useEffect(() => {
+    if (userProfile?.role === "va") setTab("sent");
+    else if (userProfile?.role === "client") setTab("received");
+  }, [userProfile?.role]);
+
   const handleUpdateStatus = async (proposal: Proposal, status: "accepted" | "rejected") => {
     try {
       await updateProposalStatus(proposal.id, status, proposal.projectId, proposal.freelancerId);
@@ -81,6 +90,15 @@ function ProposalsContent() {
     }
   };
 
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
+
   return (
     <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="h-full flex flex-col min-h-0 pb-6">
       <motion.div className="mb-4 sm:mb-6 shrink-0" variants={fadeInUp}>
@@ -90,23 +108,6 @@ function ProposalsContent() {
             ? "Review proposals for your projects."
             : "Track proposals you've sent."}
         </p>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div className="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit shrink-0" variants={fadeInUp}>
-        {(["received", "sent"] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 text-xs font-medium rounded-md transition-colors ${
-              tab === t
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {t === "received" ? "Received" : "Sent"}
-          </button>
-        ))}
       </motion.div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar min-h-0 pb-4">

@@ -37,6 +37,18 @@ export const categories: Category[] = [
     { id: "10", name: "Web Development", iconName: "Globe", count: 201 },
     { id: "11", name: "Graphic Design", iconName: "Palette", count: 176 },
     { id: "12", name: "Video Editing", iconName: "Film", count: 89 },
+    { id: "13", name: "Virtual Assistance", iconName: "Briefcase", count: 154 },
+    { id: "14", name: "Digital Marketing", iconName: "Megaphone", count: 198 },
+    { id: "15", name: "SEO & Lead Generation", iconName: "TrendingUp", count: 132 },
+    { id: "16", name: "Software Development", iconName: "Code", count: 167 },
+    { id: "17", name: "Translation", iconName: "Languages", count: 76 },
+    { id: "18", name: "Transcription", iconName: "Headphones", count: 64 },
+    { id: "19", name: "Accounting & Finance", iconName: "Calculator", count: 91 },
+    { id: "20", name: "Legal Support", iconName: "Scale", count: 48 },
+    { id: "21", name: "HR & Recruiting", iconName: "Users", count: 73 },
+    { id: "22", name: "Tutoring & Education", iconName: "GraduationCap", count: 110 },
+    { id: "23", name: "Photography", iconName: "Camera", count: 57 },
+    { id: "24", name: "E-commerce Management", iconName: "ShoppingCart", count: 119 },
 ];
 
 export const projects: Project[] = [

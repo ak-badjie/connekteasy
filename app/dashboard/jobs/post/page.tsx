@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { createJob } from "@/app/lib/firestore";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import { categories } from "@/app/lib/data";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { CheckCircle } from "lucide-react";
@@ -18,6 +19,7 @@ const EMPLOYMENT_TYPES: { value: JobEmploymentType; label: string }[] = [
 ];
 
 export default function PostJobPage() {
+  const { allowed, checking } = useRoleGuard((c) => c.postJobs);
   const { user, userProfile } = useAuth();
   const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
@@ -69,6 +71,15 @@ export default function PostJobPage() {
   const inputClasses = "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-mustard-500/20 focus:border-mustard-500 transition-all";
   const labelClasses = "block text-sm font-medium text-gray-900 mb-1.5";
   const cardClasses = "bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6 sm:mb-8";
+
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
 
   return (
     <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-4xl mx-auto">

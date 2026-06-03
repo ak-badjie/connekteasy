@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useAuth } from "@/app/lib/AuthContext";
 import { getJobs } from "@/app/lib/firestore";
+import { caps } from "@/app/lib/roles";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { Briefcase, MapPin, Plus, Folder } from "lucide-react";
 import type { Job, JobEmploymentType } from "@/app/lib/types";
@@ -28,6 +30,8 @@ function timeAgo(date: Date): string {
 }
 
 export default function JobsPage() {
+  const { userProfile } = useAuth();
+  const canPostJobs = caps(userProfile?.role).postJobs;
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState<JobEmploymentType | "all">("all");
@@ -61,16 +65,18 @@ export default function JobsPage() {
       <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8" variants={fadeInUp}>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold font-display text-gray-900 mb-1">Job Board</h1>
-          <p className="text-sm sm:text-base text-gray-500">Browse opportunities posted by employers — free to apply.</p>
+          <p className="text-sm sm:text-base text-gray-500">Browse opportunities posted by employers across Africa.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard/jobs/my-jobs" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors">
-            <Folder size={16} /> My Posted Jobs
-          </Link>
-          <Link href="/dashboard/jobs/post" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm">
-            <Plus size={16} /> Post a Job
-          </Link>
-        </div>
+        {canPostJobs && (
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard/jobs/my-jobs" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors">
+              <Folder size={16} /> My Posted Jobs
+            </Link>
+            <Link href="/dashboard/jobs/post" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm">
+              <Plus size={16} /> Post a Job
+            </Link>
+          </div>
+        )}
       </motion.div>
 
       <motion.div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar pb-1" variants={fadeInUp}>

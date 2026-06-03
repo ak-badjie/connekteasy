@@ -445,7 +445,11 @@ export const modemPayWebhook = onRequest(async (req, res) => {
                 } else {
                     console.log(`Deposit ${paymentId} already processed for ${uid}`);
                 }
-            } else if (type === 'internship_subscription') {
+            } else if (type.endsWith('_subscription')) {
+                // Membership subscription (internship_subscription, job_subscription, …).
+                // The active check is plan-agnostic, so any of these unlocks the
+                // role's gated area. We record the plan for bookkeeping.
+                const plan = type.replace('_subscription', '');
                 const subRef = db.collection('subscriptions').doc(uid);
                 const subSnap = await subRef.get();
                 const existing = subSnap.exists ? (subSnap.data() as any) : null;
@@ -463,7 +467,7 @@ export const modemPayWebhook = onRequest(async (req, res) => {
                     await subRef.set(
                         {
                             uid,
-                            plan: 'internship',
+                            plan,
                             status: 'active',
                             amount,
                             currency: payload.currency || 'GMD',
@@ -478,7 +482,7 @@ export const modemPayWebhook = onRequest(async (req, res) => {
                         { merge: true }
                     );
                     console.log(
-                        `Internship subscription active for ${uid} until ${new Date(newEndMs).toISOString()}`
+                        `Membership (${plan}) active for ${uid} until ${new Date(newEndMs).toISOString()}`
                     );
                 }
             }

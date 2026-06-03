@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle, ArrowLeft } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 // Allowed redirect targets after signin — must start with `/` and not `//` to
@@ -86,6 +86,9 @@ function SignInContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50/30 flex items-center justify-center px-4 py-12">
+      <Link href="/" className="absolute top-5 left-5 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors z-20">
+        <ArrowLeft size={15} /> Back to Home
+      </Link>
       {/* Background decorations */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-teal-100/30 rounded-full -translate-y-1/2 translate-x-1/4" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-teal-200/20 rounded-full translate-y-1/2 -translate-x-1/4" />

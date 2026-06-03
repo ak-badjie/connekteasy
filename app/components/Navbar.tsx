@@ -63,7 +63,8 @@ export default function Navbar() {
     { href: "/explore", label: "Explore" },
     { href: "/jobs", label: "Jobs" },
     { href: "/internships", label: "Internships" },
-    { href: "/dashboard", label: "Dashboard" },
+    // Dashboard is only meaningful once signed in.
+    ...(user ? [{ href: "/dashboard", label: "Dashboard" }] : []),
   ];
 
   if (hideNavbar) return null;

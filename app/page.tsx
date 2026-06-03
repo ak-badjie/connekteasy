@@ -117,7 +117,7 @@ export default function Home() {
                       className="text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed"
                     >
                       {searchMode === "talent"
-                        ? "Scale your business with vetted professionals in The Gambia ready to handle your administrative, technical, and creative tasks."
+                        ? "Scale your business with vetted professionals across Africa ready to handle your administrative, technical, and creative tasks."
                         : "Become a Virtual Assistant and work professionally with growing businesses in The Gambia."}
                     </p>
                   </motion.div>
@@ -149,9 +149,9 @@ export default function Home() {
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                         />
                       )}
-                      Find Talent
+                      Hire
                     </motion.button>
-                    
+
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSearchMode("projects")}
@@ -168,7 +168,7 @@ export default function Home() {
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                         />
                       )}
-                      Find Work
+                      Work
                     </motion.button>
                   </div>
                 </div>
@@ -337,7 +337,7 @@ export default function Home() {
                 </h1>
                 <p className="text-[15px] text-gray-600 leading-relaxed max-w-sm mx-auto">
                   {searchMode === "talent"
-                    ? "Scale your business with vetted professionals in The Gambia."
+                    ? "Scale your business with vetted professionals across Africa."
                     : "Become a Virtual Assistant and work professionally."}
                 </p>
               </motion.div>
@@ -364,7 +364,7 @@ export default function Home() {
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
                     )}
-                    Find Talent
+                    Hire
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
@@ -380,7 +380,7 @@ export default function Home() {
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                       />
                     )}
-                    Find Work
+                    Work
                   </motion.button>
                 </div>
               </div>
@@ -543,6 +543,70 @@ export default function Home() {
           </div>
         </div>
       </motion.section>
+
+      {/* Categories */}
+      <section className="py-14 sm:py-20 md:py-24 bg-gray-50 overflow-hidden" style={{ perspective: "1500px" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-10 gap-3 sm:gap-4"        
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={magneticSlideUp}
+          >
+            <div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Popular categories</h2>
+              <p className="text-sm sm:text-base text-gray-500">Browse projects by specialization</p>
+            </div>
+            <Link
+              href="/explore"
+              className="text-sm font-semibold text-teal-600 hover:text-mustard-700 transition-colors flex items-center gap-1 group"
+            >
+              View all categories
+              <motion.div whileHover={{ x: 5 }}>
+                <ArrowRight size={16} />
+              </motion.div>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            variants={staggerContainer}
+          >
+            {categories.map((cat) => (
+              <motion.div 
+                key={cat.id} 
+                variants={appleDrop}
+                whileHover={{ 
+                  scale: 1.03, 
+                  y: -3,
+                  boxShadow: "0px 8px 20px rgba(0,0,0,0.08)",
+                  transition: { type: "spring", stiffness: 300 }
+                }}
+              >
+                <Link
+                  href={`/explore?mode=talent&q=${encodeURIComponent(cat.name)}`}
+                  className="block bg-white rounded-lg p-4 sm:p-5 border border-gray-200 group h-full"
+                >
+                  <motion.div
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-mustard-100 transition-colors"
+                    whileHover={{ scale: 1.1, transition: { duration: 0.3, type: "spring" } }}
+                  >
+                    <CategoryIcon name={cat.iconName} size={18} className="sm:w-5 sm:h-5" />
+                  </motion.div>
+                  <h3 className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-teal-600 transition-colors mb-0.5 sm:mb-1">
+                    {cat.name}
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-gray-400">{cat.count} projects</p>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
       {/* What's in it for you? */}
       <section className="py-16 sm:py-24 bg-white relative overflow-hidden" style={{ perspective: "1500px" }}>
@@ -773,70 +837,6 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-14 sm:py-20 md:py-24 bg-gray-50 overflow-hidden" style={{ perspective: "1500px" }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-10 gap-3 sm:gap-4"        
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={magneticSlideUp}
-          >
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Popular categories</h2>
-              <p className="text-sm sm:text-base text-gray-500">Browse projects by specialization</p>
-            </div>
-            <Link
-              href="/explore"
-              className="text-sm font-semibold text-teal-600 hover:text-mustard-700 transition-colors flex items-center gap-1 group"
-            >
-              View all categories
-              <motion.div whileHover={{ x: 5 }}>
-                <ArrowRight size={16} />
-              </motion.div>
-            </Link>
-          </motion.div>
-
-          <motion.div
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-            variants={staggerContainer}
-          >
-            {categories.map((cat) => (
-              <motion.div 
-                key={cat.id} 
-                variants={appleDrop}
-                whileHover={{ 
-                  scale: 1.03, 
-                  y: -3,
-                  boxShadow: "0px 8px 20px rgba(0,0,0,0.08)",
-                  transition: { type: "spring", stiffness: 300 }
-                }}
-              >
-                <Link
-                  href={`/explore?mode=talent&q=${encodeURIComponent(cat.name)}`}
-                  className="block bg-white rounded-lg p-4 sm:p-5 border border-gray-200 group h-full"
-                >
-                  <motion.div
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-teal-50 flex items-center justify-center mb-2.5 sm:mb-3 text-teal-600 group-hover:bg-mustard-100 transition-colors"
-                    whileHover={{ scale: 1.1, transition: { duration: 0.3, type: "spring" } }}
-                  >
-                    <CategoryIcon name={cat.iconName} size={18} className="sm:w-5 sm:h-5" />
-                  </motion.div>
-                  <h3 className="text-xs sm:text-sm font-semibold text-gray-900 group-hover:text-teal-600 transition-colors mb-0.5 sm:mb-1">
-                    {cat.name}
-                  </h3>
-                  <p className="text-[10px] sm:text-xs text-gray-400">{cat.count} projects</p>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
         </div>
       </section>
 

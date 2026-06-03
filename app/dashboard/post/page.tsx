@@ -6,11 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { createProject } from "@/app/lib/firestore";
 import { escrowHold } from "@/app/lib/payment";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import { categories } from "@/app/lib/data";
 import { CheckCircle } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 
 export default function PostProjectPage() {
+  const { allowed, checking } = useRoleGuard((c) => c.postProject);
   const { user, userProfile } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -25,6 +27,7 @@ export default function PostProjectPage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -41,6 +44,14 @@ export default function PostProjectPage() {
 
       if (bMax <= 0 || bMax < bMin) {
         alert("Invalid budget range. Max budget must be greater than zero and greater than or equal to min budget.");
+        setLoading(false);
+        return;
+      }
+
+      const effectiveCategory =
+        formData.category === "Other" ? customCategory.trim() : formData.category;
+      if (!effectiveCategory) {
+        alert("Please choose or enter a category.");
         setLoading(false);
         return;
       }
@@ -68,7 +79,7 @@ export default function PostProjectPage() {
         budgetMin: bMin,
         budgetMax: bMax,
         budgetType: formData.budgetType as "fixed" | "hourly",
-        category: formData.category,
+        category: effectiveCategory,
         tags: formData.skills
           .split(",")
           .map((s) => s.trim())
@@ -94,6 +105,7 @@ export default function PostProjectPage() {
         duration: "",
         skills: "",
       });
+      setCustomCategory("");
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err) {
       console.error("Failed to post project:", err);
@@ -105,6 +117,15 @@ export default function PostProjectPage() {
   const inputClasses = "w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-mustard-500/20 focus:border-mustard-500 transition-all";
   const labelClasses = "block text-sm font-medium text-gray-900 mb-1.5";
   const cardClasses = "bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6 sm:mb-8";
+
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
 
   return (
     <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-4xl mx-auto">
@@ -161,15 +182,26 @@ export default function PostProjectPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-5 sm:mb-6">
             <div>
               <label className={labelClasses}>Category</label>
-              <select 
-                value={formData.category} 
-                onChange={(e) => handleChange("category", e.target.value)} 
-                className={`${inputClasses} cursor-pointer`} 
+              <select
+                value={formData.category}
+                onChange={(e) => handleChange("category", e.target.value)}
+                className={`${inputClasses} cursor-pointer`}
                 required
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (<option key={cat.id} value={cat.name}>{cat.name}</option>))}
+                <option value="Other">Other (specify)</option>
               </select>
+              {formData.category === "Other" && (
+                <input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Enter your category"
+                  className={`${inputClasses} mt-2`}
+                  required
+                />
+              )}
             </div>
             <div>
               <label className={labelClasses}>Duration</label>

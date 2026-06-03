@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 // ─── User Profile ──────────────────────────────────────────
-export type UserRole = "client" | "va";
+export type UserRole = "client" | "va" | "student" | "job_seeker";
 
 export interface UserProfile {
   uid: string;
@@ -149,7 +149,7 @@ export type SubscriptionStatus = "active" | "expired" | "cancelled";
 
 export interface InternshipSubscription {
   uid: string;
-  plan: "internship";
+  plan: "internship" | "job";
   status: SubscriptionStatus;
   amount: number;
   currency: string;

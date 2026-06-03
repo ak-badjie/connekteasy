@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { getProjectsByOwner } from "@/app/lib/firestore";
 import { escrowRelease } from "@/app/lib/payment";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
+import { fadeInUp, staggerContainer, staggerItem, cardHover, cardTap } from "@/app/lib/animations";
 import { X } from "lucide-react";
 import type { FirestoreProject } from "@/app/lib/types";
 
@@ -23,6 +24,7 @@ function timeAgo(date: Date): string {
 }
 
 export default function MyProjectsPage() {
+  const { allowed, checking } = useRoleGuard((c) => c.manageProjects);
   const { user } = useAuth();
   const [projects, setProjects] = useState<FirestoreProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,6 +95,15 @@ export default function MyProjectsPage() {
       setReleaseLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
 
   if (loading) {
     return (

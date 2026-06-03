@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { updateUserProfile } from "@/app/lib/firestore";
 import SkillPicker from "@/app/components/SkillPicker";
+import { caps } from "@/app/lib/roles";
 import {
   uploadProfilePhoto,
   uploadCoverPhoto,
@@ -19,7 +20,12 @@ import type { Education, PortfolioProject, UploadedFile } from "@/app/lib/types"
 
 export default function ProfilePage() {
   const { user, userProfile, refreshProfile } = useAuth();
-  
+
+  // Freelancers, students and job seekers get the skills/portfolio/education
+  // sections; employers (clients) do not.
+  const showProfessional = caps(userProfile?.role).hasProfessionalProfile;
+  const isFreelancer = userProfile?.role === "va";
+
   // Basic Info State
   const [formData, setFormData] = useState({
     firstName: "",
@@ -349,7 +355,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-5">
-              {userProfile?.role === "va" && (
+              {isFreelancer && (
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Hourly Rate</label>
                   <div className="relative">
@@ -358,13 +364,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
-              <div className={userProfile?.role === "va" ? "" : "col-span-2"}>
+              <div className={isFreelancer ? "" : "col-span-2"}>
                 <label className="block text-xs font-medium text-gray-700 mb-1.5">Location</label>
                 <input type="text" value={formData.location} onChange={(e) => handleChange("location", e.target.value)} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500/20 focus:border-mustard-500" />
               </div>
             </div>
 
-            {userProfile?.role === "va" && (
+            {showProfessional && (
               <div className="mb-6">
                 <SkillPicker selected={selectedSkills} onChange={setSelectedSkills} minSkills={5} label="Expertise & Skills" />
               </div>
@@ -383,8 +389,8 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Render below sections ONLY for VAs */}
-          {userProfile?.role !== "client" && (
+          {/* Skills/education/portfolio sections — hidden for employers */}
+          {showProfessional && (
             <>
               {/* Education Section */}
               <motion.div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6" variants={staggerItem}>

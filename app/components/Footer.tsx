@@ -90,18 +90,23 @@ export default function Footer() {
               Company
             </h4>
             <ul className="space-y-2 sm:space-y-2.5">
-              {["About", "Blog", "Careers", "Contact", "Privacy Policy"].map(
-                (item) => (
-                  <li key={item}>
-                    <Link
-                      href="#"
-                      className="text-xs sm:text-sm text-gray-400 hover:text-teal-400 transition-colors"
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                )
-              )}
+              {[
+                { label: "About", href: "#" },
+                { label: "Blog", href: "#" },
+                { label: "Careers", href: "#" },
+                { label: "Contact", href: "mailto:hello@connekt.africa" },
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className="text-xs sm:text-sm text-gray-400 hover:text-teal-400 transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </motion.div>
         </div>

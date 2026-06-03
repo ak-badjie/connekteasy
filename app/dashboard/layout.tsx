@@ -5,34 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
-import { fadeInUp, iconHover, iconTap } from "@/app/lib/animations";
-import {
-  LayoutDashboard,
-  FileText,
-  MessageSquare,
-  User as UserIcon,
-  Wallet,
-  Briefcase,
-  GraduationCap,
-  LogOut
-} from "lucide-react";
-
-type NavItem = {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  roles?: string[];
-};
-
-const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Overview", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/jobs", label: "Jobs", icon: <Briefcase size={20} /> },
-  { href: "/dashboard/internships", label: "Internships", icon: <GraduationCap size={20} /> },
-  { href: "/dashboard/proposals", label: "Proposals", icon: <FileText size={20} /> },
-  { href: "/dashboard/messages", label: "Messages", icon: <MessageSquare size={20} /> },
-  { href: "/dashboard/profile", label: "Profile", icon: <UserIcon size={20} /> },
-  { href: "/dashboard/wallet", label: "Wallet", icon: <Wallet size={20} /> },
-];
+import { fadeInUp } from "@/app/lib/animations";
+import { navItemsForRole, roleLabel } from "@/app/lib/roles";
+import { LogOut } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -43,23 +18,30 @@ export default function DashboardLayout({
   const router = useRouter();
   const { user, userProfile, loading, signOutUser } = useAuth();
 
+  // Access control: must be signed in, email-verified, AND have finished
+  // onboarding before any dashboard route is reachable.
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push("/auth/signin");
-      } else if (!user.emailVerified) {
-        router.push("/auth/verify-email");
-      }
+    if (loading) return;
+    if (!user) {
+      router.push("/auth/signin");
+    } else if (!user.emailVerified) {
+      router.push("/auth/verify-email");
+    } else if (userProfile && !userProfile.onboardingComplete) {
+      router.push("/onboarding");
     }
-  }, [user, loading, router]);
+  }, [user, userProfile, loading, router]);
 
-  if (loading || !user) {
+  const onboardingPending = !!user && (!userProfile || !userProfile.onboardingComplete);
+
+  if (loading || !user || onboardingPending) {
     return (
       <div className="bg-gray-50 flex-1 flex items-center justify-center min-h-[50vh]">
         <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
+
+  const items = navItemsForRole(userProfile?.role);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -81,12 +63,9 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <aside className="hidden lg:flex flex-col w-[260px] shrink-0 h-full border-r border-gray-200 bg-white">
         <nav className="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col gap-1.5">
-          {navItems.map((item) => {
-            if (item.roles && userProfile?.role && !item.roles.includes(userProfile.role)) {
-              return null;
-            }
+          {items.map((item) => {
             const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
-            
+
             return (
               <motion.div key={item.href} whileTap={{ scale: 0.97 }}>
                 <Link
@@ -102,7 +81,7 @@ export default function DashboardLayout({
                       isActive ? "text-mustard-600" : "text-gray-400"
                     }`}
                   >
-                    {item.icon}
+                    <item.Icon size={20} />
                   </span>
                   {item.label}
                 </Link>
@@ -125,10 +104,10 @@ export default function DashboardLayout({
                 <p className="text-sm font-bold text-gray-900 truncate group-hover:text-teal-700 transition-colors">
                   {userProfile?.firstName ? `${userProfile.firstName} ${userProfile.lastName}` : user.displayName || "User"}
                 </p>
-                <p className="text-xs text-gray-500 truncate capitalize">{userProfile?.role || "User"}</p>
+                <p className="text-xs text-gray-500 truncate">{roleLabel(userProfile?.role)}</p>
               </div>
             </Link>
-            
+
             <button onClick={handleSignOut} className="flex items-center justify-center gap-2 w-full py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">
               <LogOut size={14} strokeWidth={2.5} />
               Sign Out
@@ -154,20 +133,19 @@ export default function DashboardLayout({
 
       {/* Mobile Bottom Nav */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-1 py-1.5 flex items-center justify-between pb-safe">
-        {navItems.map((item) => {
-          if (item.roles && userProfile?.role && !item.roles.includes(userProfile.role)) return null;
+        {items.map((item) => {
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center gap-1 p-1 rounded-lg flex-1 min-w-0 transition-colors ${   
+              className={`flex flex-col items-center justify-center gap-1 p-1 rounded-lg flex-1 min-w-0 transition-colors ${
                 isActive ? "text-mustard-600" : "text-gray-500 hover:text-gray-900"
               }`}
             >
               <span className={`shrink-0 ${isActive ? "text-mustard-600" : "text-gray-400"}`}>
-                {item.icon}
+                <item.Icon size={20} />
               </span>
               <span className="text-[9px] font-medium leading-none truncate w-full text-center px-0.5">{item.label}</span>
             </Link>

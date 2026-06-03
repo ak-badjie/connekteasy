@@ -12,8 +12,9 @@ import {
   INTERNSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
 import { createPayment } from "@/app/lib/payment";
+import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
-import { GraduationCap, MapPin, Plus, CheckCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { GraduationCap, MapPin, CheckCircle, ShieldCheck, Sparkles } from "lucide-react";
 import type { Job, InternshipSubscription } from "@/app/lib/types";
 
 function timeAgo(date: Date): string {
@@ -33,6 +34,7 @@ function formatDate(ts: number) {
 }
 
 export default function InternshipsPage() {
+  const { allowed, checking } = useRoleGuard((c) => c.browseInternships);
   const { user, userProfile } = useAuth();
   const [sub, setSub] = useState<InternshipSubscription | null>(null);
   const [subLoading, setSubLoading] = useState(true);
@@ -127,6 +129,15 @@ export default function InternshipsPage() {
     }
   };
 
+  if (checking) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  if (!allowed) return null;
+
   if (subLoading) {
     return (
       <div className="text-center py-20">
@@ -213,14 +224,9 @@ export default function InternshipsPage() {
 
   return (
     <motion.div initial="hidden" animate="visible" variants={staggerContainer}>
-      <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8" variants={fadeInUp}>
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold font-display text-gray-900 mb-1">Internships</h1>
-          <p className="text-sm sm:text-base text-gray-500">Curated internship opportunities — apply for free with your active membership.</p>
-        </div>
-        <Link href="/dashboard/jobs/post" className="inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shrink-0 w-full sm:w-auto shadow-sm">
-          <Plus size={16} /> Post an Internship
-        </Link>
+      <motion.div className="mb-6 sm:mb-8" variants={fadeInUp}>
+        <h1 className="text-xl sm:text-2xl font-bold font-display text-gray-900 mb-1">Internships</h1>
+        <p className="text-sm sm:text-base text-gray-500">Curated internship opportunities — apply for free with your active membership.</p>
       </motion.div>
 
       <motion.div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3" variants={fadeInUp}>

@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { auth } from "@/app/lib/firebase";
 import { applyActionCode, sendEmailVerification } from "firebase/auth";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, CheckCircle2, AlertCircle, ArrowLeft } from "lucide-react";
 import { fadeInUp, staggerContainer, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOutUser } = useAuth();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -83,6 +84,16 @@ export default function VerifyEmailPage() {
     }
   };
 
+  // Wrong email? Sign out and head back to sign up to use a different address.
+  const handleChangeEmail = async () => {
+    try {
+      await signOutUser();
+    } catch {
+      /* ignore */
+    }
+    router.push("/auth/signup");
+  };
+
   if (authLoading || (!user && !authLoading)) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -95,6 +106,12 @@ export default function VerifyEmailPage() {
         animate="visible"
         variants={staggerContainer}
       >
+        <motion.div variants={fadeInUp} className="mb-6">
+          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors">
+            <ArrowLeft size={14} /> Back to Home
+          </Link>
+        </motion.div>
+
         <motion.div className="text-center mb-8" variants={fadeInUp}>
           <div className="inline-flex flex-col items-center gap-3">
             <ConnektIcon className="w-12 h-12" />
@@ -168,6 +185,13 @@ export default function VerifyEmailPage() {
               whileTap={{ scale: 0.95 }}
             >
               {resending ? "Sending..." : "Resend verification email"}
+            </motion.button>
+            <motion.button
+              onClick={handleChangeEmail}
+              className="text-xs font-medium text-gray-500 hover:text-gray-700"
+              whileTap={{ scale: 0.95 }}
+            >
+              Entered the wrong email? Use a different one
             </motion.button>
           </div>
         </motion.div>

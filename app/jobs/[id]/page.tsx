@@ -10,9 +10,15 @@ import {
   hasAppliedToJob,
   createJobApplication,
 } from "@/app/lib/firestore";
+import {
+  subscribeToMySubscription,
+  isSubscriptionActive,
+  JOB_MEMBERSHIP_PRICE_GMD,
+  MEMBERSHIP_PERIOD_LABEL,
+} from "@/app/lib/subscriptions";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
-import { Briefcase, MapPin, CheckCircle, X, ArrowLeft, LogIn } from "lucide-react";
-import type { Job } from "@/app/lib/types";
+import { Briefcase, MapPin, CheckCircle, X, ArrowLeft, LogIn, Sparkles, ShieldCheck } from "lucide-react";
+import type { Job, InternshipSubscription } from "@/app/lib/types";
 
 function timeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -35,6 +41,8 @@ export default function PublicJobDetailPage() {
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasApplied, setHasApplied] = useState(false);
+  const [sub, setSub] = useState<InternshipSubscription | null>(null);
+  const hasMembership = isSubscriptionActive(sub);
 
   const [applyOpen, setApplyOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
@@ -63,12 +71,25 @@ export default function PublicJobDetailPage() {
     }
   }, [jobId, user?.uid]);
 
+  useEffect(() => {
+    if (!user?.uid) {
+      setSub(null);
+      return;
+    }
+    const unsub = subscribeToMySubscription(user.uid, setSub);
+    return unsub;
+  }, [user?.uid]);
+
   const goSignInThenReturn = () => {
     router.push(`/auth/signin?redirect=${encodeURIComponent(`/jobs/${jobId}`)}`);
   };
 
   const handleApply = async () => {
     if (!user || !userProfile || !job) return;
+    if (!hasMembership) {
+      setApplyError("An active membership is required to apply.");
+      return;
+    }
     if (!coverLetter.trim()) {
       setApplyError("Please write a brief cover letter.");
       return;
@@ -222,12 +243,19 @@ export default function PublicJobDetailPage() {
               >
                 <LogIn size={16} /> Sign in to apply
               </button>
+            ) : !hasMembership ? (
+              <Link
+                href="/dashboard/membership"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 hover:bg-mustard-600 rounded-xl transition-colors shadow-sm"
+              >
+                <Sparkles size={16} /> Subscribe to apply — {JOB_MEMBERSHIP_PRICE_GMD} GMD / {MEMBERSHIP_PERIOD_LABEL}
+              </Link>
             ) : (
               <button
                 onClick={() => setApplyOpen(true)}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors shadow-sm"
               >
-                Apply Now — Free
+                <ShieldCheck size={16} /> Apply with Membership
               </button>
             )}
           </div>

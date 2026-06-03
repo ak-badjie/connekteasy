@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { Eye, EyeOff, Mail, Lock, User, AlertCircle, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, AlertCircle, ArrowRight, ArrowLeft } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 
 export default function SignUpPage() {
@@ -18,10 +18,16 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!agreed) {
+      setError("Please agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
@@ -83,6 +89,10 @@ export default function SignUpPage() {
 
   const handleGoogleSignUp = async () => {
     setError("");
+    if (!agreed) {
+      setError("Please agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
     setLoading(true);
     try {
       const user = await signInWithGoogle();
@@ -105,6 +115,9 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-teal-50/30 flex items-center justify-center px-4 py-12">
+      <Link href="/" className="absolute top-5 left-5 inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors z-20">
+        <ArrowLeft size={15} /> Back to Home
+      </Link>
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-teal-100/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-teal-200/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
 
@@ -142,11 +155,27 @@ export default function SignUpPage() {
             </motion.div>
           )}
 
+          {/* Terms agreement */}
+          <label className="flex items-start gap-2.5 mb-4 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500 shrink-0"
+            />
+            <span className="text-[12px] text-gray-500 leading-relaxed">
+              I agree to CONNEKT&apos;s{" "}
+              <Link href="/terms" target="_blank" className="text-teal-600 font-medium hover:underline">Terms of Service</Link>{" "}
+              and{" "}
+              <Link href="/privacy" target="_blank" className="text-teal-600 font-medium hover:underline">Privacy Policy</Link>.
+            </span>
+          </label>
+
           {/* Google Sign Up */}
           <motion.button
             type="button"
             onClick={handleGoogleSignUp}
-            disabled={loading}
+            disabled={loading || !agreed}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50"
             whileTap={cardTap}
           >
@@ -221,17 +250,13 @@ export default function SignUpPage() {
 
             <motion.button
               type="submit"
-              disabled={loading}
+              disabled={loading || !agreed}
               className="w-full py-3 text-sm font-semibold text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
               whileTap={{ scale: 0.98 }}
             >
               {loading ? "Creating account..." : "Create Account"}
             </motion.button>
           </form>
-
-          <p className="text-[11px] text-gray-400 text-center mt-4 leading-relaxed">
-            By signing up, you agree to our Terms of Service and Privacy Policy.
-          </p>
         </motion.div>
 
         <motion.p className="text-center text-sm text-gray-500 mt-6" variants={fadeInUp}>

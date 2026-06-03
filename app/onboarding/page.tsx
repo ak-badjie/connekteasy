@@ -7,7 +7,7 @@ import { useAuth } from "@/app/lib/AuthContext";
 import { updateUserProfile } from "@/app/lib/firestore";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import SkillPicker from "@/app/components/SkillPicker";
-import { Briefcase, UserCheck, ArrowRight, AlertCircle } from "lucide-react";
+import { Briefcase, UserCheck, ArrowRight, AlertCircle, GraduationCap, Building2 } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 import type { UserRole } from "@/app/lib/types";
 
@@ -106,59 +106,45 @@ export default function OnboardingPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="font-display text-lg font-bold text-gray-900 mb-1">How will you use CONNEKT?</h2>
-              <p className="text-sm text-gray-500 mb-6">Choose the option that best describes you.</p>
+              <h2 className="font-display text-lg font-bold text-gray-900 mb-1">What brings you here?</h2>
+              <p className="text-sm text-gray-500 mb-6">Choose one to get started.</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <motion.button
-                  type="button"
-                  onClick={() => setRole("client")}
-                  className={`p-5 rounded-xl border-2 text-left transition-all ${
-                    role === "client"
-                      ? "border-mustard-500 bg-mustard-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                  whileTap={cardTap}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                      role === "client"
-                        ? "bg-teal-100 text-mustard-600"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    <Briefcase size={20} />
-                  </div>
-                  <h3 className="font-display text-sm font-bold text-gray-900 mb-1">I&apos;m a Client</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    I want to hire virtual assistants for my projects.
-                  </p>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  onClick={() => setRole("va")}
-                  className={`p-5 rounded-xl border-2 text-left transition-all ${
-                    role === "va"
-                      ? "border-mustard-500 bg-mustard-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                  whileTap={cardTap}
-                >
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                      role === "va"
-                        ? "bg-teal-100 text-mustard-600"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
-                  >
-                    <UserCheck size={20} />
-                  </div>
-                  <h3 className="font-display text-sm font-bold text-gray-900 mb-1">I&apos;m a Virtual Assistant</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">
-                    I want to find projects and offer my services.
-                  </p>
-                </motion.button>
+                {(
+                  [
+                    { value: "student", title: "Student", desc: "Find Internships", Icon: GraduationCap },
+                    { value: "job_seeker", title: "Job Seeker", desc: "Find Jobs", Icon: Briefcase },
+                    { value: "va", title: "Freelancer", desc: "Offer Services", Icon: UserCheck },
+                    { value: "client", title: "Employer", desc: "Hire Talent", Icon: Building2 },
+                  ] as { value: UserRole; title: string; desc: string; Icon: typeof Briefcase }[]
+                ).map(({ value, title: cardTitle, desc, Icon }) => {
+                  const selected = role === value;
+                  return (
+                    <motion.button
+                      key={value}
+                      type="button"
+                      onClick={() => setRole(value)}
+                      className={`p-5 rounded-xl border-2 text-left transition-all ${
+                        selected
+                          ? "border-mustard-500 bg-mustard-50"
+                          : "border-gray-200 bg-white hover:border-gray-300"
+                      }`}
+                      whileTap={cardTap}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                          selected
+                            ? "bg-teal-100 text-mustard-600"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        <Icon size={20} />
+                      </div>
+                      <h3 className="font-display text-sm font-bold text-gray-900 mb-1">{cardTitle}</h3>
+                      <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                    </motion.button>
+                  );
+                })}
               </div>
 
               <motion.button
@@ -182,21 +168,33 @@ export default function OnboardingPage() {
             >
               <h2 className="font-display text-lg font-bold text-gray-900 mb-1">Tell us about yourself</h2>
               <p className="text-sm text-gray-500 mb-6">
-                {role === "va"
-                  ? "Help clients understand what you bring to the table."
-                  : "Let virtual assistants know what you're looking for."}
+                {role === "va" && "Help employers understand what you bring to the table."}
+                {role === "client" && "Let freelancers know what kind of help you're looking for."}
+                {role === "student" && "Tell employers about your studies and what excites you."}
+                {role === "job_seeker" && "Tell employers what kind of role you're looking for."}
               </p>
 
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                    {role === "va" ? "Professional Title" : "Company / Role"}
+                    {role === "va" && "Professional Title"}
+                    {role === "client" && "Company / Role"}
+                    {role === "student" && "School / Field of Study"}
+                    {role === "job_seeker" && "Desired Role"}
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder={role === "va" ? "e.g. Virtual Assistant, Social Media Manager" : "e.g. Startup Founder, E-commerce Owner"}
+                    placeholder={
+                      role === "va"
+                        ? "e.g. Virtual Assistant, Social Media Manager"
+                        : role === "client"
+                        ? "e.g. Startup Founder, E-commerce Owner"
+                        : role === "student"
+                        ? "e.g. UTG, Computer Science"
+                        : "e.g. Marketing Coordinator, Office Manager"
+                    }
                     className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
                 </div>

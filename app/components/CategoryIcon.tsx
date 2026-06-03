@@ -11,6 +11,18 @@ import {
     Globe,
     Palette,
     Film,
+    Languages,
+    Headphones,
+    Megaphone,
+    TrendingUp,
+    Code,
+    Calculator,
+    Scale,
+    Users,
+    GraduationCap,
+    Camera,
+    ShoppingCart,
+    Briefcase,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -26,6 +38,18 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; className?: s
     Globe,
     Palette,
     Film,
+    Languages,
+    Headphones,
+    Megaphone,
+    TrendingUp,
+    Code,
+    Calculator,
+    Scale,
+    Users,
+    GraduationCap,
+    Camera,
+    ShoppingCart,
+    Briefcase,
 };
 
 interface CategoryIconProps {
@@ -35,7 +59,6 @@ interface CategoryIconProps {
 }
 
 export default function CategoryIcon({ name, size = 20, className = "" }: CategoryIconProps) {
-    const Icon = iconMap[name];
-    if (!Icon) return null;
+    const Icon = iconMap[name] || Briefcase;
     return <Icon size={size} className={className} />;
 }
