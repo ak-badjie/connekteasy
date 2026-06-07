@@ -9,14 +9,17 @@ import {
   query,
   where,
   orderBy,
+  limit,
   onSnapshot,
   serverTimestamp,
   increment,
+  arrayUnion,
+  arrayRemove,
   Timestamp,
   type Unsubscribe,
 } from "firebase/firestore";
 import { db, rtdb } from "./firebase";
-import { ref, onValue, push, set, serverTimestamp as rtdbServerTimestamp, query as rtdbQuery, orderByChild } from "firebase/database";
+import { ref, onValue, push, set, get, serverTimestamp as rtdbServerTimestamp, query as rtdbQuery, orderByChild } from "firebase/database";
 import type {
   UserProfile,
   FirestoreProject,
@@ -26,6 +29,9 @@ import type {
   Job,
   JobApplication,
   JobApplicationStatus,
+  Review,
+  PlatformEvent,
+  Course,
 } from "./types";
 
 // ─── Users ─────────────────────────────────────────────────
@@ -378,4 +384,103 @@ export async function sendMessage(
     lastMessage: content,
     lastMessageAt: serverTimestamp(),
   });
+}
+
+// ─── Hired projects (freelancer view) ──────────────────────
+
+export async function getProjectsByHiredVa(uid: string): Promise<FirestoreProject[]> {
+  const q = query(collection(db, "projects"), where("hiredVaId", "==", uid));
+  const snap = await getDocs(q);
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() } as FirestoreProject));
+  return rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+}
+
+// ─── Saved jobs (seekers) ──────────────────────────────────
+
+export async function toggleSavedJob(uid: string, jobId: string, save: boolean): Promise<void> {
+  await updateDoc(doc(db, "users", uid), {
+    savedJobs: save ? arrayUnion(jobId) : arrayRemove(jobId),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+// ─── Reviews ───────────────────────────────────────────────
+
+export async function getReviewsFor(uid: string): Promise<Review[]> {
+  const q = query(collection(db, "reviews"), where("revieweeId", "==", uid));
+  const snap = await getDocs(q);
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Review));
+  return rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+}
+
+// ─── Platform events ───────────────────────────────────────
+
+export async function getUpcomingEvents(max = 5): Promise<PlatformEvent[]> {
+  try {
+    const q = query(
+      collection(db, "events"),
+      where("date", ">=", Timestamp.now()),
+      orderBy("date", "asc"),
+      limit(max)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as PlatformEvent));
+  } catch {
+    return [];
+  }
+}
+
+// ─── Learning courses ──────────────────────────────────────
+
+export async function getCourses(max = 6): Promise<Course[]> {
+  try {
+    const snap = await getDocs(query(collection(db, "courses"), limit(max)));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course));
+  } catch {
+    return [];
+  }
+}
+
+// ─── Profile views ─────────────────────────────────────────
+
+export async function incrementProfileView(uid: string): Promise<void> {
+  try {
+    await updateDoc(doc(db, "users", uid), { profileViews: increment(1) });
+  } catch {
+    /* non-critical */
+  }
+}
+
+// ─── Wallet earnings (RTDB) ────────────────────────────────
+// Sums money the user has *received* (escrow releases + refunds + deposits are
+// excluded from "earnings"; we count escrow_release as earned income).
+
+export interface EarningsSummary {
+  total: number;
+  monthly: { label: string; amount: number }[];
+}
+
+export async function getEarningsSummary(uid: string): Promise<EarningsSummary> {
+  const snap = await get(ref(rtdb, `wallets/${uid}/transactions`));
+  const months: { label: string; amount: number }[] = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ label: d.toLocaleString("en-GB", { month: "short" }), amount: 0 });
+  }
+  let total = 0;
+  if (snap.exists()) {
+    const data = snap.val() as Record<string, { type?: string; amount?: number; timestamp?: number; status?: string }>;
+    Object.values(data).forEach((tx) => {
+      if (tx.type === "escrow_release" && typeof tx.amount === "number") {
+        total += tx.amount;
+        const t = new Date(tx.timestamp || Date.now());
+        const monthsAgo = (now.getFullYear() - t.getFullYear()) * 12 + (now.getMonth() - t.getMonth());
+        if (monthsAgo >= 0 && monthsAgo <= 5) {
+          months[5 - monthsAgo].amount += tx.amount;
+        }
+      }
+    });
+  }
+  return { total, monthly: months };
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
-import { getUserProfile, getOrCreateConversation } from "@/app/lib/firestore";
+import { getUserProfile, getOrCreateConversation, incrementProfileView } from "@/app/lib/firestore";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { MapPin, Globe, Linkedin, DollarSign, Film, FileText, Image as ImageIcon, MessageSquare, Briefcase, GraduationCap, ExternalLink } from "lucide-react";
 import type { UserProfile } from "@/app/lib/types";
@@ -31,6 +31,13 @@ export default function PublicProfilePage() {
     }
     if (uid) load();
   }, [uid]);
+
+  // Count a profile view (once per mount) when someone views another user's profile.
+  useEffect(() => {
+    if (uid && user?.uid && uid !== user.uid) {
+      incrementProfileView(uid);
+    }
+  }, [uid, user?.uid]);
 
   if (loading) {
     return (

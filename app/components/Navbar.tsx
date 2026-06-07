@@ -19,9 +19,11 @@ export default function Navbar() {
 
   const isActive = (path: string) => pathname === path;
 
-  // Hide navbar on auth/onboarding pages
+  // Hide navbar on auth/onboarding pages and the dashboard (which has its own shell)
   const hideNavbar =
-    pathname?.startsWith("/auth/") || pathname?.startsWith("/onboarding");
+    pathname?.startsWith("/auth/") ||
+    pathname?.startsWith("/onboarding") ||
+    pathname?.startsWith("/dashboard");
 
   // Close dropdown on outside click
   useEffect(() => {

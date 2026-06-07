@@ -30,6 +30,11 @@ export interface UserProfile {
   portfolioProjects: PortfolioProject[];
   rating: number;
   reviewCount: number;
+
+  // Dashboard extras (all optional — populated as the user engages)
+  savedJobs?: string[];
+  profileViews?: number;
+  courseProgress?: Record<string, number>;
 }
 
 export interface UploadedFile {
@@ -158,6 +163,36 @@ export interface InternshipSubscription {
   lastPaymentRef: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+}
+
+// ─── Reviews ───────────────────────────────────────────────
+export interface Review {
+  id: string;
+  revieweeId: string;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerAvatar: string;
+  rating: number;
+  comment: string;
+  createdAt: Timestamp;
+}
+
+// ─── Platform Events ───────────────────────────────────────
+export interface PlatformEvent {
+  id: string;
+  title: string;
+  type: string;
+  date: Timestamp;
+  description?: string;
+}
+
+// ─── Learning Courses ──────────────────────────────────────
+export interface Course {
+  id: string;
+  title: string;
+  category: string;
+  level?: string;
+  durationLabel?: string;
 }
 
 // ─── Messaging ─────────────────────────────────────────────
