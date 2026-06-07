@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
-import { getProjectsByOwner } from "@/app/lib/firestore";
+import { getProjectsByOwner, createReview, hasReviewedProject } from "@/app/lib/firestore";
 import { escrowRelease } from "@/app/lib/payment";
 import { useRoleGuard } from "@/app/lib/useRoleGuard";
-import { fadeInUp, staggerContainer, staggerItem, cardHover, cardTap } from "@/app/lib/animations";
-import { X } from "lucide-react";
+import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { X, Star } from "lucide-react";
 import type { FirestoreProject } from "@/app/lib/types";
 
 function timeAgo(date: Date): string {
@@ -25,7 +25,7 @@ function timeAgo(date: Date): string {
 
 export default function MyProjectsPage() {
   const { allowed, checking } = useRoleGuard((c) => c.manageProjects);
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [projects, setProjects] = useState<FirestoreProject[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,12 +36,31 @@ export default function MyProjectsPage() {
   const [releaseLoading, setReleaseLoading] = useState(false);
   const [releaseError, setReleaseError] = useState("");
 
+  // Review Modal State
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [reviewProject, setReviewProject] = useState<FirestoreProject | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewedIds, setReviewedIds] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     if (!user) return;
     async function load() {
       try {
         const data = await getProjectsByOwner(user!.uid);
         setProjects(data);
+        // Which completed projects has the owner already reviewed?
+        const completed = data.filter((p) => (p.status === "closed" || p.escrowStatus === "released") && p.hiredVaId);
+        const checks = await Promise.all(
+          completed.map((p) =>
+            hasReviewedProject(user!.uid, p.id)
+              .then((done) => [p.id, done] as const)
+              .catch(() => [p.id, false] as const)
+          )
+        );
+        setReviewedIds(new Set(checks.filter(([, d]) => d).map(([id]) => id)));
       } catch (err) {
         console.error("Failed to load projects:", err);
       } finally {
@@ -50,6 +69,45 @@ export default function MyProjectsPage() {
     }
     load();
   }, [user]);
+
+  const openReviewModal = (project: FirestoreProject) => {
+    setReviewProject(project);
+    setRating(5);
+    setComment("");
+    setReviewError("");
+    setReviewModalOpen(true);
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewProject || !user || !reviewProject.hiredVaId) return;
+    if (!comment.trim()) {
+      setReviewError("Please write a short comment.");
+      return;
+    }
+    setReviewLoading(true);
+    setReviewError("");
+    try {
+      const reviewerName =
+        userProfile?.displayName ||
+        `${userProfile?.firstName || ""} ${userProfile?.lastName || ""}`.trim() ||
+        "Client";
+      await createReview({
+        revieweeId: reviewProject.hiredVaId,
+        reviewerId: user.uid,
+        reviewerName,
+        reviewerAvatar: `${(userProfile?.firstName || "")[0] || ""}${(userProfile?.lastName || "")[0] || ""}`.toUpperCase(),
+        rating,
+        comment: comment.trim(),
+        projectId: reviewProject.id,
+      });
+      setReviewedIds((prev) => new Set(prev).add(reviewProject.id));
+      setReviewModalOpen(false);
+    } catch (err: unknown) {
+      setReviewError(err instanceof Error ? err.message : "Failed to submit review");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
 
   const handleOpenReleaseModal = (project: FirestoreProject) => {
     setSelectedProject(project);
@@ -173,6 +231,61 @@ export default function MyProjectsPage() {
         )}
       </AnimatePresence>
 
+      {/* Review Modal */}
+      <AnimatePresence>
+        {reviewModalOpen && reviewProject && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+              onClick={() => setReviewModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl z-[101] overflow-hidden"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                <h2 className="text-lg font-bold font-display text-gray-900">Review the Freelancer</h2>
+                <button onClick={() => setReviewModalOpen(false)} className="p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="p-6">
+                <p className="text-sm text-gray-600 mb-4">
+                  How was your experience on <strong>{reviewProject.title}</strong>?
+                </p>
+                <div className="flex items-center gap-1.5 mb-4">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button key={n} type="button" onClick={() => setRating(n)} className="p-0.5">
+                      <Star size={28} className={n <= rating ? "fill-mustard-500 text-mustard-500" : "text-gray-300"} />
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={3}
+                  placeholder="Share a few words about their work…"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-mustard-500 outline-none resize-none mb-4"
+                />
+                {reviewError && <p className="text-sm text-red-500 mb-4">{reviewError}</p>}
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={reviewLoading}
+                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors shadow-sm"
+                >
+                  {reviewLoading ? "Submitting…" : "Submit Review"}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       <motion.div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-6 sm:mb-8" variants={fadeInUp}>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold font-display text-gray-900 mb-1">My Projects</h1>
@@ -236,6 +349,14 @@ export default function MyProjectsPage() {
                               Release Funds
                             </button>
                           )}
+                          {(project.status === "closed" || project.escrowStatus === "released") && project.hiredVaId &&
+                            (reviewedIds.has(project.id) ? (
+                              <span className="px-3 py-1.5 text-xs font-medium text-emerald-600 bg-emerald-50 rounded-xl">Reviewed</span>
+                            ) : (
+                              <button onClick={() => openReviewModal(project)} className="px-3 py-1.5 text-xs font-medium text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors">
+                                Review VA
+                              </button>
+                            ))}
                         </div>
                       </td>
                     </motion.tr>
@@ -270,6 +391,14 @@ export default function MyProjectsPage() {
                         Release
                       </button>
                     )}
+                    {(project.status === "closed" || project.escrowStatus === "released") && project.hiredVaId &&
+                      (reviewedIds.has(project.id) ? (
+                        <span className="px-2.5 py-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 rounded-xl">Reviewed</span>
+                      ) : (
+                        <button onClick={() => openReviewModal(project)} className="px-2.5 py-1 text-[11px] font-medium text-white bg-teal-600 rounded-xl hover:bg-teal-700 transition-colors">
+                          Review
+                        </button>
+                      ))}
                   </div>
                 </div>
               </motion.div>

@@ -117,7 +117,7 @@ export default function StudentDashboard() {
       {/* Stat cards */}
       <motion.div variants={staggerItem} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard icon={<FileText size={20} />} value={loading ? "…" : applications} label="Applications" accent="teal" href="/dashboard/internships" />
-        <StatCard icon={<Heart size={20} />} value={saved} label="Saved Opportunities" accent="pink" href="/internships" />
+        <StatCard icon={<Heart size={20} />} value={saved} label="Saved Opportunities" accent="pink" href="/dashboard/saved" />
         <StatCard icon={<Eye size={20} />} value={views} label="Profile Views" accent="blue" href="/dashboard/profile" />
         <StatCard icon={<Target size={20} />} value={`${score}%`} label="Employability Score" accent="mustard" href="/dashboard/profile" />
       </motion.div>

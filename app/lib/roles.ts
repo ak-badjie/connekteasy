@@ -11,6 +11,7 @@ import {
   User as UserIcon,
   Wallet,
   ShieldCheck,
+  Bookmark,
 } from "lucide-react";
 import type { UserRole } from "./types";
 
@@ -115,6 +116,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { href: "/dashboard/jobs", label: "Jobs", Icon: Briefcase, roles: ["client", "va", "job_seeker"] },
   { href: "/dashboard/membership", label: "Membership", Icon: ShieldCheck, roles: ["job_seeker"] },
   { href: "/dashboard/internships", label: "Internships", Icon: GraduationCap, roles: ["student"] },
+  { href: "/dashboard/saved", label: "Saved", Icon: Bookmark, roles: ["student", "job_seeker"] },
   { href: "/dashboard/proposals", label: "Proposals", Icon: FileText, roles: ["client", "va"] },
   { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare, roles: ALL_ROLES },
   { href: "/dashboard/profile", label: "Profile", Icon: UserIcon, roles: ALL_ROLES },

@@ -17,6 +17,7 @@ import {
   INTERNSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import SaveJobButton from "@/app/components/SaveJobButton";
 import {
   GraduationCap,
   MapPin,
@@ -252,9 +253,12 @@ export default function PublicInternshipDetailPage() {
               <h1 className="font-display text-2xl font-bold text-gray-900 mb-1">{job.title}</h1>
               <p className="text-base text-gray-600">{job.company}</p>
             </div>
-            <span className="shrink-0 px-3 py-1 text-xs font-semibold rounded-full bg-mustard-500/10 text-mustard-700">
-              Internship
-            </span>
+            <div className="shrink-0 flex items-center gap-1.5">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-mustard-500/10 text-mustard-700">
+                Internship
+              </span>
+              <SaveJobButton jobId={job.id} redirectPath={`/internships/${job.id}`} />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-6">

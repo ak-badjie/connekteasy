@@ -8,6 +8,7 @@ import { getApplicationsByUser, getJobs } from "@/app/lib/firestore";
 import type { Job, JobApplication } from "@/app/lib/types";
 import { staggerContainer, staggerItem } from "@/app/lib/animations";
 import { greeting, deriveScore, StatCard, Panel, EmptyState, Ring, Avatar } from "./kit";
+import SaveJobButton from "@/app/components/SaveJobButton";
 import {
   FileText,
   Star,
@@ -20,7 +21,6 @@ import {
   ClipboardCheck,
   TrendingUp,
   Bell,
-  Bookmark,
 } from "lucide-react";
 
 function matchPct(profileSkills: string[] = [], jobSkills: string[] = []): number {
@@ -142,7 +142,7 @@ export default function JobSeekerDashboard() {
                     <span className="shrink-0 px-2 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-600">
                       {matchPct(userProfile?.skills, job.skills)}% Match
                     </span>
-                    <Bookmark size={15} className="text-gray-300 shrink-0" />
+                    <SaveJobButton jobId={job.id} redirectPath="/dashboard/jobs" />
                   </Link>
                 ))}
               </div>

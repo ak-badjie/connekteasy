@@ -6,6 +6,7 @@ import {
   getDocs,
   setDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -483,4 +484,83 @@ export async function getEarningsSummary(uid: string): Promise<EarningsSummary> 
     });
   }
   return { total, monthly: months };
+}
+
+// ─── Admin: Events ─────────────────────────────────────────
+
+export async function createEvent(data: Omit<PlatformEvent, "id">): Promise<string> {
+  const ref = await addDoc(collection(db, "events"), data);
+  return ref.id;
+}
+
+export async function getAllEvents(): Promise<PlatformEvent[]> {
+  const snap = await getDocs(collection(db, "events"));
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() } as PlatformEvent));
+  return rows.sort((a, b) => (a.date?.toMillis?.() ?? 0) - (b.date?.toMillis?.() ?? 0));
+}
+
+export async function deleteEvent(id: string): Promise<void> {
+  await deleteDoc(doc(db, "events", id));
+}
+
+// ─── Admin: Courses ────────────────────────────────────────
+
+export async function createCourse(data: Omit<Course, "id">): Promise<string> {
+  const ref = await addDoc(collection(db, "courses"), data);
+  return ref.id;
+}
+
+export async function getAllCourses(): Promise<Course[]> {
+  const snap = await getDocs(collection(db, "courses"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course));
+}
+
+export async function deleteCourse(id: string): Promise<void> {
+  await deleteDoc(doc(db, "courses", id));
+}
+
+// ─── Reviews (employer → freelancer) ───────────────────────
+
+export async function createReview(
+  data: Omit<Review, "id" | "createdAt">
+): Promise<string> {
+  const ref = await addDoc(collection(db, "reviews"), {
+    ...data,
+    createdAt: serverTimestamp(),
+  });
+  // Maintain a running average + count on the reviewee's profile.
+  try {
+    const existing = await getReviewsFor(data.revieweeId);
+    const all = existing.concat();
+    const count = all.length;
+    const avg = count > 0 ? all.reduce((s, r) => s + (r.rating || 0), 0) / count : data.rating;
+    await updateDoc(doc(db, "users", data.revieweeId), {
+      rating: Math.round(avg * 10) / 10,
+      reviewCount: count,
+    });
+  } catch {
+    /* non-critical */
+  }
+  return ref.id;
+}
+
+export async function hasReviewedProject(reviewerId: string, projectId: string): Promise<boolean> {
+  const q = query(
+    collection(db, "reviews"),
+    where("reviewerId", "==", reviewerId),
+    where("projectId", "==", projectId)
+  );
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+// ─── Saved jobs (read list) ────────────────────────────────
+
+export async function getSavedJobs(jobIds: string[]): Promise<Job[]> {
+  const results = await Promise.all(
+    jobIds.map((id) => getDoc(doc(db, "jobs", id)).catch(() => null))
+  );
+  return results
+    .filter((s): s is NonNullable<typeof s> => !!s && s.exists())
+    .map((s) => ({ id: s.id, ...s.data() } as Job));
 }

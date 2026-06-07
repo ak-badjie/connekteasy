@@ -17,6 +17,7 @@ import {
   MEMBERSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import SaveJobButton from "@/app/components/SaveJobButton";
 import { Briefcase, MapPin, CheckCircle, X, ArrowLeft, LogIn, Sparkles, ShieldCheck } from "lucide-react";
 import type { Job, InternshipSubscription } from "@/app/lib/types";
 
@@ -176,9 +177,12 @@ export default function PublicJobDetailPage() {
               <h1 className="font-display text-2xl font-bold text-gray-900 mb-1">{job.title}</h1>
               <p className="text-base text-gray-600">{job.company}</p>
             </div>
-            <span className="shrink-0 px-3 py-1 text-xs font-semibold rounded-full bg-teal-50 text-teal-700 capitalize">
-              {job.employmentType}
-            </span>
+            <div className="shrink-0 flex items-center gap-1.5">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-teal-50 text-teal-700 capitalize">
+                {job.employmentType}
+              </span>
+              <SaveJobButton jobId={job.id} redirectPath={`/jobs/${job.id}`} />
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-6">

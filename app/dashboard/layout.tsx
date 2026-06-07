@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { navItemsForRole, roleLabel } from "@/app/lib/roles";
+import { isAdmin } from "@/app/lib/admin";
 import type { UserRole } from "@/app/lib/types";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { LogOut, Bell, Search, Crown, ChevronDown } from "lucide-react";
+import { LogOut, Bell, Search, Crown, ChevronDown, ShieldAlert } from "lucide-react";
 
 const BRAND_TAGLINE: Record<UserRole, string> = {
   student: "Learn. Intern. Grow.",
@@ -48,7 +49,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const role = userProfile?.role;
-  const items = navItemsForRole(role);
+  const baseItems = navItemsForRole(role);
+  const items = isAdmin(userProfile)
+    ? [...baseItems, { href: "/dashboard/admin", label: "Admin", Icon: ShieldAlert, roles: [] as UserRole[] }]
+    : baseItems;
   const tagline = role ? BRAND_TAGLINE[role] : "Connecting talent";
   const premiumHref = role ? PREMIUM_HREF[role] : "/dashboard/wallet";
 

@@ -35,6 +35,7 @@ export interface UserProfile {
   savedJobs?: string[];
   profileViews?: number;
   courseProgress?: Record<string, number>;
+  isAdmin?: boolean;
 }
 
 export interface UploadedFile {
@@ -174,6 +175,7 @@ export interface Review {
   reviewerAvatar: string;
   rating: number;
   comment: string;
+  projectId?: string;
   createdAt: Timestamp;
 }
 
