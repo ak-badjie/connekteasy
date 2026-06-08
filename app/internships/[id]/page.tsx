@@ -175,6 +175,16 @@ export default function PublicInternshipDetailPage() {
         </Link>
       );
     }
+    if (userProfile?.role === "client") {
+      return (
+        <Link
+          href="/dashboard/manage-internships"
+          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-xl hover:bg-teal-100 transition-colors"
+        >
+          <ShieldCheck size={16} /> Manage your internship postings
+        </Link>
+      );
+    }
     if (hasApplied) {
       return (
         <div className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl">

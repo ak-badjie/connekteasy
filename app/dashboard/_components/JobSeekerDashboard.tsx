@@ -89,7 +89,7 @@ export default function JobSeekerDashboard() {
   const quick = [
     { label: "Find Jobs", Icon: Search, href: "/dashboard/jobs" },
     { label: "Update CV", Icon: FileEdit, href: "/dashboard/profile" },
-    { label: "Interview Practice", Icon: Headphones, href: "/dashboard/messages" },
+    { label: "Interview Practice", Icon: Headphones, href: "/dashboard/assistant" },
     { label: "Membership", Icon: ClipboardCheck, href: "/dashboard/membership" },
   ];
 

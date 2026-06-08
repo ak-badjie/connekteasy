@@ -28,7 +28,9 @@ function timeAgo(date: Date): string {
 }
 
 export default function PublicInternshipsPage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
+  const isStudent = userProfile?.role === "student";
+  const isEmployer = userProfile?.role === "client";
   const [internships, setInternships] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,16 +87,18 @@ export default function PublicInternshipsPage() {
                 applying requires a {INTERNSHIP_PRICE_GMD} GMD / {INTERNSHIP_PERIOD_LABEL} membership.
               </p>
             </div>
-            <Link
-              href={user ? "/dashboard/jobs/post?type=internship" : "/auth/signin?redirect=/dashboard/jobs/post?type=internship"}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm shrink-0"
-            >
-              <Plus size={16} /> Post an Internship
-            </Link>
+            {!isStudent && (
+              <Link
+                href={isEmployer ? "/dashboard/jobs/post?type=internship" : user ? "/dashboard/jobs/post?type=internship" : "/auth/signin?redirect=/dashboard/jobs/post?type=internship"}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs sm:text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm shrink-0"
+              >
+                <Plus size={16} /> Post an Internship
+              </Link>
+            )}
           </div>
 
-          {/* Membership status banner — only relevant when logged in */}
-          {user && (
+          {/* Membership banner — only students subscribe to apply to internships */}
+          {isStudent && (
             <div className="mt-6">
               {hasActiveSubscription ? (
                 <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs sm:text-sm">
@@ -114,6 +118,18 @@ export default function PublicInternshipsPage() {
                   </Link>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Employers manage their own postings rather than subscribe */}
+          {isEmployer && (
+            <div className="mt-6">
+              <Link
+                href="/dashboard/manage-internships"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-xl text-xs sm:text-sm font-semibold text-teal-700 hover:bg-teal-100 transition-colors"
+              >
+                <GraduationCap size={15} /> Manage your internship postings
+              </Link>
             </div>
           )}
 

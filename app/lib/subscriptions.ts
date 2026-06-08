@@ -1,4 +1,4 @@
-import { doc, getDoc, onSnapshot, type Unsubscribe } from "firebase/firestore";
+import { doc, getDoc, onSnapshot, updateDoc, serverTimestamp, type Unsubscribe } from "firebase/firestore";
 import { db } from "./firebase";
 import type { InternshipSubscription } from "./types";
 
@@ -25,9 +25,18 @@ export function isInternshipSubscriptionActive(
   sub: InternshipSubscription | null
 ): boolean {
   if (!sub) return false;
-  if (sub.status !== "active") return false;
+  if (sub.status === "expired") return false;
+  // A cancelled membership keeps access until the paid period ends.
   const endMs = sub.currentPeriodEnd?.toMillis?.() ?? 0;
   return endMs > Date.now();
+}
+
+// Cancel: stop renewals. Access continues until the current period ends.
+export async function cancelSubscription(uid: string): Promise<void> {
+  await updateDoc(doc(db, "subscriptions", uid), {
+    status: "cancelled",
+    updatedAt: serverTimestamp(),
+  });
 }
 
 // ─── Job membership (same mechanism, plan-agnostic) ────────

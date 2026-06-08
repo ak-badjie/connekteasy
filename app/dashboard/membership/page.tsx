@@ -8,6 +8,7 @@ import { useRoleGuard } from "@/app/lib/useRoleGuard";
 import {
   subscribeToMySubscription,
   isSubscriptionActive,
+  cancelSubscription,
   JOB_MEMBERSHIP_PRICE_GMD,
   MEMBERSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
@@ -29,6 +30,7 @@ export default function MembershipPage() {
   const [subLoading, setSubLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,6 +84,20 @@ export default function MembershipPage() {
     }
   };
 
+  const handleCancel = async () => {
+    if (!user) return;
+    if (!window.confirm("Cancel your membership? You'll keep access until the current period ends.")) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      await cancelSubscription(user.uid);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to cancel membership");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   if (checking || subLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -92,22 +108,60 @@ export default function MembershipPage() {
   if (!allowed) return null;
 
   if (active) {
-    const endDate = sub?.currentPeriodEnd?.toMillis?.() ?? 0;
+    const endMs = sub?.currentPeriodEnd?.toMillis?.() ?? 0;
+    const cancelled = sub?.status === "cancelled";
     return (
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-3xl mx-auto">
-        <motion.div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 text-center" variants={fadeInUp}>
-          <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600">
-            <ShieldCheck size={28} />
+      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-2xl mx-auto space-y-5">
+        <motion.div variants={fadeInUp}>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Membership</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage your job seeker membership.</p>
+        </motion.div>
+
+        <motion.div variants={staggerItem} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-br from-teal-600 to-teal-800 p-6 text-white">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-teal-100 text-sm mb-0.5">Job Seeker Membership</p>
+                <p className="text-2xl font-bold">
+                  {JOB_MEMBERSHIP_PRICE_GMD} GMD <span className="text-sm font-medium text-teal-200">/ {MEMBERSHIP_PERIOD_LABEL}</span>
+                </p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${cancelled ? "bg-white/15 text-teal-100" : "bg-emerald-400/25 text-white"}`}>
+                {cancelled ? "Cancelling" : "Active"}
+              </span>
+            </div>
           </div>
-          <h1 className="font-display text-2xl font-bold text-gray-900 mb-1">Membership active</h1>
-          <p className="text-sm text-gray-500 mb-2">You can apply to jobs across CONNEKT.</p>
-          <p className="text-xs text-gray-400 mb-6">Renews on {endDate ? formatDate(endDate) : "—"}.</p>
-          <Link
-            href="/dashboard/jobs"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors shadow-sm"
-          >
-            <Briefcase size={16} /> Browse Jobs <ArrowRight size={16} />
-          </Link>
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <ShieldCheck size={16} className="text-emerald-500" />
+              {cancelled ? "Access ends on" : "Renews on"} <strong className="text-gray-900">{endMs ? formatDate(endMs) : "—"}</strong>
+            </div>
+            {error && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100">{error}</p>}
+            {waiting ? (
+              <div className="flex items-center justify-center gap-3 px-6 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-700">
+                <div className="w-4 h-4 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin" />
+                Waiting for payment confirmation…
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleSubscribe}
+                  disabled={paying}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-mustard-500 hover:bg-mustard-600 disabled:opacity-50 text-gray-900 font-semibold py-3 rounded-xl transition-colors"
+                >
+                  {paying ? "Preparing…" : <><Sparkles size={16} /> {cancelled ? "Reactivate" : "Renew"} — {JOB_MEMBERSHIP_PRICE_GMD} GMD</>}
+                </button>
+                <Link href="/dashboard/jobs" className="flex-1 inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Briefcase size={16} /> Browse Jobs <ArrowRight size={16} />
+                </Link>
+              </div>
+            )}
+            {!cancelled && (
+              <button onClick={handleCancel} disabled={cancelling} className="text-xs text-gray-400 hover:text-red-600 transition-colors">
+                {cancelling ? "Cancelling…" : "Cancel membership"}
+              </button>
+            )}
+          </div>
         </motion.div>
       </motion.div>
     );

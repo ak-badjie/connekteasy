@@ -8,6 +8,7 @@ import { getJobs } from "@/app/lib/firestore";
 import {
   subscribeToMyInternshipSubscription,
   isInternshipSubscriptionActive,
+  cancelSubscription,
   INTERNSHIP_PRICE_GMD,
   INTERNSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
@@ -42,6 +43,7 @@ export default function InternshipsPage() {
   const [listingsLoading, setListingsLoading] = useState(false);
   const [paying, setPaying] = useState(false);
   const [waitingForActivation, setWaitingForActivation] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,6 +59,20 @@ export default function InternshipsPage() {
   }, [user]);
 
   const active = isInternshipSubscriptionActive(sub);
+
+  const handleCancelSub = async () => {
+    if (!user) return;
+    if (!window.confirm("Cancel your membership? You'll keep access until the current period ends.")) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      await cancelSubscription(user.uid);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to cancel membership");
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   useEffect(() => {
     if (!active) {
@@ -229,13 +245,35 @@ export default function InternshipsPage() {
         <p className="text-sm sm:text-base text-gray-500">Curated internship opportunities — apply for free with your active membership.</p>
       </motion.div>
 
-      <motion.div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3" variants={fadeInUp}>
+      <motion.div className="mb-6 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl flex flex-col sm:flex-row sm:items-center gap-3" variants={fadeInUp}>
         <div className="w-9 h-9 bg-emerald-500/10 rounded-full flex items-center justify-center text-emerald-600 shrink-0">
           <ShieldCheck size={18} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-emerald-800">Membership active</p>
-          <p className="text-xs text-emerald-700">Renews on {endDate ? formatDate(endDate) : "—"}.</p>
+          <p className="text-sm font-semibold text-gray-900">
+            Membership {sub?.status === "cancelled" ? "cancelling" : "active"}
+          </p>
+          <p className="text-xs text-gray-500">
+            {sub?.status === "cancelled" ? "Access ends" : "Renews"} on {endDate ? formatDate(endDate) : "—"}.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleSubscribe}
+            disabled={paying}
+            className="px-3.5 py-2 text-xs font-semibold text-gray-900 bg-mustard-500 rounded-lg hover:bg-mustard-600 disabled:opacity-50 transition-colors"
+          >
+            {paying ? "Preparing…" : sub?.status === "cancelled" ? "Reactivate" : "Renew"}
+          </button>
+          {sub?.status !== "cancelled" && (
+            <button
+              onClick={handleCancelSub}
+              disabled={cancelling}
+              className="px-3.5 py-2 text-xs font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              {cancelling ? "…" : "Cancel"}
+            </button>
+          )}
         </div>
       </motion.div>
 

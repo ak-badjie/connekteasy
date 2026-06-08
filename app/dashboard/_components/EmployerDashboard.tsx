@@ -100,10 +100,10 @@ export default function EmployerDashboard() {
   const quick = [
     { label: "Post a Job", Icon: Plus, href: "/dashboard/jobs/post" },
     { label: "Post an Internship", Icon: GraduationCap, href: "/dashboard/jobs/post" },
-    { label: "Search Talent", Icon: Search, href: "/explore?mode=talent" },
-    { label: "Invite Candidates", Icon: UserPlus, href: "/dashboard/messages" },
-    { label: "Create Assessment", Icon: FileSpreadsheet, href: "/dashboard/jobs/my-jobs" },
-    { label: "Interview Scheduler", Icon: CalendarClock, href: "/dashboard/messages" },
+    { label: "Search Talent", Icon: Search, href: "/dashboard/talent" },
+    { label: "Invite Candidates", Icon: UserPlus, href: "/dashboard/talent" },
+    { label: "Create Assessment", Icon: FileSpreadsheet, href: "/dashboard/assessments" },
+    { label: "Interview Scheduler", Icon: CalendarClock, href: "/dashboard/interviews" },
   ];
 
   return (
@@ -128,7 +128,7 @@ export default function EmployerDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* AI Candidate Match */}
         <motion.div variants={staggerItem}>
-          <Panel title="AI Candidate Match" action="All talent" actionHref="/explore?mode=talent">
+          <Panel title="AI Candidate Match" action="All talent" actionHref="/dashboard/talent">
             {!topTalent ? (
               <EmptyState icon={<Sparkles size={22} />} title="No candidates yet" hint="Top matched talent will appear here." />
             ) : (
