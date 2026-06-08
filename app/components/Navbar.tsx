@@ -23,7 +23,8 @@ export default function Navbar() {
   const hideNavbar =
     pathname?.startsWith("/auth/") ||
     pathname?.startsWith("/onboarding") ||
-    pathname?.startsWith("/dashboard");
+    pathname?.startsWith("/dashboard") ||
+    pathname?.startsWith("/admin");
 
   // Close dropdown on outside click
   useEffect(() => {

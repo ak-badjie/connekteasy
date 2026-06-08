@@ -197,6 +197,44 @@ export interface Course {
   durationLabel?: string;
 }
 
+// ─── Interviews (employer ↔ candidate) ─────────────────────
+export type InterviewStatus = "scheduled" | "completed" | "cancelled";
+
+export interface Interview {
+  id: string;
+  employerId: string;
+  candidateId: string;
+  candidateName: string;
+  candidateAvatar: string;
+  jobTitle: string;
+  mode: string; // e.g. "Video call", "Phone", "In person"
+  scheduledAt: Timestamp;
+  status: InterviewStatus;
+  notes?: string;
+  createdAt: Timestamp;
+}
+
+// ─── Assessments ───────────────────────────────────────────
+export interface Assessment {
+  id: string;
+  employerId: string;
+  title: string;
+  type: string; // e.g. "Skills test", "Coding", "Personality"
+  jobTitle?: string;
+  durationLabel?: string;
+  createdAt: Timestamp;
+}
+
+// ─── Career Resources ──────────────────────────────────────
+export interface Resource {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  url: string;
+  createdAt?: Timestamp;
+}
+
 // ─── Messaging ─────────────────────────────────────────────
 export interface Conversation {
   id: string;

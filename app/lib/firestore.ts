@@ -33,6 +33,7 @@ import type {
   Review,
   PlatformEvent,
   Course,
+  Resource,
 } from "./types";
 
 // ─── Users ─────────────────────────────────────────────────
@@ -563,4 +564,31 @@ export async function getSavedJobs(jobIds: string[]): Promise<Job[]> {
   return results
     .filter((s): s is NonNullable<typeof s> => !!s && s.exists())
     .map((s) => ({ id: s.id, ...s.data() } as Job));
+}
+
+// ─── Admin: Career Resources ───────────────────────────────
+
+export async function createResource(data: Omit<Resource, "id" | "createdAt">): Promise<string> {
+  const ref = await addDoc(collection(db, "resources"), { ...data, createdAt: serverTimestamp() });
+  return ref.id;
+}
+
+export async function getResources(): Promise<Resource[]> {
+  const snap = await getDocs(collection(db, "resources"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Resource));
+}
+
+export async function deleteResource(id: string): Promise<void> {
+  await deleteDoc(doc(db, "resources", id));
+}
+
+// ─── Admin: Users ──────────────────────────────────────────
+
+export async function getAllUsers(): Promise<UserProfile[]> {
+  const snap = await getDocs(collection(db, "users"));
+  return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as UserProfile));
+}
+
+export async function setUserAdmin(uid: string, value: boolean): Promise<void> {
+  await updateDoc(doc(db, "users", uid), { isAdmin: value });
 }
