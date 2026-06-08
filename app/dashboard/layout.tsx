@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const role = userProfile?.role;
   const baseItems = navItemsForRole(role);
   const items = isAdmin(userProfile)
-    ? [...baseItems, { href: "/admin", label: "Admin", Icon: ShieldAlert, roles: [] as UserRole[] }]
+    ? [...baseItems, { href: "/admin", label: "Admin", Icon: ShieldAlert }]
     : baseItems;
   const tagline = role ? BRAND_TAGLINE[role] : "Connecting talent";
   const premiumHref = role ? PREMIUM_HREF[role] : "/dashboard/wallet";

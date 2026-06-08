@@ -12,6 +12,18 @@ import {
   Wallet,
   ShieldCheck,
   Bookmark,
+  Settings,
+  Sparkles,
+  Calendar,
+  BookOpen,
+  BookMarked,
+  TrendingUp,
+  Users,
+  Star,
+  CalendarClock,
+  ClipboardList,
+  Building2,
+  Compass,
 } from "lucide-react";
 import type { UserRole } from "./types";
 
@@ -31,18 +43,16 @@ export const ROLE_TAGLINES: Record<UserRole, string> = {
 };
 
 // ─── Capabilities ──────────────────────────────────────────
-// One flag per thing a role is allowed to do. Every gate in the app should
-// read from here rather than comparing role strings inline.
 export interface RoleCapabilities {
-  postProject: boolean; // create project briefs + hold escrow
-  manageProjects: boolean; // "My Projects" view
-  receiveProposals: boolean; // employers review incoming proposals
-  sendProposals: boolean; // freelancers send proposals to projects
-  exploreProjects: boolean; // browse the open-project marketplace
-  postJobs: boolean; // post jobs / internships, manage applicants
-  browseJobs: boolean; // browse + apply to the job board
-  browseInternships: boolean; // access the subscription-gated internship area
-  hasProfessionalProfile: boolean; // shows skills / rate / portfolio sections
+  postProject: boolean;
+  manageProjects: boolean;
+  receiveProposals: boolean;
+  sendProposals: boolean;
+  exploreProjects: boolean;
+  postJobs: boolean;
+  browseJobs: boolean;
+  browseInternships: boolean;
+  hasProfessionalProfile: boolean;
 }
 
 const SEEKER_BASE: RoleCapabilities = {
@@ -84,8 +94,6 @@ export const ROLE_CAPS: Record<UserRole, RoleCapabilities> = {
   job_seeker: { ...SEEKER_BASE, browseJobs: true },
 };
 
-// Falls back to the freelancer capability set while a profile is still loading
-// (role === undefined) so the UI never crashes on a missing role.
 export function caps(role?: UserRole | null): RoleCapabilities {
   return (role && ROLE_CAPS[role]) || ROLE_CAPS.va;
 }
@@ -98,39 +106,78 @@ export function roleLabel(role?: UserRole | null): string {
   return (role && ROLE_LABELS[role]) || "Member";
 }
 
-// ─── Dashboard sidebar navigation ──────────────────────────
+// ─── Dashboard sidebar navigation (one menu per role, matching mockups) ──
 export interface DashboardNavItem {
   href: string;
   label: string;
   Icon: LucideIcon;
-  roles: UserRole[];
 }
 
-const ALL_ROLES: UserRole[] = ["client", "va", "student", "job_seeker"];
+export const NAV_BY_ROLE: Record<UserRole, DashboardNavItem[]> = {
+  student: [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/dashboard/internships", label: "Opportunities", Icon: Compass },
+    { href: "/dashboard/applications", label: "Applications", Icon: FileText },
+    { href: "/dashboard/learning", label: "Learning Hub", Icon: BookOpen },
+    { href: "/dashboard/assistant", label: "AI Coach", Icon: Sparkles },
+    { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
+    { href: "/dashboard/events", label: "Events", Icon: Calendar },
+    { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/settings", label: "Settings", Icon: Settings },
+  ],
+  job_seeker: [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/dashboard/jobs", label: "Jobs", Icon: Briefcase },
+    { href: "/dashboard/applications", label: "My Applications", Icon: FileText },
+    { href: "/dashboard/saved", label: "Saved Jobs", Icon: Bookmark },
+    { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
+    { href: "/dashboard/assistant", label: "AI Career Tools", Icon: Sparkles },
+    { href: "/dashboard/salary", label: "Salary Insights", Icon: TrendingUp },
+    { href: "/dashboard/resources", label: "Career Resources", Icon: BookMarked },
+    { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/settings", label: "Settings", Icon: Settings },
+  ],
+  va: [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/dashboard/work", label: "Projects", Icon: Briefcase },
+    { href: "/dashboard/proposals", label: "Proposals", Icon: FileText },
+    { href: "/dashboard/clients", label: "My Clients", Icon: Users },
+    { href: "/dashboard/wallet", label: "Earnings", Icon: Wallet },
+    { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
+    { href: "/dashboard/reviews", label: "Reviews", Icon: Star },
+    { href: "/dashboard/assistant", label: "AI Assistant", Icon: Sparkles },
+    { href: "/dashboard/analytics", label: "Analytics", Icon: TrendingUp },
+    { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/settings", label: "Settings", Icon: Settings },
+  ],
+  client: [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/dashboard/jobs/my-jobs", label: "Jobs", Icon: Briefcase },
+    { href: "/dashboard/manage-internships", label: "Internships", Icon: GraduationCap },
+    { href: "/dashboard/applicants", label: "Applicants", Icon: Users },
+    { href: "/dashboard/talent", label: "Talent Search", Icon: Search },
+    { href: "/dashboard/interviews", label: "Interviews", Icon: CalendarClock },
+    { href: "/dashboard/assessments", label: "Assessments", Icon: ClipboardList },
+    { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
+    { href: "/dashboard/analytics", label: "Analytics", Icon: TrendingUp },
+    { href: "/dashboard/profile", label: "Company Profile", Icon: Building2 },
+    { href: "/dashboard/settings", label: "Settings", Icon: Settings },
+  ],
+};
 
-export const DASHBOARD_NAV: DashboardNavItem[] = [
-  { href: "/dashboard", label: "Overview", Icon: LayoutDashboard, roles: ALL_ROLES },
-  { href: "/dashboard/projects", label: "My Projects", Icon: FolderOpen, roles: ["client"] },
-  { href: "/dashboard/post", label: "Post Project", Icon: PenLine, roles: ["client"] },
-  { href: "/explore", label: "Find Work", Icon: Search, roles: ["va"] },
-  { href: "/dashboard/jobs", label: "Jobs", Icon: Briefcase, roles: ["client", "va", "job_seeker"] },
-  { href: "/dashboard/membership", label: "Membership", Icon: ShieldCheck, roles: ["job_seeker"] },
-  { href: "/dashboard/internships", label: "Internships", Icon: GraduationCap, roles: ["student"] },
-  { href: "/dashboard/saved", label: "Saved", Icon: Bookmark, roles: ["student", "job_seeker"] },
-  { href: "/dashboard/proposals", label: "Proposals", Icon: FileText, roles: ["client", "va"] },
-  { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare, roles: ALL_ROLES },
-  { href: "/dashboard/profile", label: "Profile", Icon: UserIcon, roles: ALL_ROLES },
-  { href: "/dashboard/wallet", label: "Wallet", Icon: Wallet, roles: ALL_ROLES },
-];
+// Extra routes that exist but aren't primary nav items (kept for capability use)
+export { FolderOpen, PenLine, ShieldCheck };
 
 export function navItemsForRole(role?: UserRole | null): DashboardNavItem[] {
-  // While the profile loads, show only the universal items.
-  if (!role) return DASHBOARD_NAV.filter((i) => i.roles.length === ALL_ROLES.length);
-  return DASHBOARD_NAV.filter((i) => i.roles.includes(role));
+  if (role && NAV_BY_ROLE[role]) return NAV_BY_ROLE[role];
+  return [
+    { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+    { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
+    { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/settings", label: "Settings", Icon: Settings },
+  ];
 }
 
-// The landing route a role should be sent to when they have no business on a
-// page they tried to open.
 export function homeRouteForRole(role?: UserRole | null): string {
   switch (role) {
     case "student":

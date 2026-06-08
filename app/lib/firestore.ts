@@ -34,6 +34,9 @@ import type {
   PlatformEvent,
   Course,
   Resource,
+  Interview,
+  InterviewStatus,
+  Assessment,
 } from "./types";
 
 // ─── Users ─────────────────────────────────────────────────
@@ -591,4 +594,38 @@ export async function getAllUsers(): Promise<UserProfile[]> {
 
 export async function setUserAdmin(uid: string, value: boolean): Promise<void> {
   await updateDoc(doc(db, "users", uid), { isAdmin: value });
+}
+
+// ─── Interviews (employer) ─────────────────────────────────
+
+export async function createInterview(data: Omit<Interview, "id" | "createdAt">): Promise<string> {
+  const ref = await addDoc(collection(db, "interviews"), { ...data, createdAt: serverTimestamp() });
+  return ref.id;
+}
+
+export async function getInterviewsByEmployer(uid: string): Promise<Interview[]> {
+  const snap = await getDocs(query(collection(db, "interviews"), where("employerId", "==", uid)));
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Interview));
+  return rows.sort((a, b) => (a.scheduledAt?.toMillis?.() ?? 0) - (b.scheduledAt?.toMillis?.() ?? 0));
+}
+
+export async function updateInterviewStatus(id: string, status: InterviewStatus): Promise<void> {
+  await updateDoc(doc(db, "interviews", id), { status });
+}
+
+// ─── Assessments (employer) ────────────────────────────────
+
+export async function createAssessment(data: Omit<Assessment, "id" | "createdAt">): Promise<string> {
+  const ref = await addDoc(collection(db, "assessments"), { ...data, createdAt: serverTimestamp() });
+  return ref.id;
+}
+
+export async function getAssessmentsByEmployer(uid: string): Promise<Assessment[]> {
+  const snap = await getDocs(query(collection(db, "assessments"), where("employerId", "==", uid)));
+  const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Assessment));
+  return rows.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+}
+
+export async function deleteAssessment(id: string): Promise<void> {
+  await deleteDoc(doc(db, "assessments", id));
 }
