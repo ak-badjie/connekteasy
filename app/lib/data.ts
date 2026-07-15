@@ -57,7 +57,7 @@ export const projects: Project[] = [
         title: "Virtual Assistant for E-commerce Store Management",
         description:
             "Looking for an experienced virtual assistant to manage our Shopify store. Responsibilities include processing orders, managing inventory, responding to customer inquiries, and updating product listings. Must be detail-oriented and familiar with e-commerce platforms.",
-        budget: "$15-25/hr",
+        budget: "D1,000-1,800/hr",
         budgetType: "hourly",
         category: "Admin Support",
         tags: ["Shopify", "E-commerce", "Customer Service", "Inventory"],
@@ -74,7 +74,7 @@ export const projects: Project[] = [
         title: "Social Media Manager for Growing Tech Startup",
         description:
             "We need a creative social media manager to handle our Instagram, Twitter/X, and LinkedIn accounts. You'll create content calendars, design posts, engage with our audience, and track analytics. Experience with Canva and scheduling tools is preferred.",
-        budget: "$800-1,200",
+        budget: "D55,000-85,000",
         budgetType: "fixed",
         category: "Social Media",
         tags: ["Instagram", "LinkedIn", "Content Creation", "Analytics"],
@@ -91,7 +91,7 @@ export const projects: Project[] = [
         title: "Data Entry Specialist — CRM Migration",
         description:
             "We're migrating from Salesforce to HubSpot and need someone to clean, organize, and transfer 10,000+ records. Must be meticulous, fast, and experienced with both CRM platforms. This is a one-time project with a tight deadline.",
-        budget: "$500-750",
+        budget: "D35,000-50,000",
         budgetType: "fixed",
         category: "Data Entry",
         tags: ["Salesforce", "HubSpot", "CRM", "Data Migration"],
@@ -108,7 +108,7 @@ export const projects: Project[] = [
         title: "Executive Assistant for CEO — Calendar & Email Management",
         description:
             "Seeking a highly organized executive assistant to manage a busy CEO's calendar, coordinate meetings across time zones, handle email correspondence, and prepare briefing documents. Discretion and professionalism are paramount.",
-        budget: "$20-35/hr",
+        budget: "D1,400-2,500/hr",
         budgetType: "hourly",
         category: "Admin Support",
         tags: ["Calendar Management", "Email", "Executive Support", "Scheduling"],
@@ -125,7 +125,7 @@ export const projects: Project[] = [
         title: "Customer Support Agent for SaaS Product",
         description:
             "We need a customer support agent to handle inbound tickets via Zendesk, respond to live chats, and create help documentation. Our product is a project management tool, so familiarity with SaaS products is ideal. Training will be provided.",
-        budget: "$12-18/hr",
+        budget: "D800-1,200/hr",
         budgetType: "hourly",
         category: "Customer Service",
         tags: ["Zendesk", "Live Chat", "SaaS", "Help Documentation"],
@@ -142,7 +142,7 @@ export const projects: Project[] = [
         title: "Bookkeeper for Small Business — QuickBooks Expert",
         description:
             "Looking for an experienced bookkeeper to manage accounts payable/receivable, reconcile bank statements, and prepare monthly financial reports using QuickBooks Online. Must be comfortable with invoicing and expense tracking.",
-        budget: "$18-28/hr",
+        budget: "D1,200-2,000/hr",
         budgetType: "hourly",
         category: "Bookkeeping",
         tags: ["QuickBooks", "Accounts Payable", "Reconciliation", "Financial Reports"],
@@ -159,7 +159,7 @@ export const projects: Project[] = [
         title: "Blog Content Writer — Health & Wellness Niche",
         description:
             "We're looking for a talented writer to produce 8 blog posts per month (1,500-2,000 words each) on health, wellness, and nutrition topics. Must be able to do SEO research and follow brand voice guidelines. Samples required.",
-        budget: "$2,000-3,000",
+        budget: "D140,000-210,000",
         budgetType: "fixed",
         category: "Content Writing",
         tags: ["Blog Writing", "SEO", "Health", "Wellness"],
@@ -176,7 +176,7 @@ export const projects: Project[] = [
         title: "Research Assistant — Market Analysis Reports",
         description:
             "Need a research assistant to compile market analysis reports for our consulting firm. Tasks include gathering data from public sources, creating spreadsheets, writing executive summaries, and preparing presentations. Strong analytical skills required.",
-        budget: "$15-22/hr",
+        budget: "D1,000-1,500/hr",
         budgetType: "hourly",
         category: "Research",
         tags: ["Market Research", "Data Analysis", "Presentations", "Reports"],
@@ -193,7 +193,7 @@ export const projects: Project[] = [
         title: "Email Marketing Specialist — Mailchimp Campaigns",
         description:
             "Seeking an email marketing specialist to design, write, and manage our weekly newsletter and promotional campaigns using Mailchimp. Should understand segmentation, A/B testing, and analytics. Previous email marketing experience required.",
-        budget: "$600-900",
+        budget: "D40,000-60,000",
         budgetType: "fixed",
         category: "Email Management",
         tags: ["Mailchimp", "Email Marketing", "Newsletters", "A/B Testing"],
@@ -210,7 +210,7 @@ export const projects: Project[] = [
         title: "WordPress Website Updates & Maintenance",
         description:
             "We need a web developer to maintain our WordPress website — update plugins, fix bugs, add new pages/features, and optimize performance. Ongoing role with approximately 10-15 hours per week. Must know PHP, CSS, and WordPress ecosystem.",
-        budget: "$20-30/hr",
+        budget: "D1,400-2,100/hr",
         budgetType: "hourly",
         category: "Web Development",
         tags: ["WordPress", "PHP", "CSS", "Maintenance"],
@@ -227,7 +227,7 @@ export const projects: Project[] = [
         title: "Graphic Designer for Brand Identity Package",
         description:
             "We're a new startup looking for a graphic designer to create our complete brand identity: logo, color palette, typography, business cards, letterhead, and social media templates. Must have a strong portfolio and excellent communication skills.",
-        budget: "$1,500-2,500",
+        budget: "D100,000-175,000",
         budgetType: "fixed",
         category: "Graphic Design",
         tags: ["Logo Design", "Branding", "Adobe Suite", "Identity"],
@@ -244,7 +244,7 @@ export const projects: Project[] = [
         title: "Video Editor for YouTube Channel — Weekly Content",
         description:
             "Looking for a skilled video editor to edit 2-3 YouTube videos per week (10-15 min each). Tasks include cutting, color correction, adding graphics/text overlays, and syncing audio. Experience with Premiere Pro or DaVinci Resolve required.",
-        budget: "$100-200/video",
+        budget: "D7,000-14,000/video",
         budgetType: "fixed",
         category: "Video Editing",
         tags: ["Premiere Pro", "YouTube", "Color Grading", "Motion Graphics"],

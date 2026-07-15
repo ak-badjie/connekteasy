@@ -62,10 +62,11 @@ export default function AdminOverview() {
 
       <motion.div variants={staggerItem}>
         <Panel title="Manage">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             {[
               { label: "Events & Courses", desc: "Publish workshops and learning tracks", href: "/admin/content", Icon: CalendarRange },
               { label: "Career Resources", desc: "Curate guides and links for seekers", href: "/admin/resources", Icon: BookMarked },
+              { label: "Jobs & Opportunities", desc: "Post and manage jobs, internships, & PR opps", href: "/admin/jobs", Icon: Briefcase },
               { label: "Users & Roles", desc: "Grant admin access, review accounts", href: "/admin/users", Icon: Users },
             ].map((m) => (
               <Link key={m.href} href={m.href} className="flex flex-col gap-2 p-4 rounded-xl bg-gray-50 hover:bg-teal-50 transition-colors group">

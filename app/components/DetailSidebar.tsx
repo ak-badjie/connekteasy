@@ -207,7 +207,7 @@ export default function DetailSidebar({ project, projectId, isOpen, onClose }: D
                         type="text"
                         value={proposedRate}
                         onChange={(e) => setProposedRate(e.target.value)}
-                        placeholder="e.g. $20/hr or $500 fixed"
+                        placeholder="e.g. D1,400/hr or D35,000 fixed"
                         className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl bg-white text-gray-900 placeholder-gray-400"
                       />
                     </div>

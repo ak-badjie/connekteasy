@@ -46,9 +46,9 @@ function timeAgo(date: Date): string {
 }
 
 // ─── Filters ───────────────────────────────────────────────
-const budgetFilters = ["All Budgets", "Under $500", "$500-$1,000", "$1,000+", "Hourly"];
+const budgetFilters = ["All Budgets", "Under D25,000", "D25,000-D50,000", "D50,000+", "Hourly"];
 const durationFilters = ["All Durations", "Less than 1 month", "1-3 months", "3+ months", "6+ months"];
-const rateFilters = ["All Rates", "Under $15/hr", "$15-$30/hr", "$30-$50/hr", "$50+/hr"];
+const rateFilters = ["All Rates", "Under D1,000/hr", "D1,000-D2,000/hr", "D2,000-D3,000/hr", "D3,000+/hr"];
 const ITEMS_PER_PAGE = 300;
 
 // ─── Main Content ──────────────────────────────────────────
@@ -120,9 +120,9 @@ function ExploreContent() {
       } else if (selectedBudget !== "All Budgets") {
         const nums = p.budget.match(/[\d,]+/g);
         const maxVal = nums ? parseInt(nums[nums.length - 1].replace(",", "")) : 0;
-        if (selectedBudget === "Under $500") matchesBudget = maxVal < 500;
-        else if (selectedBudget === "$500-$1,000") matchesBudget = maxVal >= 500 && maxVal <= 1000;
-        else if (selectedBudget === "$1,000+") matchesBudget = maxVal > 1000;
+        if (selectedBudget === "Under D25,000") matchesBudget = maxVal < 25000;
+        else if (selectedBudget === "D25,000-D50,000") matchesBudget = maxVal >= 25000 && maxVal <= 50000;
+        else if (selectedBudget === "D50,000+") matchesBudget = maxVal > 50000;
       }
 
       let matchesDuration = true;
@@ -144,10 +144,10 @@ function ExploreContent() {
         f.skills?.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase()));
 
       let matchesRate = true;
-      if (selectedRate === "Under $15/hr") matchesRate = f.hourlyRate > 0 && f.hourlyRate < 15;
-      else if (selectedRate === "$15-$30/hr") matchesRate = f.hourlyRate >= 15 && f.hourlyRate <= 30;
-      else if (selectedRate === "$30-$50/hr") matchesRate = f.hourlyRate >= 30 && f.hourlyRate <= 50;
-      else if (selectedRate === "$50+/hr") matchesRate = f.hourlyRate > 50;
+      if (selectedRate === "Under D1,000/hr") matchesRate = f.hourlyRate > 0 && f.hourlyRate < 1000;
+      else if (selectedRate === "D1,000-D2,000/hr") matchesRate = f.hourlyRate >= 1000 && f.hourlyRate <= 2000;
+      else if (selectedRate === "D2,000-D3,000/hr") matchesRate = f.hourlyRate >= 2000 && f.hourlyRate <= 3000;
+      else if (selectedRate === "D3,000+/hr") matchesRate = f.hourlyRate > 3000;
 
       return matchesSearch && matchesRate;
     }).slice(0, ITEMS_PER_PAGE);
@@ -170,7 +170,7 @@ function ExploreContent() {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-gray-900 mb-1">Explore</h1>
           <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
             {mode === "projects"
-              ? "Discover open projects from businesses worldwide"
+              ? "Discover open jobs from businesses worldwide"
               : "Browse skilled virtual assistants ready to help"}
           </p>
 
@@ -186,7 +186,7 @@ function ExploreContent() {
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                Projects
+                Jobs
               </motion.button>
               <motion.button
                 whileTap={cardTap}
@@ -210,7 +210,7 @@ function ExploreContent() {
               onSearch={setSearchQuery}
               placeholder={
                 mode === "projects"
-                  ? "Search projects, skills, or keywords..."
+                  ? "Search jobs, skills, or keywords..."
                   : "Search by name, title, or skills..."
               }
             />
@@ -253,7 +253,7 @@ function ExploreContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-8">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <p className="text-xs sm:text-sm text-gray-500">
-            Showing <span className="font-semibold text-gray-900">{resultCount}</span> {mode === "projects" ? "projects" : "virtual assistants"}
+            Showing <span className="font-semibold text-gray-900">{resultCount}</span> {mode === "projects" ? "jobs" : "virtual assistants"}
           </p>
           {mode === "projects" && (
             <select className="text-xs sm:text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 cursor-pointer">
@@ -268,7 +268,7 @@ function ExploreContent() {
         {isLoading ? (
           <div className="text-center py-20">
             <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-sm text-gray-500">Loading {mode === "projects" ? "projects" : "talent"}...</p>
+            <p className="text-sm text-gray-500">Loading {mode === "projects" ? "jobs" : "talent"}...</p>
           </div>
         ) : resultCount > 0 ? (
           <motion.div
@@ -323,7 +323,7 @@ function ExploreContent() {
                             <span className="flex items-center gap-1"><MapPin size={11} />{person.location}</span>
                           )}
                           {person.hourlyRate > 0 && (
-                            <span className="flex items-center gap-1"><DollarSign size={11} />${person.hourlyRate}/hr</span>
+                            <span className="flex items-center gap-1"><DollarSign size={11} />D{person.hourlyRate}/hr</span>
                           )}
                         </div>
                       </motion.div>
@@ -337,7 +337,7 @@ function ExploreContent() {
               {mode === "projects" ? <SearchX size={24} /> : <UserSearch size={24} />}
             </div>
             <h3 className="text-base sm:text-lg font-display font-semibold text-gray-900 mb-2">
-              No {mode === "projects" ? "projects" : "talent"} found
+              No {mode === "projects" ? "jobs" : "talent"} found
             </h3>
             <p className="text-xs sm:text-sm text-gray-500">Try adjusting your search or filters.</p>
           </motion.div>

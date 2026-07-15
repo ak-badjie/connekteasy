@@ -7,7 +7,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import SearchBar from "./components/SearchBar";
 import CategoryIcon from "./components/CategoryIcon";
 import { categories } from "./lib/data";
-import { FileEdit, Handshake, Rocket, ArrowRight, DollarSign, ShieldCheck, Lock, MessageSquare, Calendar } from "lucide-react";
+import { FileEdit, Handshake, Rocket, ArrowRight, DollarSign, ShieldCheck, Lock, MessageSquare, Calendar, Briefcase } from "lucide-react";
 
 // CUSTOM MOTION VARIANTS
 const magneticSlideLeft: Variants = {
@@ -283,9 +283,9 @@ export default function Home() {
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
                 >
                   <div className="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-3">
-                    <Handshake size={24} />
+                    <Briefcase size={24} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Scale Fast</h3>
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Job & Internships</h3>
                 </motion.div>
                 <motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
@@ -458,9 +458,9 @@ export default function Home() {
             </motion.div>
             <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
-                <Handshake size={18} />
+                <Briefcase size={18} />
               </div>
-              <h3 className="font-bold text-gray-900 text-xs">Scale Fast</h3>
+              <h3 className="font-bold text-gray-900 text-xs">Job & Internships</h3>
             </motion.div>
             <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">

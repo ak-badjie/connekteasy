@@ -629,3 +629,8 @@ export async function getAssessmentsByEmployer(uid: string): Promise<Assessment[
 export async function deleteAssessment(id: string): Promise<void> {
   await deleteDoc(doc(db, "assessments", id));
 }
+
+export async function deleteJob(id: string): Promise<void> {
+  await deleteDoc(doc(db, "jobs", id));
+}
+

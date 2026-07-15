@@ -89,7 +89,7 @@ export default function PublicProfilePage() {
                     <span className="flex items-center gap-1 font-medium"><MapPin size={14} className="text-gray-400" />{profile.location}</span>
                   )}
                   {profile.role === "va" && profile.hourlyRate > 0 && (
-                    <span className="flex items-center gap-1 font-medium"><DollarSign size={14} className="text-gray-400" />${profile.hourlyRate}/hr</span>
+                    <span className="flex items-center gap-1 font-medium"><DollarSign size={14} className="text-gray-400" />D{profile.hourlyRate}/hr</span>
                   )}
                 </div>
                   </div>

@@ -359,7 +359,7 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">Hourly Rate</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">D</span>
                     <input type="number" value={formData.hourlyRate} onChange={(e) => handleChange("hourlyRate", e.target.value)} className="w-full pl-7 pr-3 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500/20 focus:border-mustard-500" />
                   </div>
                 </div>

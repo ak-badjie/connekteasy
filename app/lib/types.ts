@@ -112,7 +112,7 @@ export interface Proposal {
 }
 
 // ─── Job Board ─────────────────────────────────────────────
-export type JobEmploymentType = "full-time" | "part-time" | "contract" | "internship";
+export type JobEmploymentType = "full-time" | "part-time" | "contract" | "internship" | "opportunity" | "pr-opportunity";
 export type JobStatus = "open" | "closed";
 
 export interface Job {
