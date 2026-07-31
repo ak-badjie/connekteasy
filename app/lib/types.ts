@@ -150,12 +150,15 @@ export interface JobApplication {
   createdAt: Timestamp;
 }
 
-// ─── Internship Subscription ───────────────────────────────
+// ─── Memberships ───────────────────────────────────────────
 export type SubscriptionStatus = "active" | "expired" | "cancelled";
+
+/** Derived from the payment type: `<plan>_subscription`. */
+export type MembershipPlan = "internship" | "job" | "employer";
 
 export interface InternshipSubscription {
   uid: string;
-  plan: "internship" | "job";
+  plan: MembershipPlan;
   status: SubscriptionStatus;
   amount: number;
   currency: string;

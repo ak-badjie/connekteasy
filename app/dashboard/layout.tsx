@@ -7,9 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { navItemsForRole, roleLabel } from "@/app/lib/roles";
 import { isAdmin } from "@/app/lib/admin";
+import { useMembership } from "@/app/lib/useMembership";
+import { routeNeedsMembership, roleHasGatedRoutes } from "@/app/lib/access";
+import MembershipGate from "./_components/MembershipGate";
 import type { UserRole } from "@/app/lib/types";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { LogOut, Bell, Search, Crown, ChevronDown, ShieldAlert } from "lucide-react";
+import { LogOut, Bell, Search, Crown, ChevronDown, ShieldAlert, Lock } from "lucide-react";
 
 const BRAND_TAGLINE: Record<UserRole, string> = {
   student: "Learn. Intern. Grow.",
@@ -19,16 +22,17 @@ const BRAND_TAGLINE: Record<UserRole, string> = {
 };
 
 const PREMIUM_HREF: Record<UserRole, string> = {
-  student: "/dashboard/internships",
+  student: "/dashboard/membership",
   job_seeker: "/dashboard/membership",
   va: "/dashboard/wallet",
-  client: "/dashboard/wallet",
+  client: "/dashboard/membership",
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, userProfile, loading, signOutUser } = useAuth();
+  const membership = useMembership();
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -55,6 +59,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     : baseItems;
   const tagline = role ? BRAND_TAGLINE[role] : "Connecting talent";
   const premiumHref = role ? PREMIUM_HREF[role] : "/dashboard/wallet";
+
+  // A single gate for the whole dashboard: any route not listed as free in
+  // access.ts is locked until the role's membership is paid up. Admins bypass.
+  const unlocked = membership.active || membership.bypass || !membership.required;
+  const isLocked = (href: string) => !unlocked && routeNeedsMembership(role, href);
+  const gated = !membership.loading && isLocked(pathname);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -88,6 +98,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <nav className="flex-1 overflow-y-auto no-scrollbar p-3 flex flex-col gap-1">
         {items.map((item) => {
           const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
+          const locked = isLocked(item.href);
           return (
             <Link
               key={item.href}
@@ -98,26 +109,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <item.Icon size={19} className="shrink-0" />
               {item.label}
+              {locked && <Lock size={13} className="ml-auto shrink-0 text-mustard-400/80" />}
             </Link>
           );
         })}
       </nav>
 
-      {/* Premium upsell */}
-      <div className="p-3">
-        <Link href={premiumHref} className="block rounded-2xl bg-teal-800/80 border border-white/10 p-4 hover:bg-teal-800 transition-colors">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Crown size={16} className="text-mustard-400" />
-            <p className="text-sm font-bold text-white">Go Premium</p>
-          </div>
-          <p className="text-[11px] text-teal-200 leading-relaxed mb-3">
-            Unlock exclusive tools and get more opportunities.
-          </p>
-          <span className="block text-center text-xs font-bold text-gray-900 bg-mustard-500 rounded-lg py-2 hover:bg-mustard-400 transition-colors">
-            Upgrade Now
-          </span>
-        </Link>
-      </div>
+      {/* Premium upsell — only while there's something left to unlock */}
+      {!unlocked && membership.plan && roleHasGatedRoutes(role) && (
+        <div className="p-3">
+          <Link href={premiumHref} className="block rounded-2xl bg-teal-800/80 border border-white/10 p-4 hover:bg-teal-800 transition-colors">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Crown size={16} className="text-mustard-400" />
+              <p className="text-sm font-bold text-white">{membership.plan.name}</p>
+            </div>
+            <p className="text-[11px] text-teal-200 leading-relaxed mb-3">
+              {membership.plan.tagline}
+            </p>
+            <span className="block text-center text-xs font-bold text-gray-900 bg-mustard-500 rounded-lg py-2 hover:bg-mustard-400 transition-colors">
+              Subscribe — {membership.plan.priceGMD} GMD
+            </span>
+          </Link>
+        </div>
+      )}
 
       <div className="p-3 border-t border-white/10">
         <button
@@ -201,15 +215,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 px-1 py-1.5 flex items-center justify-between pb-safe">
       {items.slice(0, 5).map((item) => {
         const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard");
+        const locked = isLocked(item.href);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex flex-col items-center justify-center gap-1 p-1 rounded-lg flex-1 min-w-0 transition-colors ${
+            className={`relative flex flex-col items-center justify-center gap-1 p-1 rounded-lg flex-1 min-w-0 transition-colors ${
               isActive ? "text-teal-600" : "text-gray-400 hover:text-gray-700"
             }`}
           >
             <item.Icon size={20} className="shrink-0" />
+            {locked && (
+              <Lock size={10} className="absolute top-0.5 right-1/4 text-mustard-500" />
+            )}
             <span className="text-[9px] font-medium leading-none truncate w-full text-center px-0.5">{item.label}</span>
           </Link>
         );
@@ -223,8 +241,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex-1 min-w-0 flex flex-col h-full">
         {TopBar}
         <main className="flex-1 min-h-0 overflow-y-auto bg-gray-50 pb-24 lg:pb-0">
-          <div className={pathname.includes("/messages") ? "h-full" : "p-4 sm:p-6 lg:p-8"}>
-            {children}
+          <div className={pathname.includes("/messages") && !gated ? "h-full" : "p-4 sm:p-6 lg:p-8"}>
+            {membership.loading && routeNeedsMembership(role, pathname) ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : gated && membership.plan ? (
+              <MembershipGate plan={membership.plan} />
+            ) : (
+              children
+            )}
           </div>
         </main>
       </div>

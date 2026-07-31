@@ -2,7 +2,11 @@ import { httpsCallable } from "firebase/functions";
 import { functions } from "./firebase";
 
 // ─── createPayment ─────────────────────────────────────────
-export type PaymentType = "wallet_deposit" | "internship_subscription";
+export type PaymentType =
+  | "wallet_deposit"
+  | "internship_subscription"
+  | "job_subscription"
+  | "employer_subscription";
 
 export interface CreatePaymentInput {
   amount: number;

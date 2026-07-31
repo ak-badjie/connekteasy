@@ -2,48 +2,174 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper: is the request from an authenticated user?
+    // ── Helpers ────────────────────────────────────────
     function isAuth() {
       return request.auth != null;
     }
 
-    // Helper: is the requester the document owner?
     function isOwner(uid) {
       return isAuth() && request.auth.uid == uid;
     }
 
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdminUser() {
+      return isAuth() && profile().isAdmin == true;
+    }
+
+    function hasRole(role) {
+      return isAuth() && profile().role == role;
+    }
+
+    // Memberships are written only by the payment webhook (Admin SDK, which
+    // bypasses these rules), so this is a trustworthy source of truth.
+    function membershipActive() {
+      return isAuth()
+        && exists(/databases/$(database)/documents/subscriptions/$(request.auth.uid))
+        && get(/databases/$(database)/documents/subscriptions/$(request.auth.uid)).data.status != 'expired'
+        && get(/databases/$(database)/documents/subscriptions/$(request.auth.uid)).data.currentPeriodEnd > request.time;
+    }
+
+    // Seekers pay 200 GMD/30d to apply. Employers pay 1000 GMD/30d to post.
+    // Freelancers may also subscribe in order to apply, as they always could.
+    function canApply() {
+      return (hasRole('job_seeker') || hasRole('student') || hasRole('va'))
+        && membershipActive();
+    }
+
+    function canPostJobs() {
+      return hasRole('client') && membershipActive();
+    }
+
     // ── Users ──────────────────────────────────────────
     match /users/{uid} {
+      // Profiles back the public profile pages, so they stay world-readable.
       allow read: if true;
       allow create: if isOwner(uid);
-      allow update: if isOwner(uid);
+      // Users may edit their own profile but never grant themselves admin.
+      allow update: if isOwner(uid)
+        && (!request.resource.data.keys().hasAny(['isAdmin'])
+            || request.resource.data.isAdmin == resource.data.get('isAdmin', false));
       allow delete: if isOwner(uid);
     }
 
-    // ── Projects ───────────────────────────────────────
+    // ── Jobs, internships & opportunities ──────────────
+    match /jobs/{jobId} {
+      // Listings are public so the board is browsable and indexable.
+      allow read: if true;
+      allow create: if (canPostJobs() || isAdminUser())
+        && request.resource.data.postedBy == request.auth.uid;
+      allow update, delete: if isAuth()
+        && (resource.data.postedBy == request.auth.uid || isAdminUser());
+    }
+
+    // ── Job applications ───────────────────────────────
+    match /jobApplications/{applicationId} {
+      allow read: if isAuth() && (
+        resource.data.applicantId == request.auth.uid
+        || get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.postedBy == request.auth.uid
+        || isAdminUser()
+      );
+      // Applying is what the seeker membership buys.
+      allow create: if canApply()
+        && request.resource.data.applicantId == request.auth.uid;
+      // Employers move applications through their pipeline.
+      allow update: if isAuth() && (
+        get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.postedBy == request.auth.uid
+        || isAdminUser()
+      );
+      allow delete: if isAuth() && resource.data.applicantId == request.auth.uid;
+    }
+
+    // ── Memberships & payments (webhook-owned) ─────────
+    match /subscriptions/{uid} {
+      allow read: if isOwner(uid) || isAdminUser();
+      // Cancelling stops renewal; it must not extend or reactivate access.
+      allow update: if isOwner(uid)
+        && request.resource.data.status == 'cancelled'
+        && request.resource.data.currentPeriodEnd == resource.data.currentPeriodEnd
+        && request.resource.data.plan == resource.data.plan;
+      allow create, delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdminUser());
+      allow write: if false;
+    }
+
+    match /withdrawals/{withdrawalId} {
+      allow read: if isAuth() && (resource.data.uid == request.auth.uid || isAdminUser());
+      allow write: if false;
+    }
+
+    // ── Projects (freelance marketplace) ───────────────
     match /projects/{projectId} {
       allow read: if true;
-      allow create: if isAuth();
-      allow update: if isAuth() && resource.data.ownerId == request.auth.uid;
-      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+      allow create: if isAuth() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isAuth() && (resource.data.ownerId == request.auth.uid || isAdminUser());
+      allow delete: if isAuth() && (resource.data.ownerId == request.auth.uid || isAdminUser());
     }
 
     // ── Proposals ──────────────────────────────────────
     match /proposals/{proposalId} {
       allow read: if isAuth();
-      allow create: if isAuth();
+      allow create: if isAuth() && request.resource.data.freelancerId == request.auth.uid;
       allow update: if isAuth();
+    }
+
+    // ── Admin-published content ────────────────────────
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdminUser();
+    }
+
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdminUser();
+    }
+
+    match /resources/{resourceId} {
+      allow read: if true;
+      allow write: if isAdminUser();
+    }
+
+    // ── Employer hiring tools ──────────────────────────
+    match /interviews/{interviewId} {
+      allow read: if isAuth() && (
+        resource.data.employerId == request.auth.uid
+        || resource.data.candidateId == request.auth.uid
+        || isAdminUser()
+      );
+      allow create: if canPostJobs()
+        && request.resource.data.employerId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.employerId == request.auth.uid;
+    }
+
+    match /assessments/{assessmentId} {
+      allow read: if isAuth();
+      allow create: if canPostJobs()
+        && request.resource.data.employerId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.employerId == request.auth.uid;
+    }
+
+    // ── Reviews ────────────────────────────────────────
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuth() && request.resource.data.reviewerId == request.auth.uid;
+      allow update, delete: if isAuth() && resource.data.reviewerId == request.auth.uid;
     }
 
     // ── Conversations & Messages ───────────────────────
     match /conversations/{convoId} {
       allow read: if isAuth() && request.auth.uid in resource.data.participants;
-      allow create: if isAuth();
+      allow create: if isAuth() && request.auth.uid in request.resource.data.participants;
       allow update: if isAuth() && request.auth.uid in resource.data.participants;
 
       match /messages/{messageId} {
         allow read: if isAuth();
-        allow create: if isAuth();
+        allow create: if isAuth() && request.resource.data.senderId == request.auth.uid;
       }
     }
   }

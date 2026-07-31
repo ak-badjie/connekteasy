@@ -1,58 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
-import { useRoleGuard } from "@/app/lib/useRoleGuard";
-import {
-  subscribeToMySubscription,
-  isSubscriptionActive,
-  cancelSubscription,
-  JOB_MEMBERSHIP_PRICE_GMD,
-  MEMBERSHIP_PERIOD_LABEL,
-} from "@/app/lib/subscriptions";
-import { createPayment } from "@/app/lib/payment";
+import { useMembership } from "@/app/lib/useMembership";
+import { cancelSubscription, MEMBERSHIP_PERIOD_LABEL } from "@/app/lib/subscriptions";
+import { createPayment, type PaymentType } from "@/app/lib/payment";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import { Briefcase, CheckCircle, ShieldCheck, Sparkles, ArrowRight } from "lucide-react";
-import type { InternshipSubscription } from "@/app/lib/types";
 
 function formatDate(ts: number) {
   return new Date(ts).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default function MembershipPage() {
-  // Job seekers and freelancers subscribe here to apply to jobs.
-  const { allowed, checking } = useRoleGuard((c) => c.browseJobs && !c.postJobs);
   const { user, userProfile } = useAuth();
+  const { sub, plan, active, loading: subLoading } = useMembership();
 
-  const [sub, setSub] = useState<InternshipSubscription | null>(null);
-  const [subLoading, setSubLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [waiting, setWaiting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    const unsub = subscribeToMySubscription(user.uid, (s) => {
-      setSub(s);
-      setSubLoading(false);
-      if (isSubscriptionActive(s)) setWaiting(false);
-    });
-    return unsub;
-  }, [user]);
-
-  const active = isSubscriptionActive(sub);
+  // Where to send them once they're in — employers manage listings, seekers browse.
+  const isEmployer = userProfile?.role === "client";
+  const browseHref = isEmployer ? "/dashboard/jobs/my-jobs" : "/dashboard/jobs";
+  const browseLabel = isEmployer ? "My Jobs" : "Browse Jobs";
 
   const handleSubscribe = async () => {
-    if (!user || !userProfile) return;
+    if (!user || !userProfile || !plan) return;
     setError(null);
     setPaying(true);
     try {
       const result = await createPayment({
-        amount: JOB_MEMBERSHIP_PRICE_GMD,
-        type: "job_subscription",
+        amount: plan.priceGMD,
+        type: plan.paymentType as PaymentType,
         customer_name: userProfile.displayName,
         customer_email: userProfile.email,
       });
@@ -98,14 +81,27 @@ export default function MembershipPage() {
     }
   };
 
-  if (checking || subLoading) {
+  if (subLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
-  if (!allowed) return null;
+
+  // Freelancers have no membership — they're charged through escrow fees.
+  if (!plan) {
+    return (
+      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-2xl mx-auto">
+        <motion.div variants={fadeInUp} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 text-center">
+          <h1 className="font-display text-xl font-bold text-gray-900 mb-2">No membership needed</h1>
+          <p className="text-sm text-gray-500">
+            Your account doesn&apos;t use a monthly membership. Fees are taken from completed projects instead.
+          </p>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
   if (active) {
     const endMs = sub?.currentPeriodEnd?.toMillis?.() ?? 0;
@@ -114,16 +110,16 @@ export default function MembershipPage() {
       <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="max-w-2xl mx-auto space-y-5">
         <motion.div variants={fadeInUp}>
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900">Membership</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage your job seeker membership.</p>
+          <p className="text-sm text-gray-500 mt-1">Manage your {plan.name} subscription.</p>
         </motion.div>
 
         <motion.div variants={staggerItem} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="bg-gradient-to-br from-teal-600 to-teal-800 p-6 text-white">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-teal-100 text-sm mb-0.5">Job Seeker Membership</p>
+                <p className="text-teal-100 text-sm mb-0.5">{plan.name}</p>
                 <p className="text-2xl font-bold">
-                  {JOB_MEMBERSHIP_PRICE_GMD} GMD <span className="text-sm font-medium text-teal-200">/ {MEMBERSHIP_PERIOD_LABEL}</span>
+                  {plan.priceGMD} GMD <span className="text-sm font-medium text-teal-200">/ {MEMBERSHIP_PERIOD_LABEL}</span>
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${cancelled ? "bg-white/15 text-teal-100" : "bg-emerald-400/25 text-white"}`}>
@@ -149,10 +145,10 @@ export default function MembershipPage() {
                   disabled={paying}
                   className="flex-1 inline-flex items-center justify-center gap-2 bg-mustard-500 hover:bg-mustard-600 disabled:opacity-50 text-gray-900 font-semibold py-3 rounded-xl transition-colors"
                 >
-                  {paying ? "Preparing…" : <><Sparkles size={16} /> {cancelled ? "Reactivate" : "Renew"} — {JOB_MEMBERSHIP_PRICE_GMD} GMD</>}
+                  {paying ? "Preparing…" : <><Sparkles size={16} /> {cancelled ? "Reactivate" : "Renew"} — {plan.priceGMD} GMD</>}
                 </button>
-                <Link href="/dashboard/jobs" className="flex-1 inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors">
-                  <Briefcase size={16} /> Browse Jobs <ArrowRight size={16} />
+                <Link href={browseHref} className="flex-1 inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Briefcase size={16} /> {browseLabel} <ArrowRight size={16} />
                 </Link>
               </div>
             )}
@@ -173,17 +169,15 @@ export default function MembershipPage() {
         <div className="w-16 h-16 mx-auto mb-4 bg-mustard-500/10 rounded-2xl flex items-center justify-center text-mustard-600">
           <Briefcase size={32} />
         </div>
-        <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Job Seeker Membership</h1>
-        <p className="text-sm sm:text-base text-gray-500 max-w-xl mx-auto">
-          Apply to jobs across CONNEKT for {JOB_MEMBERSHIP_PRICE_GMD} GMD per {MEMBERSHIP_PERIOD_LABEL}.
-        </p>
+        <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{plan.name}</h1>
+        <p className="text-sm sm:text-base text-gray-500 max-w-xl mx-auto">{plan.tagline}</p>
       </motion.div>
 
       <motion.div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden" variants={staggerItem}>
         <div className="bg-gradient-to-br from-teal-600 to-teal-800 p-8 text-white">
           <p className="text-teal-100 font-medium mb-1">Membership</p>
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-4xl font-bold tracking-tight">{JOB_MEMBERSHIP_PRICE_GMD}</span>
+            <span className="text-4xl font-bold tracking-tight">{plan.priceGMD}</span>
             <span className="text-lg text-teal-200 font-medium">GMD / {MEMBERSHIP_PERIOD_LABEL}</span>
           </div>
           <p className="text-sm text-teal-100">Renew anytime. Cancel anytime. No hidden fees.</p>
@@ -192,12 +186,7 @@ export default function MembershipPage() {
         <div className="p-6 sm:p-8">
           <h3 className="font-display text-base font-semibold text-gray-900 mb-4">What you get</h3>
           <ul className="space-y-3 mb-6">
-            {[
-              "Apply to every job on the CONNEKT board",
-              "One-click applications with your profile",
-              "Direct contact with employers",
-              "Priority visibility to hiring companies",
-            ].map((item) => (
+            {plan.benefits.map((item) => (
               <li key={item} className="flex items-start gap-3 text-sm text-gray-700">
                 <CheckCircle size={18} className="text-emerald-500 shrink-0 mt-0.5" />
                 {item}
@@ -221,7 +210,7 @@ export default function MembershipPage() {
               {paying ? (
                 <><div className="w-5 h-5 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin" /> Preparing checkout...</>
               ) : (
-                <><Sparkles size={18} /> Subscribe for {JOB_MEMBERSHIP_PRICE_GMD} GMD</>
+                <><Sparkles size={18} /> Subscribe for {plan.priceGMD} GMD</>
               )}
             </button>
           )}

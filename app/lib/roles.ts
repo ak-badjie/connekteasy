@@ -24,6 +24,7 @@ import {
   ClipboardList,
   Building2,
   Compass,
+  Crown,
 } from "lucide-react";
 import type { UserRole } from "./types";
 
@@ -123,6 +124,7 @@ export const NAV_BY_ROLE: Record<UserRole, DashboardNavItem[]> = {
     { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
     { href: "/dashboard/events", label: "Events", Icon: Calendar },
     { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/membership", label: "Membership", Icon: Crown },
     { href: "/dashboard/settings", label: "Settings", Icon: Settings },
   ],
   job_seeker: [
@@ -135,6 +137,7 @@ export const NAV_BY_ROLE: Record<UserRole, DashboardNavItem[]> = {
     { href: "/dashboard/salary", label: "Salary Insights", Icon: TrendingUp },
     { href: "/dashboard/resources", label: "Career Resources", Icon: BookMarked },
     { href: "/dashboard/profile", label: "Profile", Icon: UserIcon },
+    { href: "/dashboard/membership", label: "Membership", Icon: Crown },
     { href: "/dashboard/settings", label: "Settings", Icon: Settings },
   ],
   va: [
@@ -161,6 +164,7 @@ export const NAV_BY_ROLE: Record<UserRole, DashboardNavItem[]> = {
     { href: "/dashboard/messages", label: "Messages", Icon: MessageSquare },
     { href: "/dashboard/analytics", label: "Analytics", Icon: TrendingUp },
     { href: "/dashboard/profile", label: "Company Profile", Icon: Building2 },
+    { href: "/dashboard/membership", label: "Employer Pro", Icon: Crown },
     { href: "/dashboard/settings", label: "Settings", Icon: Settings },
   ],
 };
