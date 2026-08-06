@@ -1,15 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { updateUserProfile } from "@/app/lib/firestore";
+import { uploadVaAccreditation } from "@/app/lib/storage";
+import { submitVaVerification, VA_MIN_DOCUMENTS } from "@/app/lib/verification";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import SkillPicker from "@/app/components/SkillPicker";
-import { Briefcase, UserCheck, ArrowRight, AlertCircle, GraduationCap, Building2 } from "lucide-react";
+import { Briefcase, UserCheck, ArrowRight, AlertCircle, GraduationCap, Building2, ShieldCheck, Upload, FileText, X, Loader2 } from "lucide-react";
 import { fadeInUp, staggerContainer, staggerItem, scaleIn, cardHover, cardTap } from "@/app/lib/animations";
 import type { UserRole } from "@/app/lib/types";
+
+const MAX_DOC_MB = 10;
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -22,6 +26,15 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Freelancers must prove their VA training before an admin lets them in.
+  const [documents, setDocuments] = useState<{ name: string; url: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isVa = role === "va";
+  const totalSteps = isVa ? 3 : 2;
+
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -32,8 +45,45 @@ export default function OnboardingPage() {
     }
   }, [user, authLoading, router]);
 
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !user) return;
+    setError("");
+
+    const tooBig = files.find((f) => f.size > MAX_DOC_MB * 1024 * 1024);
+    if (tooBig) {
+      setError(`"${tooBig.name}" is larger than ${MAX_DOC_MB}MB. Please upload a smaller file.`);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const uploaded: { name: string; url: string }[] = [];
+      for (const file of files) {
+        const url = await uploadVaAccreditation(user.uid, file, setUploadProgress);
+        uploaded.push({ name: file.name, url });
+      }
+      setDocuments((prev) => [...prev, ...uploaded]);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeDocument = (index: number) => {
+    setDocuments((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleFinish = async () => {
     if (!user) return;
+    if (isVa && documents.length < VA_MIN_DOCUMENTS) {
+      setError("Please upload your VA training or accreditation certificate to continue.");
+      return;
+    }
     setError("");
     setLoading(true);
     try {
@@ -44,6 +94,9 @@ export default function OnboardingPage() {
         skills,
         onboardingComplete: true,
       });
+      if (isVa) {
+        await submitVaVerification(user.uid, documents);
+      }
       await refreshProfile();
       router.push("/dashboard");
     } catch (err: unknown) {
@@ -73,7 +126,7 @@ export default function OnboardingPage() {
 
         {/* Progress */}
         <motion.div className="flex items-center gap-2 mb-6 max-w-xs mx-auto" variants={fadeInUp}>
-          {[1, 2].map((s) => (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => (
             <div
               key={s}
               className={`flex-1 h-1.5 rounded-full transition-colors ${
@@ -231,12 +284,118 @@ export default function OnboardingPage() {
                   Back
                 </motion.button>
                 <motion.button
-                  onClick={handleFinish}
+                  onClick={isVa ? () => setStep(3) : handleFinish}
                   disabled={loading}
                   className="flex-1 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
                   whileTap={cardTap}
                 >
-                  {loading ? "Setting up..." : "Complete Setup"}
+                  {isVa ? "Continue" : loading ? "Setting up..." : "Complete Setup"}
+                  {!loading && <ArrowRight size={16} />}
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3 (freelancers only): VA accreditation for admin review */}
+          {step === 3 && isVa && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+            >
+              <h2 className="font-display text-lg font-bold text-gray-900 mb-1">
+                Verify your VA training
+              </h2>
+              <p className="text-sm text-gray-500 mb-5">
+                Upload your virtual assistant certificate or training accreditation.
+                Our team reviews every freelancer before their account is opened.
+              </p>
+
+              <div className="mb-5 p-3.5 rounded-xl bg-teal-50 border border-teal-100 flex items-start gap-2.5">
+                <ShieldCheck size={16} className="text-teal-600 shrink-0 mt-0.5" />
+                <p className="text-[12px] text-teal-800 leading-relaxed">
+                  Accepted: VA training certificates, course completion letters, or
+                  accreditation documents (PDF or image, max {MAX_DOC_MB}MB each).
+                  You&apos;ll get access as soon as an admin approves them.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full py-8 px-4 border-2 border-dashed border-gray-200 rounded-xl text-center hover:border-mustard-400 hover:bg-mustard-50/40 transition-colors disabled:opacity-60"
+              >
+                {uploading ? (
+                  <span className="inline-flex flex-col items-center gap-2 text-sm text-gray-500">
+                    <Loader2 size={22} className="animate-spin text-mustard-600" />
+                    Uploading… {Math.round(uploadProgress)}%
+                  </span>
+                ) : (
+                  <span className="inline-flex flex-col items-center gap-2">
+                    <Upload size={22} className="text-mustard-600" />
+                    <span className="text-sm font-semibold text-gray-900">
+                      Upload certificate
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      PDF, JPG or PNG — you can add more than one
+                    </span>
+                  </span>
+                )}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf,.doc,.docx"
+                multiple
+                onChange={handleDocumentUpload}
+                className="hidden"
+              />
+
+              {documents.length > 0 && (
+                <ul className="mt-4 space-y-2">
+                  {documents.map((docFile, idx) => (
+                    <li
+                      key={`${docFile.url}-${idx}`}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50/60"
+                    >
+                      <FileText size={16} className="text-teal-600 shrink-0" />
+                      <a
+                        href={docFile.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sm text-gray-700 truncate flex-1 hover:text-teal-700"
+                      >
+                        {docFile.name}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => removeDocument(idx)}
+                        className="p-1 text-gray-400 hover:text-red-600 rounded-md shrink-0"
+                        aria-label={`Remove ${docFile.name}`}
+                      >
+                        <X size={15} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="flex gap-3 mt-6">
+                <motion.button
+                  onClick={() => setStep(2)}
+                  className="px-5 py-3 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  whileTap={cardTap}
+                >
+                  Back
+                </motion.button>
+                <motion.button
+                  onClick={handleFinish}
+                  disabled={loading || uploading || documents.length < VA_MIN_DOCUMENTS}
+                  className="flex-1 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm disabled:opacity-40 flex items-center justify-center gap-2"
+                  whileTap={cardTap}
+                >
+                  {loading ? "Submitting…" : "Submit for review"}
                   {!loading && <ArrowRight size={16} />}
                 </motion.button>
               </div>

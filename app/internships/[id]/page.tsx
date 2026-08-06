@@ -18,6 +18,7 @@ import {
 } from "@/app/lib/subscriptions";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
 import SaveJobButton from "@/app/components/SaveJobButton";
+import { ExternalApplyButton, JobSourceCredit, externalApplyUrl } from "@/app/components/JobSourceLink";
 import {
   GraduationCap,
   MapPin,
@@ -230,6 +231,10 @@ export default function PublicInternshipDetailPage() {
         </Link>
       );
     }
+    // Imported listing — the organisation takes applications on their own site.
+    if (externalApplyUrl(job)) {
+      return <ExternalApplyButton job={job} />;
+    }
     return (
       <button
         onClick={() => setApplyOpen(true)}
@@ -288,6 +293,8 @@ export default function PublicInternshipDetailPage() {
           <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap mb-6">
             {job.description}
           </div>
+
+          <JobSourceCredit job={job} />
 
           {job.skills && job.skills.length > 0 && (
             <div className="mb-6">

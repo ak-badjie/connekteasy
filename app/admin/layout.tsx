@@ -6,10 +6,11 @@ import { useEffect } from "react";
 import { useAuth } from "@/app/lib/AuthContext";
 import { isAdmin } from "@/app/lib/admin";
 import ConnektIcon from "@/components/branding/ConnektIcon";
-import { LayoutDashboard, CalendarRange, BookMarked, Users, ArrowLeft, LogOut, ShieldCheck, Briefcase } from "lucide-react";
+import { LayoutDashboard, CalendarRange, BookMarked, Users, ArrowLeft, LogOut, ShieldCheck, Briefcase, BadgeCheck } from "lucide-react";
 
 const ADMIN_NAV = [
   { href: "/admin", label: "Overview", Icon: LayoutDashboard },
+  { href: "/admin/verifications", label: "VA Reviews", Icon: BadgeCheck },
   { href: "/admin/content", label: "Content", Icon: CalendarRange },
   { href: "/admin/resources", label: "Resources", Icon: BookMarked },
   { href: "/admin/jobs", label: "Jobs & Opps", Icon: Briefcase },

@@ -81,6 +81,23 @@ export async function uploadCertificate(
 }
 
 /**
+ * Upload a VA training / accreditation document for admin review.
+ * Kept apart from profile certificates so a review only ever looks at the
+ * files the freelancer actually submitted for verification.
+ */
+export async function uploadVaAccreditation(
+  uid: string,
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  return uploadFile(
+    `users/${uid}/va-accreditation/${Date.now()}-${file.name}`,
+    file,
+    onProgress
+  );
+}
+
+/**
  * Upload a portfolio image.
  */
 export async function uploadPortfolioImage(

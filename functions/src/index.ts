@@ -345,7 +345,88 @@ export const escrowRelease = onCall(async (request) => {
 });
 
 // ----------------------------------------------------------------------------
-// 5. modemPayWebhook — HMAC-SHA512 verified webhook from Modem Pay.
+// 5. reviewVaVerification — an admin approves or rejects a freelancer's VA
+//    training/accreditation documents. Freelancer dashboards stay locked until
+//    this says 'approved', so the decision is made server-side where the
+//    reviewer's identity can't be spoofed.
+// ----------------------------------------------------------------------------
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+
+export const reviewVaVerification = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    const reviewerUid = request.auth.uid;
+    const data = request.data || {};
+
+    const uid = String(data.uid || '');
+    const status = String(data.status || '');
+    const note = String(data.note || '').slice(0, 1000).trim();
+
+    if (!uid) {
+        throw new HttpsError('invalid-argument', 'A freelancer uid is required.');
+    }
+    if (status !== 'approved' && status !== 'rejected') {
+        throw new HttpsError('invalid-argument', 'Status must be "approved" or "rejected".');
+    }
+    if (status === 'rejected' && !note) {
+        throw new HttpsError('invalid-argument', 'Please explain why the documents were rejected.');
+    }
+
+    const db = admin.firestore();
+
+    const reviewerSnap = await db.collection('users').doc(reviewerUid).get();
+    const reviewer = reviewerSnap.exists ? (reviewerSnap.data() as any) : null;
+    const reviewerEmail = String(
+        request.auth.token?.email || reviewer?.email || ''
+    ).toLowerCase();
+    const isAdmin =
+        reviewer?.isAdmin === true ||
+        (!!reviewerEmail && ADMIN_EMAILS.includes(reviewerEmail));
+
+    if (!isAdmin) {
+        throw new HttpsError(
+            'permission-denied',
+            'Only admins can review freelancer accreditation.'
+        );
+    }
+
+    const targetRef = db.collection('users').doc(uid);
+    const targetSnap = await targetRef.get();
+    if (!targetSnap.exists) {
+        throw new HttpsError('not-found', 'That user no longer exists.');
+    }
+    const target = targetSnap.data() as any;
+    if (target?.role !== 'va') {
+        throw new HttpsError(
+            'failed-precondition',
+            'Only freelancer accounts go through accreditation review.'
+        );
+    }
+    if (status === 'approved' && !(target?.vaCertificates?.length > 0)) {
+        throw new HttpsError(
+            'failed-precondition',
+            'This freelancer has not uploaded any accreditation documents yet.'
+        );
+    }
+
+    await targetRef.update({
+        vaVerificationStatus: status,
+        vaVerificationNote: status === 'rejected' ? note : '',
+        vaVerificationReviewedAt: admin.firestore.FieldValue.serverTimestamp(),
+        vaVerificationReviewedBy: reviewerUid,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`VA ${uid} ${status} by admin ${reviewerUid}`);
+    return { success: true };
+});
+
+// ----------------------------------------------------------------------------
+// 6. modemPayWebhook — HMAC-SHA512 verified webhook from Modem Pay.
 //    Handles charge.succeeded (wallet deposit / internship subscription),
 //    transfer.succeeded, transfer.failed (refund).
 // ----------------------------------------------------------------------------

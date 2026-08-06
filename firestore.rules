@@ -44,14 +44,43 @@ service cloud.firestore {
     }
 
     // ── Users ──────────────────────────────────────────
+    function vaStatusOf(data) {
+      return data.get('vaVerificationStatus', 'not_submitted');
+    }
+
+    // Freelancers may submit or re-submit accreditation documents, which can
+    // only ever land them back in the review queue.
+    function vaSelfSubmit() {
+      return vaStatusOf(request.resource.data) == 'pending'
+        && vaStatusOf(resource.data) in ['not_submitted', 'pending', 'rejected']
+        && request.resource.data.get('vaVerificationNote', '') == ''
+        && request.resource.data.get('vaVerificationReviewedBy', '')
+             == resource.data.get('vaVerificationReviewedBy', '');
+    }
+
+    // Any other self-edit must leave the review verdict exactly as it was.
+    function vaVerdictUntouched() {
+      return vaStatusOf(request.resource.data) == vaStatusOf(resource.data)
+        && request.resource.data.get('vaVerificationNote', '')
+             == resource.data.get('vaVerificationNote', '')
+        && request.resource.data.get('vaVerificationReviewedBy', '')
+             == resource.data.get('vaVerificationReviewedBy', '');
+    }
+
     match /users/{uid} {
       // Profiles back the public profile pages, so they stay world-readable.
       allow read: if true;
-      allow create: if isOwner(uid);
-      // Users may edit their own profile but never grant themselves admin.
-      allow update: if isOwner(uid)
-        && (!request.resource.data.keys().hasAny(['isAdmin'])
-            || request.resource.data.isAdmin == resource.data.get('isAdmin', false));
+      // A fresh account can never start out admin or pre-approved.
+      allow create: if isOwner(uid)
+        && request.resource.data.get('isAdmin', false) == false
+        && vaStatusOf(request.resource.data) in ['not_submitted', 'pending'];
+      // Users may edit their own profile but never grant themselves admin, and
+      // never approve their own VA accreditation. Admins review on their behalf.
+      allow update: if isAdminUser()
+        || (isOwner(uid)
+            && (!request.resource.data.keys().hasAny(['isAdmin'])
+                || request.resource.data.isAdmin == resource.data.get('isAdmin', false))
+            && (vaVerdictUntouched() || vaSelfSubmit()));
       allow delete: if isOwner(uid);
     }
 

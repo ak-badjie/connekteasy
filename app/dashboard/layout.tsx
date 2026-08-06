@@ -9,7 +9,9 @@ import { navItemsForRole, roleLabel } from "@/app/lib/roles";
 import { isAdmin } from "@/app/lib/admin";
 import { useMembership } from "@/app/lib/useMembership";
 import { routeNeedsMembership, roleHasGatedRoutes } from "@/app/lib/access";
+import { vaAwaitingApproval } from "@/app/lib/verification";
 import MembershipGate from "./_components/MembershipGate";
+import VaVerificationGate from "./_components/VaVerificationGate";
 import type { UserRole } from "@/app/lib/types";
 import ConnektIcon from "@/components/branding/ConnektIcon";
 import { LogOut, Bell, Search, Crown, ChevronDown, ShieldAlert, Lock } from "lucide-react";
@@ -60,11 +62,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const tagline = role ? BRAND_TAGLINE[role] : "Connecting talent";
   const premiumHref = role ? PREMIUM_HREF[role] : "/dashboard/wallet";
 
+  // Freelancers wait behind admin approval of their VA accreditation — that
+  // gate outranks everything else, so no dashboard route opens until it clears.
+  const vaGated = vaAwaitingApproval(userProfile);
+
   // A single gate for the whole dashboard: any route not listed as free in
   // access.ts is locked until the role's membership is paid up. Admins bypass.
   const unlocked = membership.active || membership.bypass || !membership.required;
-  const isLocked = (href: string) => !unlocked && routeNeedsMembership(role, href);
-  const gated = !membership.loading && isLocked(pathname);
+  const isLocked = (href: string) => vaGated || (!unlocked && routeNeedsMembership(role, href));
+  const gated = !membership.loading && !vaGated && isLocked(pathname);
 
   const handleSignOut = async () => {
     await signOutUser();
@@ -116,7 +122,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </nav>
 
       {/* Premium upsell — only while there's something left to unlock */}
-      {!unlocked && membership.plan && roleHasGatedRoutes(role) && (
+      {!vaGated && !unlocked && membership.plan && roleHasGatedRoutes(role) && (
         <div className="p-3">
           <Link href={premiumHref} className="block rounded-2xl bg-teal-800/80 border border-white/10 p-4 hover:bg-teal-800 transition-colors">
             <div className="flex items-center gap-2 mb-1.5">
@@ -241,8 +247,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex-1 min-w-0 flex flex-col h-full">
         {TopBar}
         <main className="flex-1 min-h-0 overflow-y-auto bg-gray-50 pb-24 lg:pb-0">
-          <div className={pathname.includes("/messages") && !gated ? "h-full" : "p-4 sm:p-6 lg:p-8"}>
-            {membership.loading && routeNeedsMembership(role, pathname) ? (
+          <div className={pathname.includes("/messages") && !gated && !vaGated ? "h-full" : "p-4 sm:p-6 lg:p-8"}>
+            {vaGated ? (
+              <VaVerificationGate />
+            ) : membership.loading && routeNeedsMembership(role, pathname) ? (
               <div className="flex items-center justify-center py-20">
                 <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
               </div>

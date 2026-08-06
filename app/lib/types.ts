@@ -36,7 +36,25 @@ export interface UserProfile {
   profileViews?: number;
   courseProgress?: Record<string, number>;
   isAdmin?: boolean;
+
+  // ─── VA accreditation review ─────────────────────────────
+  // Freelancers (role "va") must upload their VA training/accreditation
+  // documents at signup and wait for an admin to approve them before the
+  // dashboard opens up. Absent field == never submitted.
+  vaVerificationStatus?: VaVerificationStatus;
+  vaCertificates?: UploadedFile[];
+  vaVerificationSubmittedAt?: Timestamp;
+  vaVerificationReviewedAt?: Timestamp;
+  vaVerificationReviewedBy?: string;
+  /** Admin's note — the reason shown to the VA when rejected. */
+  vaVerificationNote?: string;
 }
+
+export type VaVerificationStatus =
+  | "not_submitted"
+  | "pending"
+  | "approved"
+  | "rejected";
 
 export interface UploadedFile {
   name: string;
@@ -132,6 +150,19 @@ export interface Job {
   applicants: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+
+  // ─── Imported listings ───────────────────────────────────
+  // Jobs pulled in from a public board keep a link back to the original
+  // advert: that is where the candidate actually applies, and several boards
+  // require the attribution.
+  /** Board the listing came from, e.g. "Gamjobs". */
+  sourceName?: string;
+  /** The original advert. */
+  sourceUrl?: string;
+  /** Where to send the applicant — falls back to sourceUrl. */
+  applyUrl?: string;
+  /** Advertised closing date, when the source states one. */
+  deadline?: Timestamp;
 }
 
 export type JobApplicationStatus = "pending" | "reviewed" | "shortlisted" | "rejected";

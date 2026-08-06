@@ -17,6 +17,7 @@ import {
   MEMBERSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
 import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
+import { ExternalApplyButton, JobSourceCredit, externalApplyUrl } from "@/app/components/JobSourceLink";
 import { Briefcase, MapPin, CheckCircle, X, ArrowLeft, Sparkles, ShieldCheck } from "lucide-react";
 import type { Job, InternshipSubscription } from "@/app/lib/types";
 
@@ -165,6 +166,8 @@ export default function JobDetailPage() {
           {job.description}
         </div>
 
+        <JobSourceCredit job={job} />
+
         {job.skills && job.skills.length > 0 && (
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">Required Skills</h3>
@@ -196,6 +199,9 @@ export default function JobDetailPage() {
             >
               <Sparkles size={16} /> Subscribe to apply — {JOB_MEMBERSHIP_PRICE_GMD} GMD / {MEMBERSHIP_PERIOD_LABEL}
             </Link>
+          ) : externalApplyUrl(job) ? (
+            // Imported listing — the employer takes applications on their own site.
+            <ExternalApplyButton job={job} />
           ) : (
             <button
               onClick={() => setApplyOpen(true)}

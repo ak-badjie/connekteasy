@@ -102,7 +102,7 @@ export default function AdminJobsPage() {
     if (!confirm("Are you sure you want to delete this posting?")) return;
     try {
       await deleteJob(id);
-      setJobs((prev) => p.filter((x) => x.id !== id));
+      setJobs((prev) => prev.filter((x) => x.id !== id));
       await refresh();
     } catch (err) {
       console.error("Failed to delete job:", err);
