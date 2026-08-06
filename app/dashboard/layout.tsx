@@ -246,7 +246,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {Sidebar}
       <div className="flex-1 min-w-0 flex flex-col h-full">
         {TopBar}
-        <main className="flex-1 min-h-0 overflow-y-auto bg-gray-50 pb-24 lg:pb-0">
+        <main
+          data-scroll-container
+          className="flex-1 min-h-0 overflow-y-auto bg-gray-50 pb-24 lg:pb-0"
+        >
           <div className={pathname.includes("/messages") && !gated && !vaGated ? "h-full" : "p-4 sm:p-6 lg:p-8"}>
             {vaGated ? (
               <VaVerificationGate />

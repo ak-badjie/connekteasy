@@ -1,369 +1,303 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/app/lib/AuthContext";
+import { notFound, redirect } from "next/navigation";
+import { ArrowLeft, MapPin, Building2, Banknote, CalendarClock, Users } from "lucide-react";
+import { fetchJob, fetchOpenJobs } from "@/app/lib/jobsServer";
 import {
-  getJob,
-  hasAppliedToJob,
-  createJobApplication,
-} from "@/app/lib/firestore";
-import {
-  subscribeToMySubscription,
-  isSubscriptionActive,
-  JOB_MEMBERSHIP_PRICE_GMD,
-  MEMBERSHIP_PERIOD_LABEL,
-} from "@/app/lib/subscriptions";
-import { fadeInUp, staggerContainer, staggerItem } from "@/app/lib/animations";
-import SaveJobButton from "@/app/components/SaveJobButton";
-import { ExternalApplyButton, JobSourceCredit, externalApplyUrl } from "@/app/components/JobSourceLink";
-import { Briefcase, MapPin, CheckCircle, X, ArrowLeft, LogIn, Sparkles, ShieldCheck } from "lucide-react";
-import type { Job, InternshipSubscription } from "@/app/lib/types";
+  EMPLOYMENT_LABELS,
+  HOME_COUNTRY,
+  formatLocation,
+  isLocalJob,
+  jobSummary,
+  type PlainJob,
+} from "@/app/lib/jobUtils";
+import JobApplyPanel from "./JobApplyPanel";
+import { SITE_URL as SITE } from "@/app/lib/site";
 
-function timeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return "Just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString();
+export const revalidate = 300;
+
+/** Pre-render the current board so listings are instantly crawlable. */
+export async function generateStaticParams() {
+  const jobs = await fetchOpenJobs(200);
+  return jobs
+    .filter((j) => j.employmentType !== "internship")
+    .map((j) => ({ id: j.id }));
 }
 
-export default function PublicJobDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const jobId = params?.id as string;
-  const { user, userProfile, loading: authLoading } = useAuth();
-
-  const [job, setJob] = useState<Job | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [hasApplied, setHasApplied] = useState(false);
-  const [sub, setSub] = useState<InternshipSubscription | null>(null);
-  const hasMembership = isSubscriptionActive(sub);
-
-  const [applyOpen, setApplyOpen] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [phone, setPhone] = useState("");
-  const [applyLoading, setApplyLoading] = useState(false);
-  const [applyError, setApplyError] = useState<string | null>(null);
-  const [successOpen, setSuccessOpen] = useState(false);
-
-  useEffect(() => {
-    if (!jobId) return;
-    getJob(jobId)
-      .then((j) => {
-        // Internship-type jobs live on /internships — redirect there.
-        if (j && j.employmentType === "internship") {
-          router.replace(`/internships/${j.id}`);
-          return;
-        }
-        setJob(j);
-      })
-      .finally(() => setLoading(false));
-  }, [jobId, router]);
-
-  useEffect(() => {
-    if (jobId && user?.uid) {
-      hasAppliedToJob(jobId, user.uid).then(setHasApplied);
-    }
-  }, [jobId, user?.uid]);
-
-  useEffect(() => {
-    if (!user?.uid) {
-      setSub(null);
-      return;
-    }
-    const unsub = subscribeToMySubscription(user.uid, setSub);
-    return unsub;
-  }, [user?.uid]);
-
-  const goSignInThenReturn = () => {
-    router.push(`/auth/signin?redirect=${encodeURIComponent(`/jobs/${jobId}`)}`);
-  };
-
-  const handleApply = async () => {
-    if (!user || !userProfile || !job) return;
-    if (!hasMembership) {
-      setApplyError("An active membership is required to apply.");
-      return;
-    }
-    if (!coverLetter.trim()) {
-      setApplyError("Please write a brief cover letter.");
-      return;
-    }
-    setApplyLoading(true);
-    setApplyError(null);
-    try {
-      await createJobApplication({
-        jobId: job.id,
-        jobTitle: job.title,
-        applicantId: user.uid,
-        applicantName:
-          userProfile.displayName ||
-          `${userProfile.firstName} ${userProfile.lastName}`.trim(),
-        applicantEmail: userProfile.email,
-        applicantAvatar: `${(userProfile.firstName || "")[0] || ""}${(userProfile.lastName || "")[0] || ""}`.toUpperCase(),
-        phone: phone.trim(),
-        coverLetter: coverLetter.trim(),
-      });
-      setHasApplied(true);
-      setApplyOpen(false);
-      setSuccessOpen(true);
-      setCoverLetter("");
-      setPhone("");
-    } catch (err) {
-      console.error("Apply failed:", err);
-      setApplyError(err instanceof Error ? err.message : "Failed to submit application");
-    } finally {
-      setApplyLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-mustard-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-gray-500">Loading job...</p>
-        </div>
-      </div>
-    );
-  }
-
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const job = await fetchJob(id);
   if (!job) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-sm">
-          <Briefcase size={40} className="text-gray-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-gray-900 mb-1">Job not found</h3>
-          <p className="text-sm text-gray-500 mb-4">This job may have been removed or closed.</p>
-          <Link
-            href="/jobs"
-            className="inline-flex px-4 py-2 text-xs font-semibold text-gray-900 bg-mustard-500 rounded-xl hover:bg-mustard-600 transition-colors shadow-sm"
-          >
-            Back to jobs
-          </Link>
-        </div>
-      </div>
-    );
+    return { title: "Job not found", robots: { index: false, follow: true } };
   }
 
-  const isOwner = user?.uid === job.postedBy;
+  const where = formatLocation(job.location, 50) || HOME_COUNTRY;
+  const title = `${job.title} at ${job.company} — ${where}`;
+  const description = jobSummary(
+    `${job.title} vacancy at ${job.company}, ${where}. ${job.description}`,
+    300
+  );
+
+  return {
+    title,
+    description,
+    keywords: [
+      job.title,
+      `${job.title} jobs`,
+      `${job.title} ${HOME_COUNTRY}`,
+      job.company,
+      job.category,
+      ...job.skills.slice(0, 5),
+      `jobs in ${where}`,
+    ],
+    alternates: { canonical: `/jobs/${job.id}` },
+    openGraph: {
+      title: `${title} | CONNEKT`,
+      description,
+      url: `/jobs/${job.id}`,
+      type: "article",
+      publishedTime: new Date(job.createdAtMs).toISOString(),
+    },
+    twitter: { card: "summary_large_image", title, description },
+    robots: { index: job.status === "open", follow: true },
+  };
+}
+
+/** Google's JobPosting schema — this is what puts a listing in Google Jobs. */
+function jobPostingJsonLd(job: PlainJob) {
+  const local = isLocalJob(job);
+  const remote = !local;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.description,
+    identifier: {
+      "@type": "PropertyValue",
+      name: job.company,
+      value: job.id,
+    },
+    datePosted: new Date(job.createdAtMs).toISOString(),
+    ...(job.deadlineMs
+      ? { validThrough: new Date(job.deadlineMs).toISOString() }
+      : {}),
+    employmentType:
+      job.employmentType === "part-time"
+        ? "PART_TIME"
+        : job.employmentType === "contract"
+        ? "CONTRACTOR"
+        : job.employmentType === "internship"
+        ? "INTERN"
+        : "FULL_TIME",
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.company,
+      sameAs: job.sourceUrl,
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: local ? job.location.split(",")[0].trim() : "Banjul",
+        addressCountry: "GM",
+      },
+    },
+    ...(remote
+      ? {
+          jobLocationType: "TELECOMMUTE",
+          applicantLocationRequirements: {
+            "@type": "Country",
+            name: HOME_COUNTRY,
+          },
+        }
+      : {}),
+    industry: job.category,
+    skills: job.skills.join(", "),
+    directApply: false,
+    url: `${SITE}/jobs/${job.id}`,
+  };
+}
+
+export default async function JobDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const job = await fetchJob(id);
+  if (!job) notFound();
+  // Internships have their own section, with their own membership copy.
+  if (job.employmentType === "internship") redirect(`/internships/${job.id}`);
+
+  const local = isLocalJob(job);
+  const posted = new Date(job.createdAtMs).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const closes = job.deadlineMs
+    ? new Date(job.deadlineMs).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <motion.div
-        className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10"
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-      >
-        <motion.div variants={fadeInUp}>
-          <Link href="/jobs" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-4 transition-colors">
-            <ArrowLeft size={14} /> Back to Job Board
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingJsonLd(job)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: `Jobs in ${HOME_COUNTRY}`,
+                item: `${SITE}/jobs`,
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: job.title,
+                item: `${SITE}/jobs/${job.id}`,
+              },
+            ],
+          }),
+        }}
+      />
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+        <nav aria-label="Breadcrumb" className="mb-4">
+          <Link
+            href="/jobs"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={14} /> Back to jobs in {HOME_COUNTRY}
           </Link>
-        </motion.div>
+        </nav>
 
-        <motion.div
-          className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6"
-          variants={staggerItem}
-        >
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div className="min-w-0">
-              <h1 className="font-display text-2xl font-bold text-gray-900 mb-1">{job.title}</h1>
-              <p className="text-base text-gray-600">{job.company}</p>
-            </div>
-            <div className="shrink-0 flex items-center gap-1.5">
-              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-teal-50 text-teal-700 capitalize">
-                {job.employmentType}
+        <article className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8 mb-6">
+          <header className="mb-5">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full bg-teal-50 text-teal-700">
+                {EMPLOYMENT_LABELS[job.employmentType] || job.employmentType}
               </span>
-              <SaveJobButton jobId={job.id} redirectPath={`/jobs/${job.id}`} />
+              {local && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-mustard-50 text-mustard-700">
+                  In {HOME_COUNTRY}
+                </span>
+              )}
+              {job.category && (
+                <span className="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                  {job.category}
+                </span>
+              )}
             </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 mb-6">
-            <span className="inline-flex items-center gap-1">
-              <MapPin size={12} /> {job.location || "Remote"}
-            </span>
-            <span>·</span>
-            <span>{job.salary || "Salary undisclosed"}</span>
-            <span>·</span>
-            <span>{job.applicants || 0} applicants</span>
-            <span>·</span>
-            <span className="text-gray-400">
-              {job.createdAt?.toDate ? timeAgo(job.createdAt.toDate()) : "Just now"}
-            </span>
-          </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              {job.title}
+            </h1>
+            <p className="text-base text-gray-600 inline-flex items-center gap-1.5">
+              <Building2 size={15} className="text-gray-400" /> {job.company}
+            </p>
+          </header>
+
+          <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-y border-gray-100 mb-6 text-sm">
+            <div>
+              <dt className="text-[11px] uppercase tracking-wide text-gray-400 mb-0.5">
+                Location
+              </dt>
+              <dd className="text-gray-800 font-medium inline-flex items-center gap-1">
+                <MapPin size={13} className="text-gray-400 shrink-0" />
+                <span className="truncate">{formatLocation(job.location)}</span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase tracking-wide text-gray-400 mb-0.5">
+                Salary
+              </dt>
+              <dd className="text-gray-800 font-medium inline-flex items-center gap-1">
+                <Banknote size={13} className="text-gray-400 shrink-0" />
+                <span className="truncate">
+                  {job.salary && job.salary !== "Unspecified" ? job.salary : "Not stated"}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase tracking-wide text-gray-400 mb-0.5">
+                {closes ? "Closes" : "Posted"}
+              </dt>
+              <dd className="text-gray-800 font-medium inline-flex items-center gap-1">
+                <CalendarClock size={13} className="text-gray-400 shrink-0" />
+                <time dateTime={new Date(closes ? job.deadlineMs! : job.createdAtMs).toISOString()}>
+                  {closes || posted}
+                </time>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] uppercase tracking-wide text-gray-400 mb-0.5">
+                Applicants
+              </dt>
+              <dd className="text-gray-800 font-medium inline-flex items-center gap-1">
+                <Users size={13} className="text-gray-400 shrink-0" />
+                {job.applicants || 0}
+              </dd>
+            </div>
+          </dl>
 
           <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap mb-6">
             {job.description}
           </div>
 
-          <JobSourceCredit job={job} />
-
-          {job.skills && job.skills.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Required Skills</h3>
-              <div className="flex flex-wrap gap-2">
+          {job.skills.length > 0 && (
+            <section className="mb-6">
+              <h2 className="text-sm font-semibold text-gray-900 mb-2">Skills</h2>
+              <ul className="flex flex-wrap gap-2 list-none p-0">
                 {job.skills.map((s) => (
-                  <span key={s} className="px-3 py-1 text-xs font-medium bg-gray-50 text-gray-700 rounded-full border border-gray-200">
+                  <li
+                    key={s}
+                    className="px-3 py-1 text-xs font-medium bg-gray-50 text-gray-700 rounded-full border border-gray-200"
+                  >
                     {s}
-                  </span>
+                  </li>
                 ))}
-              </div>
-            </div>
+              </ul>
+            </section>
+          )}
+
+          {job.sourceName && (
+            <p className="text-xs text-gray-400 mb-6">
+              Listing verified from{" "}
+              <span className="font-semibold text-gray-500">{job.sourceName}</span>. Sign in
+              and apply to be taken to the employer&apos;s application page.
+            </p>
           )}
 
           <div className="pt-4 border-t border-gray-100">
-            {isOwner ? (
-              <Link
-                href="/dashboard/jobs/my-jobs"
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors"
-              >
-                You posted this job — View applicants
-              </Link>
-            ) : hasApplied ? (
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <CheckCircle size={16} /> You&apos;ve already applied
-              </div>
-            ) : job.status === "closed" ? (
-              <div className="inline-flex items-center px-5 py-2.5 text-sm font-semibold text-gray-500 bg-gray-50 border border-gray-200 rounded-xl">
-                This job is closed
-              </div>
-            ) : authLoading ? (
-              <button
-                disabled
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-teal-600/60 rounded-xl"
-              >
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Loading…
-              </button>
-            ) : !user ? (
-              <button
-                onClick={goSignInThenReturn}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors shadow-sm"
-              >
-                <LogIn size={16} /> Sign in to apply
-              </button>
-            ) : !hasMembership ? (
-              <Link
-                href="/dashboard/membership"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-gray-900 bg-mustard-500 hover:bg-mustard-600 rounded-xl transition-colors shadow-sm"
-              >
-                <Sparkles size={16} /> Subscribe to apply — {JOB_MEMBERSHIP_PRICE_GMD} GMD / {MEMBERSHIP_PERIOD_LABEL}
-              </Link>
-            ) : externalApplyUrl(job) ? (
-              // Imported listing — the employer takes applications on their own site.
-              <ExternalApplyButton job={job} />
-            ) : (
-              <button
-                onClick={() => setApplyOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors shadow-sm"
-              >
-                <ShieldCheck size={16} /> Apply with Membership
-              </button>
-            )}
+            <JobApplyPanel job={job} />
           </div>
-        </motion.div>
-      </motion.div>
+        </article>
 
-      {/* Apply Modal */}
-      <AnimatePresence>
-        {applyOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => setApplyOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="relative bg-white w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden"
-            >
-              <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                <h2 className="font-display text-lg font-bold text-gray-900">Apply: {job.title}</h2>
-                <button
-                  onClick={() => setApplyOpen(false)}
-                  className="p-2 text-gray-400 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="p-5 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone (optional)</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. +220 700 0000"
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Cover Letter</label>
-                  <textarea
-                    value={coverLetter}
-                    onChange={(e) => setCoverLetter(e.target.value)}
-                    rows={6}
-                    placeholder="Tell the employer why you're a great fit..."
-                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-mustard-500 resize-none"
-                  />
-                </div>
-                {applyError && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-100">{applyError}</p>}
-                <button
-                  onClick={handleApply}
-                  disabled={applyLoading || !coverLetter.trim()}
-                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
-                >
-                  {applyLoading ? "Submitting..." : "Submit Application"}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {successOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => setSuccessOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative bg-white w-full max-w-sm mx-4 rounded-2xl shadow-2xl p-6 text-center"
-            >
-              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle size={28} className="text-emerald-600" />
-              </div>
-              <h3 className="font-display text-lg font-bold text-gray-900 mb-1">Application Submitted</h3>
-              <p className="text-sm text-gray-500 mb-5">The employer will review your application and reach out if there&apos;s a fit.</p>
-              <button
-                onClick={() => setSuccessOpen(false)}
-                className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl transition-colors"
-              >
-                Done
-              </button>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+        <p className="text-xs text-gray-400 text-center">
+          Looking for something else?{" "}
+          <Link href="/jobs" className="text-teal-600 font-semibold hover:underline">
+            Browse all jobs in {HOME_COUNTRY}
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

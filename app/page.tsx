@@ -257,7 +257,7 @@ export default function Home() {
                animate="visible"
                variants={staggerContainer}
              >
-                <motion.div 
+                <Link href="/explore?mode=talent" className="block h-full"><motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
                   variants={spin3D}
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
@@ -266,8 +266,8 @@ export default function Home() {
                     <Rocket size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Hire Talent</h3>
-                </motion.div>
-                <motion.div 
+                </motion.div></Link>
+                <Link href="/dashboard/post" className="block h-full"><motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
                   variants={spin3D}
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
@@ -276,8 +276,8 @@ export default function Home() {
                     <FileEdit size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Delegate Tasks</h3>
-                </motion.div>
-                <motion.div 
+                </motion.div></Link>
+                <Link href="/jobs" className="block h-full"><motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
                   variants={spin3D}
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
@@ -286,8 +286,8 @@ export default function Home() {
                     <Briefcase size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Job & Internships</h3>
-                </motion.div>
-                <motion.div 
+                </motion.div></Link>
+                <Link href="/explore?mode=projects" className="block h-full"><motion.div 
                   className="bg-white p-5 rounded-lg shadow-lg border border-gray-100 flex flex-col items-center text-center origin-bottom" 
                   variants={spin3D}
                   whileHover={{ scale: 1.1, y: -15, rotateZ: [0, -4, 4, -4, 4, 0], transition: { duration: 0.6 } }}
@@ -296,7 +296,7 @@ export default function Home() {
                     <DollarSign size={24} />
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Earn Income</h3>
-                </motion.div>
+                </motion.div></Link>
              </motion.div>
           </div>
         </div>
@@ -444,30 +444,30 @@ export default function Home() {
             animate="visible"
             variants={staggerContainer}
           >
-            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+            <Link href="/explore?mode=talent" className="block h-full"><motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
                 <Rocket size={18} />
               </div>
               <h3 className="font-bold text-gray-900 text-xs">Hire Talent</h3>
-            </motion.div>
-            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+            </motion.div></Link>
+            <Link href="/dashboard/post" className="block h-full"><motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
                 <FileEdit size={18} />
               </div>
               <h3 className="font-bold text-gray-900 text-xs">Delegate Tasks</h3>
-            </motion.div>
-            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+            </motion.div></Link>
+            <Link href="/jobs" className="block h-full"><motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
                 <Briefcase size={18} />
               </div>
               <h3 className="font-bold text-gray-900 text-xs">Job & Internships</h3>
-            </motion.div>
-            <motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
+            </motion.div></Link>
+            <Link href="/explore?mode=projects" className="block h-full"><motion.div className="bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col items-center text-center" variants={spin3D}>
               <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 mb-2">
                 <DollarSign size={18} />
               </div>
               <h3 className="font-bold text-gray-900 text-xs">Earn Income</h3>
-            </motion.div>
+            </motion.div></Link>
           </motion.div>
 
         </div>

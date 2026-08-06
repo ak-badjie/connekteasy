@@ -84,10 +84,32 @@ const ENTITIES = {
 };
 
 function decode(s = "") {
-  return s
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
-    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+  // Boards re-encode their own feeds, so "&amp;#038;" is common: decode until
+  // the string stops changing rather than making a single pass.
+  let out = s;
+  for (let i = 0; i < 3; i++) {
+    const next = out
+      .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCharCode(parseInt(n, 16)))
+      .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
+/**
+ * A remote role only counts if a person sitting in The Gambia may hold it.
+ * "Remote — EMEA" or "Anywhere" qualify; "Remote — Germany" does not, however
+ * remote it is.
+ */
+const OPEN_TO_GAMBIANS = /\b(worldwide|anywhere|global|emea|africa|gambia)\b/i;
+
+function openToGambians(scope = "") {
+  // "South Africa" is a country a Gambian cannot work in remotely; the word
+  // "Africa" inside it must not be read as the continent. (West/North Africa
+  // do include The Gambia, so only this one is stripped.)
+  return OPEN_TO_GAMBIANS.test(scope.toLowerCase().replace(/south\s+africa/g, ""));
 }
 
 function stripTags(html = "") {
@@ -230,7 +252,7 @@ function deriveSkills(title = "", description = "", tags = []) {
 
 /** Tenders, bids and RFQs are not jobs — the board should not carry them. */
 function isNotAJob(title = "") {
-  return /request for (quotation|proposal|expression)|\brfq\b|\brfp\b|invitation to (bid|tender)|invitation for bid|expression of interest|\beoi\b|tender notice|supply and delivery|procurement notice|supply of/i.test(
+  return /request for (quotation|proposal|expression)|\brfq\b|\brfp\b|\breoi\b|\beoi\b|invitation to (bid|tender)|invitation for bid|expressions? of interest|tender notice|supply and delivery|procurement notice|supply of|prequalification|call for (bids|tenders)/i.test(
     title
   );
 }
@@ -579,23 +601,42 @@ async function fromTheGambiaJobs() {
 // ═══════════════════════════════════════════════════════════
 async function fromJobicy() {
   const out = [];
+  // The EMEA feed plus the unrestricted feed per industry — the latter is
+  // where the "Anywhere" listings live. Every job is still gated on whether a
+  // Gambian may hold it.
+  const INDUSTRIES = [
+    "admin-support",
+    "business",
+    "copywriting",
+    "design-multimedia",
+    "supporting",
+    "data-science",
+    "education",
+    "accounting-finance",
+    "hr",
+    "marketing",
+    "management",
+    "project-management",
+    "seller",
+    "seo",
+    "engineering",
+    "technical-support",
+  ];
   const queries = [
     "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=supporting",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=admin",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=marketing",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=business",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=data-science",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=hr",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=copywriting",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=design-multimedia",
-    "https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=sales",
+    ...INDUSTRIES.map(
+      (i) => `https://jobicy.com/api/v2/remote-jobs?count=50&geo=emea&industry=${i}`
+    ),
+    ...INDUSTRIES.map((i) => `https://jobicy.com/api/v2/remote-jobs?count=50&industry=${i}`),
   ];
   for (const url of queries) {
     const data = await get(url, { json: true });
     for (const j of data?.jobs || []) {
-      const postedAt = j.pubDate ? Date.parse(`${j.pubDate}Z`) || null : null;
+      // Already ISO with an offset ("2026-08-06T07:15:04+00:00").
+      const postedAt = j.pubDate ? Date.parse(String(j.pubDate).trim()) || null : null;
       if (postedAt && NOW - postedAt > 60 * DAY) continue;
+      // The EMEA query also returns single-country roles (Germany, UK…).
+      if (!openToGambians(j.jobGeo || "")) continue;
       const rec = record({
         title: j.jobTitle,
         company: j.companyName,
@@ -625,9 +666,9 @@ async function fromJobicy() {
 // ═══════════════════════════════════════════════════════════
 // 5. Himalayas — remote roles with worldwide / Africa eligibility
 // ═══════════════════════════════════════════════════════════
-async function fromHimalayas(pages = 8) {
+async function fromHimalayas(pages = 60) {
   const out = [];
-  const OPEN_TO = /worldwide|anywhere|africa|gambia|emea|global/i;
+  const OPEN_TO = OPEN_TO_GAMBIANS;
   for (let p = 0; p < pages; p++) {
     const data = await get(`https://himalayas.app/jobs/api?limit=100&offset=${p * 100}`, {
       json: true,
@@ -772,9 +813,17 @@ async function fromRemoteOk() {
     }
   }
 
+  // Last gate: a listing either sits in The Gambia, or is remote work that
+  // someone in The Gambia is actually eligible for. Nothing else ships.
+  const eligible = collected.filter(
+    (j) => j.tier === 1 || openToGambians(j.location)
+  );
+  const dropped = collected.length - eligible.length;
+  if (dropped) console.log(`\n· dropped ${dropped} listings not open to Gambians`);
+
   // Dedupe on title+company, then rank Gambia-based first.
   const seen = new Set();
-  const unique = collected.filter((j) => {
+  const unique = eligible.filter((j) => {
     const key = `${j.title.toLowerCase()}|${j.company.toLowerCase()}`;
     if (seen.has(key)) return false;
     seen.add(key);

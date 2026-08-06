@@ -92,6 +92,26 @@ function toFirestore(job) {
   return fields;
 }
 
+/** Every imported listing currently in Firestore (ours are prefixed imp_). */
+async function listImportedIds() {
+  const ids = [];
+  let pageToken = "";
+  do {
+    const url = `${BASE}/jobs?pageSize=300&mask.fieldPaths=status${
+      pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""
+    }`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
+    if (!res.ok) throw new Error(`List failed ${res.status}: ${await res.text()}`);
+    const data = await res.json();
+    (data.documents || []).forEach((d) => {
+      const id = d.name.split("/").pop();
+      if (id.startsWith("imp_")) ids.push(id);
+    });
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+  return ids;
+}
+
 async function commit(writes) {
   const res = await fetch(`${BASE}:commit`, {
     method: "POST",
@@ -136,6 +156,21 @@ async function commit(writes) {
     await commit(chunk);
     written += chunk.length;
     console.log(`  wrote ${written}/${writes.length}`);
+  }
+
+  // Anything imported previously that is no longer in the feed has closed or
+  // stopped qualifying, so it should not stay on the board.
+  const existing = await listImportedIds();
+  const stale = existing.filter((id) => !byId.has(id));
+  if (stale.length) {
+    for (let i = 0; i < stale.length; i += BATCH) {
+      await commit(
+        stale.slice(i, i + BATCH).map((id) => ({
+          delete: `projects/${PROJECT}/databases/(default)/documents/jobs/${id}`,
+        }))
+      );
+    }
+    console.log(`  pruned ${stale.length} listing(s) no longer in the feed`);
   }
 
   const byType = {};
