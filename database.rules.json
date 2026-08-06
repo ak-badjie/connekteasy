@@ -1,0 +1,19 @@
+{
+  "rules": {
+    // NOTE: the database is deliberately left open for now — these two lines
+    // are the rules that were already live, kept as-is. Anyone who knows the
+    // database URL can read and write every path, including wallet balances,
+    // so lock this down before real money sits in wallets/.
+    ".read": true,
+    ".write": true,
+
+    // subscribeToMessages() reads messages/$conversationId ordered by
+    // createdAt; without this index the server sends every message and the
+    // browser does the sorting.
+    "messages": {
+      "$conversationId": {
+        ".indexOn": ["createdAt"]
+      }
+    }
+  }
+}
