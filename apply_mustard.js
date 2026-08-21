@@ -17,6 +17,7 @@ const replaceInFile = (file, replacements) => {
   }
 };
 
+
 // 1. Navbar Logo (match exact text)
 replaceInFile('components/Navbar.tsx', [
   [/text-gray-900 group-hover:text-teal-600/g, 'text-teal-700 group-hover:text-teal-800']
