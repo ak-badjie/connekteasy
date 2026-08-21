@@ -494,7 +494,7 @@ async function fromUnjobs() {
   if (!html) return [];
   const links = new Map();
   for (const m of html.matchAll(
-    /<a href="(https:\/\/unjobs\.org\/vacancies\/[^"]+)"[^>]*>([\s\S]{6,200}?)<\/a>/g
+    /<a[^>]*href="(https:\/\/unjobs\.org\/vacancies\/[^"]+)"[^>]*>([\s\S]{6,200}?)<\/a>/g
   )) {
     links.set(m[1], decode(m[2].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim());
   }

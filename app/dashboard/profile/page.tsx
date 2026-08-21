@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/app/lib/AuthContext";
 import { updateUserProfile } from "@/app/lib/firestore";
 import SkillPicker from "@/app/components/SkillPicker";
+import CvParserCard from "@/app/components/CvParserCard";
 import { caps } from "@/app/lib/roles";
 import {
   uploadProfilePhoto,
@@ -328,7 +329,15 @@ export default function ProfilePage() {
 
         {/* Right Column (Form Sections) */}
         <div className="lg:col-span-2 space-y-6">
-          
+
+          {/* CV parser — the quickest way to a complete profile.
+              Employers fill their company details in by hand instead. */}
+          {showProfessional && (
+            <motion.div variants={staggerItem}>
+              <CvParserCard />
+            </motion.div>
+          )}
+
           {/* Personal Info Form */}
           <motion.div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6" variants={staggerItem}>
             <h3 className="text-sm font-display font-bold text-gray-900 mb-5 pb-3 border-b border-gray-100">About You</h3>

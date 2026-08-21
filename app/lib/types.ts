@@ -36,6 +36,35 @@ export interface UserProfile {
   profileViews?: number;
   courseProgress?: Record<string, number>;
   isAdmin?: boolean;
+  /**
+   * Super admins are admins who can also grant and revoke admin rights. The
+   * flag is stamped onto the profile by a Cloud Function from the server-side
+   * allowlist, so it can never be self-granted.
+   */
+  isSuperAdmin?: boolean;
+
+  // ─── Notification channels ───────────────────────────────────
+  // Job alerts go out over WhatsApp and email. Both are opt-in and only ever
+  // carry work updates — never marketing (see NOTIFICATIONS.md).
+  /** E.164, e.g. "+2207123456". Stored normalised so the API accepts it. */
+  whatsappNumber?: string;
+  whatsappOptIn?: boolean;
+  whatsappOptInAt?: Timestamp;
+  /** Email alerts are on by default for anyone who completes the prompt. */
+  emailOptIn?: boolean;
+  /** Set once the WhatsApp prompt has been answered, so it stops appearing. */
+  notificationsPromptedAt?: Timestamp;
+  /** Last time we sent this member a job digest, to keep the cadence sane. */
+  lastJobAlertAt?: Timestamp;
+
+  // ─── CV ────────────────────────────────────────────────
+  cvUrl?: string;
+  cvFileName?: string;
+  cvUploadedAt?: Timestamp;
+  /** When the AI parser last read the CV into the fields above. */
+  cvParsedAt?: Timestamp;
+  yearsOfExperience?: number;
+  phone?: string;
 
   // ─── VA accreditation review ─────────────────────────────
   // Freelancers (role "va") must upload their VA training/accreditation
@@ -157,12 +186,41 @@ export interface Job {
   // require the attribution.
   /** Board the listing came from, e.g. "Gamjobs". */
   sourceName?: string;
-  /** The original advert. */
+  /**
+   * True when applying happens on the source board rather than on CONNEKT.
+   * The destination URL itself lives in `jobLinks/{jobId}`, which only paid
+   * members can read — see firestore.rules. These two fields are the legacy
+   * home of that link and are cleared by scripts/migrate-job-links.js.
+   */
+  external?: boolean;
+  /** @deprecated moved to jobLinks/{jobId}. */
   sourceUrl?: string;
-  /** Where to send the applicant — falls back to sourceUrl. */
+  /** @deprecated moved to jobLinks/{jobId}. */
   applyUrl?: string;
   /** Advertised closing date, when the source states one. */
   deadline?: Timestamp;
+
+  // ─── Daily sync bookkeeping ──────────────────────────────
+  /** Last run of syncJobs that still found this listing on its source. */
+  lastSeenAt?: Timestamp;
+  /** First run of syncJobs that imported it. */
+  importedAt?: Timestamp;
+  /** Why an imported listing was closed: "expired" | "delisted" | "filled". */
+  closedReason?: string;
+}
+
+/**
+ * Where an imported listing is actually applied to. Split out of the public
+ * `jobs` document so the link is only readable with an active membership —
+ * "subscribe to apply" has to hold even against someone reading Firestore
+ * directly, not just against the UI.
+ */
+export interface JobLink {
+  jobId: string;
+  sourceName: string;
+  sourceUrl: string;
+  applyUrl: string;
+  updatedAt: Timestamp;
 }
 
 export type JobApplicationStatus = "pending" | "reviewed" | "shortlisted" | "rejected";

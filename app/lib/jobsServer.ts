@@ -61,8 +61,9 @@ function toJob(doc: { name?: string; fields?: Record<string, RestValue> }): Plai
     createdAtMs: num("createdAt") || Date.now(),
     updatedAtMs: num("updatedAt") || undefined,
     sourceName: str("sourceName") || undefined,
-    sourceUrl: str("sourceUrl") || undefined,
-    applyUrl: str("applyUrl") || undefined,
+    external:
+      (plain(fields.external) as boolean) ??
+      !!(str("applyUrl") || str("sourceUrl")),
     deadlineMs: num("deadline") || undefined,
   };
 }

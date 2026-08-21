@@ -592,9 +592,6 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   return snap.docs.map((d) => ({ uid: d.id, ...d.data() } as UserProfile));
 }
 
-export async function setUserAdmin(uid: string, value: boolean): Promise<void> {
-  await updateDoc(doc(db, "users", uid), { isAdmin: value });
-}
 
 // ─── Interviews (employer) ─────────────────────────────────
 

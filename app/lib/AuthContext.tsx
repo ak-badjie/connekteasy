@@ -19,9 +19,23 @@ import {
   sendPasswordResetEmail,
   type User,
 } from "firebase/auth";
-import { auth, googleProvider } from "./firebase";
+import { httpsCallable } from "firebase/functions";
+import { auth, functions, googleProvider } from "./firebase";
 import { getUserProfile, createUserProfile, updateUserProfile } from "./firestore";
+import { isSuperAdmin } from "./admin";
 import type { UserProfile } from "./types";
+
+/**
+ * Super admin is an email allowlist, not a flag anyone can write. The rules
+ * and the functions both check the allowlist directly, so access works
+ * immediately — but the admin console lists staff from the user documents, so
+ * the flag has to make it onto the document too. This asks the server to do
+ * that, once, the first time an allowlisted account signs in.
+ */
+const claimStaffAccess = httpsCallable<
+  Record<string, never>,
+  { success: boolean; isAdmin: boolean; isSuperAdmin: boolean }
+>(functions, "claimStaffAccess");
 
 interface AuthContextValue {
   user: User | null;
@@ -46,6 +60,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = useCallback(async (uid: string) => {
     const profile = await getUserProfile(uid);
     setUserProfile(profile);
+
+    // Allowlisted staff whose document has not caught up yet.
+    if (profile && isSuperAdmin(profile) && !profile.isSuperAdmin) {
+      try {
+        await claimStaffAccess({});
+        const refreshed = await getUserProfile(uid);
+        setUserProfile(refreshed);
+        return refreshed;
+      } catch {
+        // The allowlist still grants access; the flag can wait for next time.
+      }
+    }
+
     return profile;
   }, []);
 

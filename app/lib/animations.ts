@@ -2,14 +2,14 @@ import type { Variants, Transition } from "framer-motion";
 
 // Shared spring config for natural feel
 export const smoothSpring: Transition = {
-    type: "spring",
+    type: "spring" as const,
     stiffness: 300,
     damping: 25,
     mass: 1
 };
 
 export const gentleSpring: Transition = {
-    type: "spring",
+    type: "spring" as const,
     stiffness: 250,
     damping: 30,
     mass: 0.8
@@ -87,12 +87,12 @@ export const slideInRight: Variants = {
     visible: {
         x: 0,
         rotateY: 0,
-        transition: { type: "spring", stiffness: 300, damping: 30 },
+        transition: { type: "spring" as const, stiffness: 300, damping: 30 },
     },
     exit: {
         x: "100%",
         rotateY: -10,
-        transition: { type: "spring", stiffness: 300, damping: 30 },
+        transition: { type: "spring" as const, stiffness: 300, damping: 30 },
     },
 };
 
@@ -128,24 +128,24 @@ export const cardHover = {
     y: -4,
     rotateZ: 0.5,
     boxShadow: "0 12px 30px rgba(0, 0, 0, 0.1)",
-    transition: { type: "spring", stiffness: 400, damping: 25 },
+    transition: { type: "spring" as const, stiffness: 400, damping: 25 },
 };
 
 export const cardTap = {
     scale: 0.96,
     rotateZ: -0.5,
-    transition: { type: "spring", stiffness: 500, damping: 20 },
+    transition: { type: "spring" as const, stiffness: 500, damping: 20 },
 };
 
 // Icon subtle hover
 export const iconHover = {
     scale: 1.15,
     rotateZ: 10,
-    transition: { type: "spring", stiffness: 400, damping: 10 }
+    transition: { type: "spring" as const, stiffness: 400, damping: 10 }
 };
 
 export const iconTap = {
     scale: 0.85,
     rotateZ: -10,
-    transition: { type: "spring", stiffness: 400, damping: 10 }
+    transition: { type: "spring" as const, stiffness: 400, damping: 10 }
 };

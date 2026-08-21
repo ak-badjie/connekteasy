@@ -22,8 +22,12 @@ export interface PlainJob {
   createdAtMs: number;
   updatedAtMs?: number;
   sourceName?: string;
-  sourceUrl?: string;
-  applyUrl?: string;
+  /**
+   * The listing is applied to on the source board. The URL itself is never
+   * part of this object: it lives in jobLinks/{id}, which only paid members
+   * can read, so it cannot leak through the server-rendered page either.
+   */
+  external?: boolean;
   deadlineMs?: number;
 }
 
@@ -47,8 +51,7 @@ export function toPlainJob(job: Job): PlainJob {
     createdAtMs: job.createdAt?.toMillis?.() ?? Date.now(),
     updatedAtMs: job.updatedAt?.toMillis?.(),
     sourceName: job.sourceName,
-    sourceUrl: job.sourceUrl,
-    applyUrl: job.applyUrl,
+    external: job.external ?? !!(job.applyUrl || job.sourceUrl),
     deadlineMs: job.deadline?.toMillis?.(),
   };
 }

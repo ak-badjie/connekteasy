@@ -97,7 +97,6 @@ function jobPostingJsonLd(job: PlainJob) {
     hiringOrganization: {
       "@type": "Organization",
       name: job.company,
-      sameAs: job.sourceUrl,
     },
     jobLocation: {
       "@type": "Place",

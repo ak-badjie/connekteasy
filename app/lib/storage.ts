@@ -98,6 +98,19 @@ export async function uploadVaAccreditation(
 }
 
 /**
+ * Upload a CV / résumé. One per member — a new upload replaces the last, so
+ * the profile always points at the current version.
+ */
+export async function uploadCv(
+  uid: string,
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<string> {
+  const ext = (file.name.split(".").pop() || "pdf").toLowerCase();
+  return uploadFile(`users/${uid}/cv/resume.${ext}`, file, onProgress);
+}
+
+/**
  * Upload a portfolio image.
  */
 export async function uploadPortfolioImage(

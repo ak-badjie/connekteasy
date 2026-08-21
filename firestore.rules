@@ -15,8 +15,23 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
+    // Super admins are pinned to an email allowlist, mirrored in
+    // app/lib/admin.ts and functions/src/staff.ts. Keeping it here as well
+    // means the first super admin works before any document says so.
+    function superAdminEmails() {
+      return ['admin@connekt.gm'];
+    }
+
+    function isSuperAdminUser() {
+      return isAuth() && (
+        profile().get('isSuperAdmin', false) == true
+        || (request.auth.token.email != null
+            && request.auth.token.email.lower() in superAdminEmails())
+      );
+    }
+
     function isAdminUser() {
-      return isAuth() && profile().isAdmin == true;
+      return isAuth() && (profile().get('isAdmin', false) == true || isSuperAdminUser());
     }
 
     function hasRole(role) {
@@ -58,6 +73,13 @@ service cloud.firestore {
              == resource.data.get('vaVerificationReviewedBy', '');
     }
 
+    // Admin rights are a super-admin decision; every other writer must leave
+    // both flags exactly as they found them.
+    function staffFlagsUntouched() {
+      return request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false)
+        && request.resource.data.get('isSuperAdmin', false) == resource.data.get('isSuperAdmin', false);
+    }
+
     // Any other self-edit must leave the review verdict exactly as it was.
     function vaVerdictUntouched() {
       return vaStatusOf(request.resource.data) == vaStatusOf(resource.data)
@@ -73,13 +95,15 @@ service cloud.firestore {
       // A fresh account can never start out admin or pre-approved.
       allow create: if isOwner(uid)
         && request.resource.data.get('isAdmin', false) == false
+        && request.resource.data.get('isSuperAdmin', false) == false
         && vaStatusOf(request.resource.data) in ['not_submitted', 'pending'];
       // Users may edit their own profile but never grant themselves admin, and
-      // never approve their own VA accreditation. Admins review on their behalf.
-      allow update: if isAdminUser()
+      // never approve their own VA accreditation. Admins review on their behalf,
+      // but only a super admin may hand out admin rights.
+      allow update: if isSuperAdminUser()
+        || (isAdminUser() && staffFlagsUntouched())
         || (isOwner(uid)
-            && (!request.resource.data.keys().hasAny(['isAdmin'])
-                || request.resource.data.isAdmin == resource.data.get('isAdmin', false))
+            && staffFlagsUntouched()
             && (vaVerdictUntouched() || vaSelfSubmit()));
       allow delete: if isOwner(uid);
     }
@@ -92,6 +116,32 @@ service cloud.firestore {
         && request.resource.data.postedBy == request.auth.uid;
       allow update, delete: if isAuth()
         && (resource.data.postedBy == request.auth.uid || isAdminUser());
+    }
+
+    // ── Where an imported listing is applied to ────────────
+    // This is the "subscribe to apply" rule with teeth: the apply link is a
+    // separate document, so a signed-out visitor — or a signed-in member who
+    // has not paid — cannot read it out of Firestore even with the SDK.
+    // Written only by the daily sync (Admin SDK, which bypasses these rules).
+    match /jobLinks/{jobId} {
+      allow read: if canApply()
+        || isAdminUser()
+        || (isAuth()
+            && get(/databases/$(database)/documents/jobs/$(jobId)).data.postedBy == request.auth.uid);
+      allow write: if isAdminUser();
+    }
+
+    // ── Daily job sync bookkeeping ─────────────────────────
+    match /jobSyncRuns/{runId} {
+      allow read: if isAdminUser();
+      allow write: if false;
+    }
+
+    // ── Outbound notification log (functions only) ─────────
+    match /notifications/{notificationId} {
+      allow read: if isAdminUser()
+        || (isAuth() && resource.data.get('uid', '') == request.auth.uid);
+      allow write: if false;
     }
 
     // ── Job applications ───────────────────────────────

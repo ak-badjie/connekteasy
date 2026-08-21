@@ -1,7 +1,19 @@
 import { onCall, onRequest, HttpsError } from 'firebase-functions/v2/https';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
 import ModemPay from 'modem-pay';
 import * as crypto from 'crypto';
+import { checkStaff, isSuperAdminEmail } from './staff';
+import { runJobSync } from './jobs/sync';
+import { sendNewJobAlerts } from './jobs/alerts';
+import {
+    logNotification,
+    sendWhatsApp,
+    toE164,
+    welcomeWhatsApp,
+    emailConfigured,
+    whatsappConfigured,
+} from './notify';
 
 admin.initializeApp();
 
@@ -350,11 +362,6 @@ export const escrowRelease = onCall(async (request) => {
 //    this says 'approved', so the decision is made server-side where the
 //    reviewer's identity can't be spoofed.
 // ----------------------------------------------------------------------------
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-
 export const reviewVaVerification = onCall(async (request) => {
     if (!request.auth) {
         throw new HttpsError('unauthenticated', 'You must be signed in.');
@@ -378,16 +385,8 @@ export const reviewVaVerification = onCall(async (request) => {
 
     const db = admin.firestore();
 
-    const reviewerSnap = await db.collection('users').doc(reviewerUid).get();
-    const reviewer = reviewerSnap.exists ? (reviewerSnap.data() as any) : null;
-    const reviewerEmail = String(
-        request.auth.token?.email || reviewer?.email || ''
-    ).toLowerCase();
-    const isAdmin =
-        reviewer?.isAdmin === true ||
-        (!!reviewerEmail && ADMIN_EMAILS.includes(reviewerEmail));
-
-    if (!isAdmin) {
+    const staff = await checkStaff(reviewerUid, request.auth.token?.email);
+    if (!staff.isAdmin) {
         throw new HttpsError(
             'permission-denied',
             'Only admins can review freelancer accreditation.'
@@ -619,4 +618,297 @@ export const modemPayWebhook = onRequest(async (req, res) => {
         console.error('Webhook processing error:', error);
         res.status(500).send('Webhook processing failed');
     }
+});
+
+// ----------------------------------------------------------------------------
+// 7. syncJobsDaily — refresh the imported job board once a day.
+//    Re-reads every source, updates the listings we already carry, imports
+//    what is new, drops what has closed, and messages members about openings
+//    that suit them. See functions/src/jobs/sync.ts for the rules it follows.
+// ----------------------------------------------------------------------------
+export const syncJobsDaily = onSchedule(
+    {
+        // 05:00 Banjul, so the board is fresh before the working day starts.
+        schedule: '0 5 * * *',
+        timeZone: 'Africa/Banjul',
+        // 30 minutes is the ceiling for a scheduled function, and comfortably
+        // more than a full pass over every source takes.
+        timeoutSeconds: 1800,
+        memory: '1GiB',
+        retryCount: 1,
+    },
+    async () => {
+        const summary = await runJobSync();
+        const alerts = await sendNewJobAlerts(summary);
+        console.log(
+            'daily job sync complete',
+            JSON.stringify({
+                summary: { ...summary, newJobs: summary.newJobs.length },
+                alerts,
+            })
+        );
+    }
+);
+
+// ----------------------------------------------------------------------------
+// 8. syncJobsNow — the same run, on demand, from the admin console.
+// ----------------------------------------------------------------------------
+export const syncJobsNow = onCall(
+    { timeoutSeconds: 1800, memory: '1GiB' },
+    async (request) => {
+        if (!request.auth) {
+            throw new HttpsError('unauthenticated', 'You must be signed in.');
+        }
+        const staff = await checkStaff(request.auth.uid, request.auth.token?.email);
+        if (!staff.isAdmin) {
+            throw new HttpsError('permission-denied', 'Only admins can run the job sync.');
+        }
+
+        const summary = await runJobSync();
+        const notify = request.data?.notify !== false;
+        const alerts = notify ? await sendNewJobAlerts(summary) : null;
+
+        return {
+            success: true,
+            summary: { ...summary, newJobs: summary.newJobs.length },
+            alerts,
+        };
+    }
+);
+
+// ----------------------------------------------------------------------------
+// 9. getJobApplyLink — hand over the original advert, but only to a member
+//    whose subscription is live. firestore.rules enforces the same thing on
+//    the jobLinks collection; this exists so the client has one call that
+//    either returns a link or explains why it cannot.
+// ----------------------------------------------------------------------------
+export const getJobApplyLink = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'Sign in to apply for this job.');
+    }
+    const uid = request.auth.uid;
+    const jobId = String(request.data?.jobId || '');
+    if (!jobId) throw new HttpsError('invalid-argument', 'A job id is required.');
+
+    const db = admin.firestore();
+    const [jobSnap, linkSnap, subSnap] = await Promise.all([
+        db.collection('jobs').doc(jobId).get(),
+        db.collection('jobLinks').doc(jobId).get(),
+        db.collection('subscriptions').doc(uid).get(),
+    ]);
+
+    if (!jobSnap.exists) {
+        throw new HttpsError('not-found', 'That listing is no longer on the board.');
+    }
+    if (!linkSnap.exists) {
+        throw new HttpsError('not-found', 'This listing is applied to on CONNEKT, not elsewhere.');
+    }
+
+    const job = jobSnap.data() as any;
+    const staff = await checkStaff(uid, request.auth.token?.email);
+    const isOwner = job.postedBy === uid;
+
+    const sub = subSnap.exists ? (subSnap.data() as any) : null;
+    const periodEnd = sub?.currentPeriodEnd?.toMillis?.() ?? 0;
+    const membershipActive = !!sub && sub.status !== 'expired' && periodEnd > Date.now();
+
+    if (!membershipActive && !staff.isAdmin && !isOwner) {
+        throw new HttpsError(
+            'permission-denied',
+            'An active membership is required to open the application page.'
+        );
+    }
+
+    const link = linkSnap.data() as any;
+    return {
+        applyUrl: link.applyUrl || link.sourceUrl || '',
+        sourceUrl: link.sourceUrl || '',
+        sourceName: link.sourceName || job.sourceName || '',
+    };
+});
+
+// ----------------------------------------------------------------------------
+// 10. saveNotificationPrefs — record a member's WhatsApp number and what they
+//     agreed to hear about. The number is normalised to E.164 here so every
+//     later send is guaranteed a valid destination, and the first opt-in gets
+//     a welcome message so the member can see the channel works.
+// ----------------------------------------------------------------------------
+export const saveNotificationPrefs = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    const uid = request.auth.uid;
+    const data = request.data || {};
+
+    const rawNumber = String(data.whatsappNumber || '').trim();
+    const whatsappOptIn = data.whatsappOptIn === true;
+    const emailOptIn = data.emailOptIn !== false;
+
+    let number = '';
+    if (whatsappOptIn || rawNumber) {
+        const normalised = toE164(rawNumber);
+        if (!normalised) {
+            throw new HttpsError(
+                'invalid-argument',
+                'That does not look like a WhatsApp number. Include the country code, e.g. +220 700 0000.'
+            );
+        }
+        number = normalised;
+    }
+    if (whatsappOptIn && !number) {
+        throw new HttpsError('invalid-argument', 'Please enter the WhatsApp number to use.');
+    }
+
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(uid);
+    const before = await userRef.get();
+    const prior = before.exists ? (before.data() as any) : {};
+
+    await userRef.set(
+        {
+            whatsappNumber: number,
+            whatsappOptIn,
+            emailOptIn,
+            ...(whatsappOptIn && !prior.whatsappOptIn
+                ? { whatsappOptInAt: admin.firestore.FieldValue.serverTimestamp() }
+                : {}),
+            notificationsPromptedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+    );
+
+    // Say hello once, the first time a number is switched on.
+    let welcomed = false;
+    const numberChanged = !!number && number !== prior.whatsappNumber;
+    if (whatsappOptIn && (numberChanged || !prior.whatsappOptIn)) {
+        const firstName = prior.firstName || String(prior.displayName || '').split(' ')[0] || '';
+        const res = await sendWhatsApp(number, welcomeWhatsApp(firstName));
+        await logNotification({
+            uid,
+            channel: 'whatsapp',
+            kind: 'welcome',
+            to: number,
+            result: res,
+        });
+        welcomed = res.ok;
+    }
+
+    return { success: true, whatsappNumber: number, welcomed };
+});
+
+// ----------------------------------------------------------------------------
+// 11. dismissNotificationPrompt — the member closed the WhatsApp prompt
+//     without giving a number. Record that so we stop asking on every visit.
+// ----------------------------------------------------------------------------
+export const dismissNotificationPrompt = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    await admin
+        .firestore()
+        .collection('users')
+        .doc(request.auth.uid)
+        .set(
+            {
+                notificationsPromptedAt: admin.firestore.FieldValue.serverTimestamp(),
+                whatsappOptIn: false,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+        );
+    return { success: true };
+});
+
+// ----------------------------------------------------------------------------
+// 12. setAdminRole — a super admin grants or revokes admin rights.
+//     Super admin itself is an email allowlist (functions/src/staff.ts) and is
+//     deliberately not grantable through the API.
+// ----------------------------------------------------------------------------
+export const setAdminRole = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    const staff = await checkStaff(request.auth.uid, request.auth.token?.email);
+    if (!staff.isSuperAdmin) {
+        throw new HttpsError('permission-denied', 'Only a super admin can change admin rights.');
+    }
+
+    const uid = String(request.data?.uid || '');
+    const value = request.data?.isAdmin === true;
+    if (!uid) throw new HttpsError('invalid-argument', 'A user id is required.');
+
+    const db = admin.firestore();
+    const targetRef = db.collection('users').doc(uid);
+    const target = await targetRef.get();
+    if (!target.exists) throw new HttpsError('not-found', 'That user no longer exists.');
+
+    // A super admin's own access is pinned to their email; the flag on the
+    // document is only a cache of that, and must not be turned off here.
+    if (isSuperAdminEmail((target.data() as any)?.email)) {
+        throw new HttpsError(
+            'failed-precondition',
+            'That account is a super admin. Change the allowlist to alter its access.'
+        );
+    }
+
+    await targetRef.update({
+        isAdmin: value,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    console.log(`admin ${value ? 'granted to' : 'revoked from'} ${uid} by ${request.auth.uid}`);
+    return { success: true };
+});
+
+// ----------------------------------------------------------------------------
+// 13. claimStaffAccess — stamp the super-admin flags onto the caller's own
+//     profile when their email is on the allowlist.
+//     The allowlist alone already grants access (firestore.rules checks the
+//     token), but the admin console lists staff from the documents, so the
+//     flag needs to exist there too. Calling this is safe for anyone: it only
+//     ever writes what the allowlist already says.
+// ----------------------------------------------------------------------------
+export const claimStaffAccess = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    const uid = request.auth.uid;
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(uid);
+    const snap = await userRef.get();
+    if (!snap.exists) return { success: false, isAdmin: false, isSuperAdmin: false };
+
+    const profile = snap.data() as any;
+    const email = String(request.auth.token?.email || profile.email || '').toLowerCase();
+    const superAdmin = isSuperAdminEmail(email);
+
+    if (superAdmin && !(profile.isSuperAdmin === true && profile.isAdmin === true)) {
+        await userRef.update({
+            isAdmin: true,
+            isSuperAdmin: true,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        console.log(`super admin flags stamped on ${uid} (${email})`);
+    }
+
+    return {
+        success: true,
+        isAdmin: superAdmin || profile.isAdmin === true,
+        isSuperAdmin: superAdmin,
+    };
+});
+
+// ----------------------------------------------------------------------------
+// 14. notificationChannels — what the app can actually send right now, so the
+//     admin console can show whether WhatsApp and email are wired up.
+// ----------------------------------------------------------------------------
+export const notificationChannels = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'You must be signed in.');
+    }
+    const staff = await checkStaff(request.auth.uid, request.auth.token?.email);
+    if (!staff.isAdmin) {
+        throw new HttpsError('permission-denied', 'Admins only.');
+    }
+    return { whatsapp: whatsappConfigured(), email: emailConfigured() };
 });

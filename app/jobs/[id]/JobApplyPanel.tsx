@@ -13,6 +13,7 @@ import {
   MEMBERSHIP_PERIOD_LABEL,
 } from "@/app/lib/subscriptions";
 import SaveJobButton from "@/app/components/SaveJobButton";
+import { getJobApplyLink, ApplyLinkError } from "@/app/lib/jobLinks";
 import type { PlainJob } from "@/app/lib/jobUtils";
 import type { InternshipSubscription } from "@/app/lib/types";
 import {
@@ -29,8 +30,10 @@ import {
  *
  * Listings we imported from another board are applied to on that board — but
  * only after the candidate has signed in and their membership is active. The
- * source link is never shown before that point; pressing Apply records the
- * application on CONNEKT and then hands them over to the original posting.
+ * source link never reaches the browser before that point: it is not in the
+ * job document, not in the page source, and not readable from Firestore
+ * without a live subscription. Pressing Apply asks the server for it, records
+ * the application on CONNEKT, and then hands the candidate over.
  */
 export default function JobApplyPanel({
   job,
@@ -51,10 +54,11 @@ export default function JobApplyPanel({
   const [applyError, setApplyError] = useState<string | null>(null);
   const [successOpen, setSuccessOpen] = useState(false);
   const [handoffOpen, setHandoffOpen] = useState(false);
+  // Only ever populated after the server has checked the membership.
+  const [externalUrl, setExternalUrl] = useState("");
 
   const hasMembership = isSubscriptionActive(sub);
-  const externalUrl = (job.applyUrl || job.sourceUrl || "").trim();
-  const isExternal = /^https?:\/\//i.test(externalUrl);
+  const isExternal = !!job.external;
   const path = variant === "internship" ? `/internships/${job.id}` : `/jobs/${job.id}`;
   const noun = variant === "internship" ? "internship" : "job";
 
@@ -74,10 +78,17 @@ export default function JobApplyPanel({
     router.push(`/auth/signin?redirect=${encodeURIComponent(path)}`);
   };
 
-  /** Imported listing: log the application on CONNEKT, then hand over. */
+  /**
+   * Imported listing: ask the server for the destination (it re-checks the
+   * membership), log the application on CONNEKT, then hand over.
+   */
   const handleExternalApply = async () => {
     setApplyLoading(true);
+    setApplyError(null);
     try {
+      const link = await getJobApplyLink(job.id);
+      setExternalUrl(link.applyUrl);
+
       if (user && userProfile && !hasApplied) {
         await createJobApplication({
           jobId: job.id,
@@ -95,10 +106,37 @@ export default function JobApplyPanel({
         }).catch(() => null);
         setHasApplied(true);
       }
+
+      window.open(link.applyUrl, "_blank", "noopener,noreferrer");
+      setHandoffOpen(true);
+    } catch (err) {
+      setApplyError(
+        err instanceof ApplyLinkError
+          ? err.message
+          : "Could not open the application page. Please try again."
+      );
     } finally {
       setApplyLoading(false);
-      window.open(externalUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  /** Re-open the original posting for someone who already applied. */
+  const handleReopen = async () => {
+    setApplyLoading(true);
+    setApplyError(null);
+    try {
+      const link = await getJobApplyLink(job.id);
+      setExternalUrl(link.applyUrl);
+      window.open(link.applyUrl, "_blank", "noopener,noreferrer");
       setHandoffOpen(true);
+    } catch (err) {
+      setApplyError(
+        err instanceof ApplyLinkError
+          ? err.message
+          : "Could not open the application page. Please try again."
+      );
+    } finally {
+      setApplyLoading(false);
     }
   };
 
@@ -169,15 +207,14 @@ export default function JobApplyPanel({
       return (
         <div className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl">
           <CheckCircle size={16} /> You&apos;ve already applied
-          {isExternal && (
-            <a
-              href={externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-emerald-800"
+          {isExternal && hasMembership && (
+            <button
+              onClick={handleReopen}
+              disabled={applyLoading}
+              className="underline underline-offset-2 hover:text-emerald-800 disabled:opacity-60"
             >
-              Open the posting again
-            </a>
+              {applyLoading ? "Opening…" : "Open the posting again"}
+            </button>
           )}
         </div>
       );
@@ -250,6 +287,11 @@ export default function JobApplyPanel({
         {action()}
         <SaveJobButton jobId={job.id} redirectPath={path} />
       </div>
+      {applyError && !applyOpen && (
+        <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg p-3">
+          {applyError}
+        </p>
+      )}
 
       {/* Apply modal — CONNEKT-hosted listings only */}
       <AnimatePresence>
@@ -386,14 +428,16 @@ export default function JobApplyPanel({
                 We opened the original posting in a new tab and saved this {noun} to your
                 applications. If the tab didn&apos;t open, use the button below.
               </p>
-              <a
-                href={externalUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl transition-colors mb-2"
-              >
-                Open the posting
-              </a>
+              {externalUrl && (
+                <a
+                  href={externalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 rounded-xl transition-colors mb-2"
+                >
+                  Open the posting
+                </a>
+              )}
               <button
                 onClick={() => setHandoffOpen(false)}
                 className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
